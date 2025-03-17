@@ -1,0 +1,86 @@
+.login-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f2f5;
+    padding: 20px; /* Add padding for smaller screens */
+}
+
+.login-wrapper {
+    display: flex;
+    width: 100%;
+    max-width: 900px; /* Limit max width */
+    background: white;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Welcome section */
+.welcome-section {
+    flex: 1;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 40px;
+}
+
+.welcome-content {
+    text-align: center;
+}
+
+.logo {
+    width: 120px;
+    margin-bottom: 15px;
+}
+
+/* Login section */
+.login-section {
+    flex: 1;
+    padding: 40px;
+}
+
+/* Card styling */
+.login-card {
+    width: 100%;
+    text-align: center;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) { /* Tablet */
+    .login-wrapper {
+        flex-direction: column; /* Stack sections vertically */
+        max-width: 600px;
+    }
+
+    .welcome-section {
+        padding: 20px;
+    }
+
+    .login-section {
+        padding: 30px;
+    }
+}
+
+@media (max-width: 768px) { /* Mobile */
+    .login-page-container {
+        height: auto;
+        padding: 20px;
+    }
+
+    .login-wrapper {
+        flex-direction: column;
+        max-width: 400px;
+    }
+
+    .welcome-section {
+        display: none; /* Hide welcome section on mobile */
+    }
+
+    .login-section {
+        padding: 20px;
+    }
+}
