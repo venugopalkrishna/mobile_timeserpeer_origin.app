@@ -25,7 +25,6 @@ import {
   FolderAddOutlined,
   RedoOutlined,
 } from "@ant-design/icons";
-import EstimationReport from "../Utiles/DownloadEstimationPdf";
 import logo from "../../Components/Assets/stones-image.png";
 import dayjs from "dayjs";
 import EstimationDialog from "./EstimationDialog";
@@ -2043,19 +2042,6 @@ const Estimation = () => {
               Print
             </Button>
             <Button type="default">Cancel</Button>
-            {/* <EstimationReport
-            columns={columns}
-            data={tableData}
-            StoneColumns={StoneColumns}
-            stonesData={stonesData}
-            estimationCount={estimationCount}
-            selectedParty={selectedParty}
-            totalNetWeight={totalNetWeight}
-            totalFineGold={totalFineGold}
-            totalGrossWeight={totalGrossWeight}
-            totalStoneWeight={totalStoneWeight}
-            totalPieces={totalPieces}
-          /> */}
           </Col>
         </Row>
         <EstimationDialog
