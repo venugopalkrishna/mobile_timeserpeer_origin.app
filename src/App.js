@@ -7,6 +7,7 @@ import Profile from "../src/Components/Pages/Profile";
 import Estimation from "./Components/POSReports/Estimation";
 import EstimationDetails from "./Components/POSReports/EstimatiomRegister/EstimationDetails";
 import EstimationSummary from "./Components/POSReports/EstimatiomRegister/EstimationSummary";
+import LoginPage from "./Components/Masters/Logins/LoginPage";
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
     localStorage.getItem("isLoggedIn") === "true"
