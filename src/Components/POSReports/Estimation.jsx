@@ -1,33 +1,14 @@
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  message,
-  Row,
-  Select,
-  Spin,
-  Table,
-  Tooltip,
-} from "antd";
-import moment from "moment";
-import { motion } from "framer-motion";
-import TableHeaderStyles from "../Pages/TableHeaderStyles";
+import { DeleteOutlined, FilterOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Form, Input, message, Select } from "antd";
+import axios from "axios";
+import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import { CREATE_jwel } from "../../Config/Config";
-import { use } from "react";
-import axios from "axios";
-import {
-  DeleteOutlined,
-  FolderAddOutlined,
-  RedoOutlined,
-} from "@ant-design/icons";
-import logo from "../../Components/Assets/stones-image.png";
-import dayjs from "dayjs";
+import styles from "./Estimation.module.css";
 import EstimationDialog from "./EstimationDialog";
+import EstimationDrawer from "./EstimationDrawer";
+import EstimationFields from "./EstimationFields";
+import EstimationStonesDrawer from "./EstimationStonesDrawer";
 
 const { Option } = Select;
 const Estimation = () => {
@@ -46,25 +27,28 @@ const Estimation = () => {
   const [estimationCount, setEstimationCount] = useState({});
   const [partyNames, setPartyNames] = useState([]);
   const [selectedParty, setSelectedParty] = useState(null);
-  const [touchValue, setTouchValue] = useState(0);
-  const [wastageValue, setWastageValue] = useState(0);
-  const [tagNoValue, setTagNoValue] = useState(0);
-  const [totalPieces, setTotalPieces] = useState(0);
-  const [totalGrossWeight, setTotalGrossWeight] = useState(0);
-  const [totalStoneWeight, setTotalStoneWeight] = useState(0);
-  const [totalNetWeight, setTotalNetWeight] = useState(0);
-  const [totalFineGold, setTotalFineGold] = useState(0);
+  const [touchValue, setTouchValue] = useState();
+  const [wastageValue, setWastageValue] = useState();
+  const [tagNoValue, setTagNoValue] = useState();
+  const [totalPieces, setTotalPieces] = useState();
+  const [totalGrossWeight, setTotalGrossWeight] = useState();
+  const [totalStoneWeight, setTotalStoneWeight] = useState();
+  const [totalNetWeight, setTotalNetWeight] = useState();
+  const [totalFineGold, setTotalFineGold] = useState();
   const [isRotating, setIsRotating] = useState(false);
   const [stoneRate, setStoneRate] = useState({});
-  const [makingValue, setMakingValue] = useState(0);
-  const [perGramValue, setPerGramValue] = useState(0);
-  const [rodiumChargeValue, setRodiumChargeValue] = useState(0);
+  const [makingValue, setMakingValue] = useState();
+  const [perGramValue, setPerGramValue] = useState();
+  const [rodiumChargeValue, setRodiumChargeValue] = useState();
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [mastData, setMastData] = useState();
   const [itemData, setItemData] = useState();
   const [estimationData, setEstimationData] = useState();
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [stonesDrawerOpen, setStonesDrawerOpen] = useState(false);
   console.log(stoneMainData, "stoneMainData");
   console.log(tableData, "tableData");
   console.log(stoneRate, "stoneRate");
@@ -106,10 +90,15 @@ const Estimation = () => {
 
   // Party Names API
   const partyNamesAPI = async () => {
-    setLoading(true);
+    // setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder?tableName=Dealer_Master&where=Custtype%3D%27CUSTOMER%27&order=Dealername`
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder?tableName=Dealer_Master&where=Custtype%3D%27CUSTOMER%27&order=Dealername`,
+        {
+          headers: {
+            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+          },
+        }
       );
 
       const data = response.data;
@@ -123,9 +112,10 @@ const Estimation = () => {
       }
     } catch (error) {
       console.error("Error fetching party names:", error);
-    } finally {
-      setLoading(false);
     }
+    // finally {
+    //   setLoading(false);
+    // }
   };
 
   // Stones API
@@ -144,6 +134,9 @@ const Estimation = () => {
       );
 
       let newData = response.data;
+      console.log(newData, "newData");
+
+      
       if (!Array.isArray(newData) || newData.length === 0) {
         message.warning("Tag Not existed");
         return;
@@ -185,7 +178,7 @@ const Estimation = () => {
           return mergedData.map((item) => ({
             TAGNO: item.TAGNO,
             ACTGRAMS: Object.entries(item.MAINTYPES)
-              .map(([key, value]) => `${key}(${value})`)
+              .map(([key, value]) => `${key}(${value ?? 0})`)
               .join(", "),
           }));
         });
@@ -381,6 +374,7 @@ const Estimation = () => {
     const rate = stoneRate[index] || 0; // Get the rate for the row or default to 0
     return total + stone.ACTGRAMS * rate; // Add the multiplied value to total
   }, 0);
+
   const totalCash =
     (Number(totalStoneCost) || 0) +
     (Number(perGramValue) || 0) +
@@ -800,7 +794,6 @@ const Estimation = () => {
   };
 
   const estimationDeleteData = async () => {
-    
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_DATA&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
@@ -867,301 +860,13 @@ const Estimation = () => {
     setSelectEstimationNo(null);
   };
 
-  const columns = [
-    {
-      title: "SNo",
-      dataIndex: "SNo",
-      key: "SNo",
-      className: "blue-background-column",
-      render: (text, record, index) => index + 1,
-      width: 50,
-    },
-    {
-      title: "Tag No",
-      dataIndex: "TAGNO",
-      key: "TAGNO",
-      align: "left",
+  const handleOk = () => {
+    setFilterOpen(false);
+  };
 
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.TAGNO}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Item Name",
-      dataIndex: "PRODNAME",
-      key: "PRODNAME",
-      align: "center",
-      align: "left",
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.PRODNAME}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Purity",
-      dataIndex: "PREFIX",
-      key: "PREFIX",
-      align: "right",
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.PREFIX}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Pieces",
-      dataIndex: "PIECES",
-      key: "PIECES",
-      width: 100,
-      align: "right",
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.PIECES}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Gross.Wt",
-      dataIndex: "GWT",
-      key: "GWT",
-      align: "right",
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.GWT}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Less.Wt",
-      dataIndex: "ACTSWT",
-      key: "ACTSWT",
-      align: "right",
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.STONEWT}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Net.Wt",
-      dataIndex: "NETWT",
-      key: "NETWT",
-      align: "right",
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.NETWT}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Touch",
-      dataIndex: "TOUCH",
-      key: "TOUCH",
-      align: "right",
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.TOUCH}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Fine Gold",
-      dataIndex: "FINALGOLD",
-      key: "FINALGOLD",
-      align: "right",
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.FINALGOLD}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Act Per",
-      dataIndex: "ACTPER",
-      key: "ACTPER",
-      align: "right",
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.ACTPER}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Stones",
-      dataIndex: "ACTGRAMS",
-      key: "ACTGRAMS",
-      align: "center",
-      width: 80,
-      render: (text, record) => {
-        const actGrams =
-          stoneMainData.find((item) => item.TAGNO === record.TAGNO)?.ACTGRAMS ||
-          "";
-
-        const removeUndefinedWrapper = (str) => {
-          let prevStr;
-          do {
-            prevStr = str;
-            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-          } while (prevStr !== str);
-          return str;
-        };
-
-        const cleanedActGrams = removeUndefinedWrapper(actGrams);
-
-        return (
-          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            {/* <span style={{ fontSize: "12px" }}>{cleanedActGrams}</span> */}
-            <Tooltip title={cleanedActGrams} style={{ fontSize: "12px" }}>
-              <div
-                style={{
-                  textAlign: "center",
-                  // padding: "5px 0",
-                  backgroundColor: "#f0f0f0",
-                }}
-              >
-                <img
-                  src={logo}
-                  alt=""
-                  style={{
-                    width: "30px",
-                    height: "20px",
-                    align: "center",
-                    cursor: "pointer",
-                  }}
-                />
-              </div>
-            </Tooltip>
-          </div>
-        );
-      },
-    },
-    // {
-    //   title: "Homekey",
-    //   dataIndex: "Homekey",
-    //   key: "Homekey",
-    //   align: "right",
-    //   render: (text, record) => {
-    //     return (
-    //       <>
-    //         <div>0</div>
-    //       </>
-    //     );
-    //   },
-    // },
-    {
-      title: "Actions",
-      dataIndex: "Actions",
-      key: "Actions",
-      align: "center",
-      render: (text, record) => (
-        <DeleteOutlined
-          style={{ color: "red", cursor: "pointer" }}
-          onClick={() => handleDelete(record.TAGNO)}
-        />
-      ),
-    },
-  ];
-
-  const StoneColumns = [
-    {
-      title: "SNo",
-      dataIndex: "SNo",
-      key: "sno",
-      className: "blue-background-column",
-      render: (text, record, index) => index + 1,
-      width: 50,
-    },
-    {
-      title: "Item Name",
-      dataIndex: "MAINTYPE",
-      key: "MAINTYPE",
-      width: 100,
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.MAINTYPE}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Pcs",
-      dataIndex: "PCS",
-      key: "PCS",
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.PCS}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Grams",
-      dataIndex: "ACTGRAMS",
-      key: "ACTGRAMS",
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.ACTGRAMS?.toFixed(3)}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Rate",
-      dataIndex: "rate",
-      key: "rate",
-      render: (text, record, index) => (
-        <Input
-          style={{ width: "100%" }}
-          placeholder="Enter Rate"
-          value={stoneRate[index] || ""}
-          onChange={(e) => {
-            const value = e.target.value.replace(/\D/g, "");
-            if (value.length <= 8) {
-              setStoneRate((prevRates) => ({
-                ...prevRates,
-                [index]: value,
-              }));
-            }
-          }}
-        />
-      ),
-    },
-    {
-      title: "Amount",
-      dataIndex: "Amount",
-      key: "Amount",
-      render: (text, record, index) => {
-        const rate = parseFloat(stoneRate[index]) || 0; // Get rate for this row
-        return <div>{(rate * record.ACTGRAMS).toFixed(2)}</div>; // Calculate Amount
-      },
-    },
-  ];
+  const handleCancel = () => {
+    setFilterOpen(false);
+  };
 
   const handlePrint = () => {
     const printWindow = window.open("", "", "height=700,width=900");
@@ -1514,9 +1219,9 @@ const Estimation = () => {
                   <tr class="sub-final"><td class="stone-name"><strong />Fine Gold</td><td class="sub-right"><strong /> ${(
                     totalFineGold * 0.94
                   ).toFixed(3)}</td></tr>
-                  <tr><td class="stone-name">Making ${makingValue} /g</td><td class="sub-right"><strong />${perGramValue.toFixed(
-      3
-    )}</td></tr>
+                  <tr><td class="stone-name">Making ${makingValue} /g</td><td class="sub-right"><strong />${Number(
+      perGramValue
+    ).toFixed(3)}</td></tr>
                   <tr><td class="stone-name">Rodium Charges</td><td class="sub-right"><strong />${rodiumChargeValue}</td></tr>
                   <tr><td class="stone-name">Stone Cost</td><td class="sub-right"> <strong />${totalStoneCost?.toFixed(
                     2
@@ -1535,526 +1240,301 @@ const Estimation = () => {
   };
 
   return (
-    <Spin spinning={loading} tip="Loading...">
-      <div style={{ padding: "5px", backgroundColor: "#f4f6f9" }}>
-        <Row gutter={[16, 16]} align="middle" wrap>
-          <Col
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              flexWrap: "wrap",
+    <div>
+      <div className={styles.estimationContainer}>
+        <span style={{ fontWeight: "bold" }}>
+          Estimation:{" "}
+          <strong style={{ fontWeight: "bold", fontSize: "14px" }}>
+            {selectEstimationNo
+              ? selectEstimationNo?.ESTIMATIONNO
+              : estimationCount + 1}
+          </strong>
+        </span>
+
+        <div className={styles.dateContainer}>
+          <string>
+            <span>Date:</span>
+          </string>
+          <DatePicker
+            style={{ width: "70%" }}
+            value={selectedDate ? dayjs(selectedDate) : null}
+            onChange={(date) => setSelectedDate(date)}
+            format="DD-MMM-YYYY"
+          />
+        </div>
+
+        <div className="filterIcon">
+          <FilterOutlined
+            style={{ color: "green", marginLeft: "-20px", fontSize: "20px" }}
+            onClick={() => {
+              setFilterOpen(true);
             }}
-          >
-            {/* Estimation Card */}
-            <Card
-              style={{
-                backgroundColor: "darkblue",
-                color: "#fff",
-                flex: "0 1 150px",
-                padding: "10px",
-                textAlign: "center",
-              }}
-            >
-              {/* Wrapper for Two Columns */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                {/* Left Side: Estimation & Count Centered */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "14px", fontWeight: "500" }}>
-                    Estimation
-                  </div>
-                  <div style={{ fontSize: "20px", fontWeight: "bold" }}>
-                    {selectEstimationNo
-                      ? selectEstimationNo?.ESTIMATIONNO
-                      : estimationCount + 1}
-                  </div>
-                </div>
-
-                {/* Right Side: FolderAddOutlined Centered */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    color: "black",
-                    backgroundColor: "green",
-                    borderRadius: "50%", // Ensures a perfect circle
-                    width: "30px", // Adjusted for better visibility
-                    height: "30px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => {
-                    setOpenDialog(true);
-                  }}
-                >
-                  <FolderAddOutlined style={{ fontSize: "16px" }} />
-                </div>
-              </div>
-            </Card>
-
-            {/* Party Name Select */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                flex: "1 1 200px",
-              }}
-            >
-              <div>Party Name:</div>
-              <Select
-                showSearch
-                placeholder="Select Party Name"
-                autoFocus={true}
-                style={{ width: "60%" }}
-                ref={partyRef}
-                value={selectedParty || null}
-                onChange={(value) => {
-                  setSelectedParty(value);
-                  handlePartyChange();
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const filteredOptions = partyNames.filter((party) =>
-                      party.Dealername.toLowerCase().includes(
-                        e.target.value.toLowerCase()
-                      )
-                    );
-                    if (filteredOptions.length > 0) {
-                      setSelectedParty(filteredOptions[0].Dealername);
-                    }
-                  }
-                }}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-              >
-                {partyNames.map((party, index) => (
-                  <Option key={index} value={party.Dealername}>
-                    {party.Dealername}
-                  </Option>
-                ))}
-              </Select>
-            </div>
-
-            {/* Touch & Wast Inputs */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                flex: "1 1 200px",
-              }}
-            >
-              <div>Touch:</div>
-              <Input
-                placeholder="Enter Touch"
-                ref={touchRef}
-                style={{ width: "60px", height: 30 }}
-                onKeyDown={(e) => handleKeyDown(e, wastRef)}
-                value={touchValue}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  if (value.length <= 2) {
-                    setTouchValue(value);
-                  }
-                }}
-              />
-              <div>Wast:</div>
-              <Input
-                placeholder="Enter Wast"
-                ref={wastRef}
-                style={{ width: "60px", height: 30 }}
-                onKeyDown={(e) => handleKeyDown(e, tagNoRef)}
-                value={wastageValue}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  if (value.length <= 2) {
-                    setWastageValue(value);
-                  }
-                }}
-              />
-            </div>
-
-            {/* Tag No Input */}
-            <Card
-              style={{
-                textAlign: "center",
-                backgroundColor: "#52bd91",
-                color: "#fff",
-                flex: "1 1 150px",
-              }}
-            >
-              <div style={{ fontSize: "18px", fontWeight: "500" }}>Tag No</div>
-              <Input
-                placeholder="Enter Tag No"
-                ref={tagNoRef}
-                style={{
-                  width: "100%",
-                  height: 30,
-                  fontSize: "20px",
-                  textAlign: "center",
-                  fontWeight: "bold",
-                }}
-                onKeyDown={handleTagNoKeyDown}
-                disabled={
-                  selectedParty && touchValue && wastageValue ? false : true
-                }
-                value={tagNoValue}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  if (value.length <= 8) {
-                    setTagNoValue(value);
-                  }
-                }}
-              />
-            </Card>
-
-            {/* Submit Button */}
+          />
+        </div>
+        {selectedParty ? (
+          <div className={styles.partyNameContainer}>
+            <span style={{ fontWeight: "bold" }}>
+              Party Name:{" "}
+              <strong style={{ fontSize: "16px" }}>{selectedParty}</strong>
+            </span>
+          </div>
+        ) : (
+          ""
+        )}
+        <div className={styles.detailsContainer}>
+          {touchValue ? (
+            <span style={{ fontWeight: "bold" }}>
+              Touch: <strong style={{ fontSize: "16px" }}>{touchValue}</strong>
+            </span>
+          ) : (
+            ""
+          )}
+          {wastageValue ? (
+            <>
+              |{" "}
+              <span style={{ fontWeight: "bold" }}>
+                Wastage:{" "}
+                <strong style={{ fontSize: "16px" }}>{wastageValue}</strong>
+              </span>
+            </>
+          ) : (
+            ""
+          )}
+          {tableData.length > 0 ? (
             <Button
               type="primary"
               htmlType="submit"
-              style={{
-                backgroundColor: "#0C1154",
-                borderColor: "#0C1154",
-                flex: "0 1 80px",
-              }}
-              ref={submitRef}
+              className={styles.filesButton}
               onClick={() => {
+                setDrawerOpen(true);
+              }}
+            >
+              Total
+            </Button>
+          ) : (
+            ""
+          )}
+          {stonesData.length > 0 ? (
+            <Button
+              type="primary"
+              htmlType="submit"
+              className={styles.stoneButton}
+              onClick={() => {
+                setStonesDrawerOpen(true);
+              }}
+            >
+              Stone
+            </Button>
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
+      <div className={styles.estimationTagContainer}>
+        <div className={styles.tagNoSection}>
+          <span className={styles.tagLabel}>Tag No:</span>
+          <Input
+            // placeholder="Enter Tag No"
+            ref={tagNoRef}
+            className={styles.tagInput}
+            onKeyDown={handleTagNoKeyDown}
+            disabled={
+              selectedParty && touchValue && wastageValue ? false : true
+            }
+            value={tagNoValue}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "");
+              if (value.length <= 8) {
+                setTagNoValue(value);
+              }
+            }}
+          />
+        </div>
+
+        <div className={styles.buttonSection}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            className={styles.submitButton}
+            ref={submitRef}
+            onClick={() => {
+              if (!tagNoValue) {
+                message.warning("Enter Tag No");
+              } else {
                 stonesAPI();
                 mainAPI();
                 setTagNoValue("");
-              }}
-            >
-              Submit
-            </Button>
-
-            {/* Date Picker */}
-            <Card
-              style={{
-                textAlign: "center",
-                backgroundColor: "darkblue",
-                color: "#fff",
-                flex: "0 1 150px",
-              }}
-            >
-              <div style={{ fontSize: "14px", fontWeight: "500" }}>Date</div>
-              <DatePicker
-                style={{ width: "100%" }}
-                value={selectedDate ? dayjs(selectedDate) : null}
-                onChange={(date) => {
-                  setSelectedDate(date);
-                  console.log(date, "date");
-                }}
-                format="DD-MMM-YYYY" // Format: 11-Mar-2025
-              />
-            </Card>
-            {/* <motion.div
-          animate={isRotating ? { rotate: 360 } : {}}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
-          onClick={handleReset}
-          style={{ display: "inline-block", cursor: "pointer" }}
-        > */}
-            <Button type="primary" danger onClick={handleReset}>
-              Reset
-            </Button>
-            {/* </motion.div> */}
-          </Col>
-        </Row>
-
-        <Row gutter={[16, 16]} style={{ marginTop: "5px" }}>
-          <Col span={24}>
-            <div
-              style={{
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                backgroundColor: "#fff",
-                borderRadius: "8px",
-              }}
-            >
-              <TableHeaderStyles>
-                <Table
-                  columns={columns}
-                  dataSource={tableData}
-                  pagination={false}
-                  size="small"
-                  rowClassName={(record, index) =>
-                    index % 2 === 0 ? "table-row-light" : "table-row-dark"
-                  }
-                  scroll={{ y: 190 }} // Internal scroll inside table
-                />
-              </TableHeaderStyles>
-            </div>
-          </Col>
-        </Row>
-        <Row
-          gutter={16}
-          style={{
-            marginTop: "5px",
-            background: "#f8f9fa",
-            padding: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <Col span={8}>
-            <Table
-              columns={StoneColumns}
-              dataSource={stonesData}
-              pagination={false}
-              size="small"
-            />
-          </Col>
-
-          <Col span={8}>
-            <Card
-              style={{
-                background: "#d4edda",
-                borderRadius: "8px",
-                padding: "10px",
-                fontWeight: "bold",
-                width: "100%",
-              }}
-            >
-              {[
-                { label: "Total Pieces", value: totalPieces },
-                { label: "Gross Weight", value: totalGrossWeight.toFixed(3) },
-                { label: "Stone Weight", value: totalStoneWeight.toFixed(3) },
-                { label: "Net Weight", value: totalNetWeight.toFixed(3) },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: 5,
-                  }}
-                >
-                  <label style={{ textAlign: "left", flex: 1 }}>
-                    {item.label}
-                  </label>
-                  <span style={{ flex: 0.1 }}>:</span>
-                  <div style={{ textAlign: "right", flex: 1 }}>
-                    {item.value}
-                  </div>
-                </div>
-              ))}
-            </Card>
-          </Col>
-
-          <Col span={8}>
-            <Card
-              style={{
-                background: "#d4edda",
-                borderRadius: "8px",
-                padding: "10px",
-                fontWeight: "bold",
-                width: "100%",
-              }}
-            >
-              {[
-                { label: "NET Weight", value: totalNetWeight.toFixed(3) },
-                { label: "Fine Gold", value: totalFineGold.toFixed(3) },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: 5,
-                  }}
-                >
-                  <label style={{ width: "50%", textAlign: "left" }}>
-                    {item.label}
-                  </label>
-                  <span style={{ flex: 0.1 }}>:</span>
-                  <div style={{ textAlign: "right", flex: 1 }}>
-                    {item.value}
-                  </div>
-                </div>
-              ))}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: 5,
-                }}
-              >
-                <label style={{ width: "18%", textAlign: "left" }}>
-                  Making
-                </label>
-                <Input
-                  style={{ width: "15%" }}
-                  value={makingValue}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    if (value.length <= 2) {
-                      setMakingValue(value);
-                      setPerGramValue(makingValue * totalNetWeight);
-                    }
-                  }}
-                />
-                <span style={{ color: "red", marginLeft: 5 }}>Per Gm.</span>
-                <span style={{ flex: 0.1 }}>:</span>
-                <Input
-                  style={{ width: "40%", textAlign: "right", flex: 1 }}
-                  placeholder="0.00"
-                  value={perGramValue}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    if (value.length <= 8) {
-                      setPerGramValue(e.target.value);
-                    }
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: 5,
-                }}
-              >
-                <label style={{ width: "50%", textAlign: "left" }}>
-                  Rodium Charges
-                </label>
-                <span style={{ flex: 0.1 }}>:</span>
-                <Input
-                  style={{ width: "50%", textAlign: "right", flex: 1 }}
-                  placeholder="Rodium Charges"
-                  value={rodiumChargeValue}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    if (value.length <= 8) {
-                      setRodiumChargeValue(e.target.value);
-                    }
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: 5,
-                }}
-              >
-                <label style={{ width: "50%", textAlign: "left" }}>
-                  Stone Cost
-                </label>
-                <span style={{ flex: 0.1 }}>:</span>
-                {/* <Input
-                style={{
-                  width: "50%",
-                  background: "#e8f5e9",
-                  textAlign: "right",
-                  flex: 1,
-                }}
-                placeholder="Stone Cost"
-              /> */}
-                <div style={{ textAlign: "right", flex: 1 }}>
-                  {selectEstimationNo
-                    ? selectEstimationNo?.STCHARGES
-                    : totalStoneCost?.toFixed(2)}
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <label
-                  style={{
-                    width: "50%",
-                    textAlign: "left",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Total Cash
-                </label>
-                <span style={{ flex: 0.1 }}>:</span>
-                {/* <Input
-                style={{
-                  width: "50%",
-                  background: "#2196f3",
-                  color: "white",
-                  fontWeight: "bold",
-                  textAlign: "right",
-                  flex: 1,
-                }}
-                placeholder="0.00"
-              /> */}
-                <div
-                  style={{
-                    textAlign: "right",
-                    background: "#2196f3",
-                    color: "white",
-                    fontWeight: "bold",
-                    flex: 1,
-                  }}
-                >
-                  {selectEstimationNo
-                    ? selectEstimationNo?.TOTCASH
-                    : totalCash.toFixed(2)}
-                </div>
-              </div>
-            </Card>
-          </Col>
-          <Col
-            span={2}
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              gap: 5,
+              }
             }}
           >
-            <Button type="primary">Finalize</Button>
-            <Button
-              type="default"
-              disabled={tableData.length === 0 && stonesData.length === 0}
-              onClick={() => {
-                if (selectEstimationNo?.ESTIMATIONNO) {
-                  createEstimationMast();
-                  createEstimationData();
-                  createEstimationItems();
-                  setSelectEstimationNo(null);
-                  estimationDeleteData();
-                  estimationDeleteItems();
-                  estimationDeleteMast();
-                  handleReset();
-                } else {
-                  createEstimationMast();
-                  createEstimationData();
-                  createEstimationItems();
-                  setSelectEstimationNo(null);
-                  handleReset();
-                }
-              }}
-            >
-              Save
-            </Button>
-            <Button
-              type="dashed"
-              onClick={handlePrint}
-              disabled={tableData.length === 0}
-            >
-              Print
-            </Button>
-            <Button type="default">Cancel</Button>
-          </Col>
-        </Row>
-        <EstimationDialog
-          setOpenDialog={setOpenDialog}
-          openDialog={openDialog}
-          estimationNoDataAPI={estimationNoDataAPI}
-          setSelectedObject={setSelectedObject}
-          selectedObject={selectedObject}
-          setSelectEstimationNo={setSelectEstimationNo}
-          estimationNoItemsAPI={estimationNoItemsAPI}
-        />
+            Submit
+          </Button>
+
+          <Button
+            type="primary"
+            danger
+            className={styles.resetButton}
+            onClick={handleReset}
+          >
+            Reset
+          </Button>
+          <Button
+            type="dashed"
+            danger
+            className={styles.filesButton}
+            onClick={() => {
+              setOpenDialog(true);
+            }}
+          >
+            Files
+          </Button>
+        </div>
       </div>
-    </Spin>
+
+      <div className={styles.cardContainer}>
+        {tableData?.map((item, index) => (
+          <div key={index} className={styles.infoBox}>
+            {/* Tag No */}
+            <div className={styles.rowTag}>
+              <p style={{ fontSize: "16px" }}>
+                <strong>Tag No:</strong> {item.TAGNO}
+              </p>
+              <DeleteOutlined
+                style={{ color: "red", cursor: "pointer", fontSize: "20px" }}
+                onClick={() => handleDelete(item.TAGNO)}
+              />
+            </div>
+            <hr className={styles.fullWidthLine} />
+
+            {/* Item and Purity */}
+            <div className={styles.row}>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Item:</strong> {item.PRODNAME}
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Purity:</strong> {item.PREFIX}
+              </p>
+            </div>
+            <hr className={styles.fullWidthLine} />
+
+            {/* Gross Wt, Less Wt, Net Wt */}
+            <div className={styles.row}>
+              <p style={{ fontSize: "14px" }}>
+                Gross Wt:{" "}
+                <span>
+                  <strong>{Number(item.GROSSWEIGHT)?.toFixed(3)}</strong>
+                </span>
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Net Wt:</strong> {Number(item.NETWT)?.toFixed(3)}
+              </p>
+            </div>
+            <hr className={styles.fullWidthLine} />
+
+            {/* Touch and Fine Gold */}
+            <div className={styles.row}>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Touch:</strong> {item.TOUCH}
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Fine Gold:</strong> {Number(item.FINALGOLD)?.toFixed(3)}
+              </p>
+            </div>
+            <hr className={styles.fullWidthLine} />
+
+            {/* Stones */}
+            <div className={styles.fullWidthStone}>
+              <p style={{ fontSize: "14px", padding: "0px 8px 0px 8px" }}>
+                {(() => {
+                  const actGrams =
+                    stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)
+                      ?.ACTGRAMS || "";
+
+                  const removeUndefinedWrapper = (str) => {
+                    let prevStr;
+                    do {
+                      prevStr = str;
+                      str = str
+                        .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
+                        .trim();
+                    } while (prevStr !== str);
+                    return str;
+                  };
+
+                  return removeUndefinedWrapper(actGrams);
+                })()}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <EstimationFields
+        filterOpen={filterOpen}
+        setFilterOpen={setFilterOpen}
+        handleOk={handleOk}
+        handleCancel={handleCancel}
+        partyRef={partyRef}
+        selectedParty={selectedParty}
+        setSelectedParty={setSelectedParty}
+        handlePartyChange={handlePartyChange}
+        touchRef={touchRef}
+        handleKeyDown={handleKeyDown}
+        touchValue={touchValue}
+        setTouchValue={setTouchValue}
+        wastRef={wastRef}
+        wastageValue={wastageValue}
+        setWastageValue={setWastageValue}
+        partyNames={partyNames}
+      />
+      <EstimationDrawer
+        drawerOpen={drawerOpen}
+        setDrawerOpen={setDrawerOpen}
+        stonesData={stonesData}
+        totalPieces={totalPieces}
+        totalGrossWeight={totalGrossWeight}
+        totalStoneWeight={totalStoneWeight}
+        totalNetWeight={totalNetWeight}
+        totalFineGold={totalFineGold}
+        totalStoneCost={totalStoneCost}
+        totalCash={totalCash}
+        selectEstimationNo={selectEstimationNo}
+        makingValue={makingValue}
+        setMakingValue={setMakingValue}
+        perGramValue={perGramValue}
+        setPerGramValue={setPerGramValue}
+        rodiumChargeValue={rodiumChargeValue}
+        setRodiumChargeValue={setRodiumChargeValue}
+        handlePrint={handlePrint}
+        tableData={tableData}
+        createEstimationMast={createEstimationMast}
+        createEstimationData={createEstimationData}
+        createEstimationItems={createEstimationItems}
+        estimationDeleteData={estimationDeleteData}
+        estimationDeleteItems={estimationDeleteItems}
+        estimationDeleteMast={estimationDeleteMast}
+        handleReset={handleReset}
+        setSelectEstimationNo={setSelectEstimationNo}
+      />
+      <EstimationDialog
+        setOpenDialog={setOpenDialog}
+        openDialog={openDialog}
+        estimationNoDataAPI={estimationNoDataAPI}
+        setSelectedObject={setSelectedObject}
+        selectedObject={selectedObject}
+        setSelectEstimationNo={setSelectEstimationNo}
+        estimationNoItemsAPI={estimationNoItemsAPI}
+      />
+      <EstimationStonesDrawer
+        stonesDrawerOpen={stonesDrawerOpen}
+        setStonesDrawerOpen={setStonesDrawerOpen}
+        stonesData={stonesData}
+        setStoneRate={setStoneRate}
+        stoneRate={stoneRate}
+      />
+    </div>
   );
 };
 export default Estimation;

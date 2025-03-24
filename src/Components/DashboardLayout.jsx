@@ -12,39 +12,39 @@ const DashboardLayout = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const sidebarRef = useRef(null);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setIsMobile(window.innerWidth <= 768);
+  //   };
+  //   window.addEventListener("resize", handleResize);
+  //   handleResize();
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        isMobile &&
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target) &&
-        !event.target.closest(".ant-menu")
-      ) {
-        setCollapsed(true);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (
+  //       isMobile &&
+  //       sidebarRef.current &&
+  //       !sidebarRef.current.contains(event.target) &&
+  //       !event.target.closest(".ant-menu")
+  //     ) {
+  //       setCollapsed(true);
+  //     }
+  //   };
 
-    if (isMobile) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+  //   if (isMobile) {
+  //     document.addEventListener("mousedown", handleClickOutside);
+  //   }
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isMobile]);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [isMobile]);
 
   return (
     <Layout style={{ minHeight: "100vh", minWidth: "220px" }}>

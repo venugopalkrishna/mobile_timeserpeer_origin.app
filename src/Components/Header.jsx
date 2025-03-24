@@ -8,6 +8,8 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import logo from "./Assets/textLogo.png";
+import tLogo from "./Assets/tlogo.png";
 
 const { Text } = Typography;
 
@@ -15,27 +17,26 @@ const Header = ({ collapsed, toggleSidebar }) => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setIsMobile(window.innerWidth <= 768);
+  //   };
+  //   window.addEventListener("resize", handleResize);
+  //   handleResize();
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
 
   const handleMenuClick = ({ key }) => {
     if (key === "1") {
-        navigate("/settings");
+      navigate("/settings");
     } else if (key === "2") {
-        navigate("/profile");
+      navigate("/profile");
     } else if (key === "3") {
-        localStorage.removeItem("isLoggedIn");
-        navigate("/");
-        window.location.reload(); // Ensure fresh login state
+      localStorage.removeItem("isLoggedIn");
+      navigate("/");
+      window.location.reload(); // Ensure fresh login state
     }
-};
-
+  };
 
   const userMenu = {
     items: [
@@ -62,11 +63,9 @@ const Header = ({ collapsed, toggleSidebar }) => {
     <div
       style={{
         display: "flex",
-        justifyContent: "space-between",
         alignItems: "center",
         padding: "0 16px",
-        background: "#fff",
-        color: "#000",
+        background: "#162566",
         height: "64px",
         position: "sticky",
         top: 0,
@@ -74,17 +73,48 @@ const Header = ({ collapsed, toggleSidebar }) => {
         boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          flexGrow: 1,
+          gap: "10px",
+        }}
+      >
+        <img
+          src={tLogo}
+          alt="TLogo"
+          style={{
+            width: "35px",
+            height: "35px",
+            transition: "all 0.3s ease",
+          }}
+        />
+        <img
+          src={logo}
+          alt="Logo"
+          style={{
+            height: "30px",
+            transition: "all 0.3s ease",
+          }}
+        />
+      </div>
       <Button
         type="text"
-        icon={collapsed ? <MenuUnfoldOutlined style={{ color: "#000" }} /> : <MenuFoldOutlined style={{ color: "#000" }} />}
+        icon={
+          collapsed ? (
+            <MenuUnfoldOutlined style={{ color: "white" }} />
+          ) : (
+            <MenuFoldOutlined style={{ color: "white" }} />
+          )
+        }
         onClick={toggleSidebar}
       />
-      <Dropdown menu={userMenu} placement="bottomRight">
+      {/* <Dropdown menu={userMenu} placement="bottomRight">
         <Space>
           <Avatar size={30} icon={<UserOutlined />} />
-          {/* {!isMobile && <Text strong style={{ color: "#000" }}>Sravani Reddy</Text>} */}
         </Space>
-      </Dropdown>
+      </Dropdown> */}
     </div>
   );
 };

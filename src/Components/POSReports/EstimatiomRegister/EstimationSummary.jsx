@@ -16,6 +16,9 @@ import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import { CREATE_jwel } from "../../../Config/Config";
 import TableHeaderStyles from "../../Pages/TableHeaderStyles";
+import { FilterOutlined } from "@ant-design/icons";
+import EstimationSummaryDialog from "./EstimationSummaryDialog";
+import styles from "./EstimationRegister.module.css";
 
 const { Option } = Select;
 
@@ -39,6 +42,7 @@ const EstimationSummary = () => {
   const [totalStoneAmt, setTotalStoneAmt] = useState(0);
   const [totalCash, setTotalCash] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   console.log(summaryData);
 
   const estimationSummaryAPI = async () => {
@@ -394,214 +398,178 @@ const EstimationSummary = () => {
   };
 
   return (
-    <Spin spinning={loading} tip="Loading...">
-      <div style={{ padding: "5px", backgroundColor: "#f4f6f9" }}>
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: "10px" }}
-        >
-          <Col>
-            <Typography style={{ fontSize: "20px", fontWeight: "bold" }}>
-              Estimation Summary
-            </Typography>
-          </Col>
-          <Col style={{ display: "flex", gap: "10px" }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              style={{
-                backgroundColor: "#0C1154",
-                borderColor: "#0C1154",
-                flex: "0 1 50px",
-              }}
-            >
-              Show
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              style={{
-                backgroundColor: "orange",
-                borderColor: "orange",
-                flex: "0 1 50px",
-              }}
-            >
-              Print
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              style={{
-                backgroundColor: "red",
-                borderColor: "red",
-                flex: "0 1 50px",
-              }}
-            >
-              Exit
-            </Button>
-          </Col>
-        </Row>
-        <Row gutter={[16, 16]} align="middle" wrap>
-          <Col
-            xs={24}
+    <div style={{ padding: "5px", backgroundColor: "#f4f6f9" }}>
+      <Row
+        justify="space-between"
+        align="middle"
+        style={{ marginBottom: "10px" }}
+      >
+        <Col>
+          <Typography style={{ fontSize: "15px", fontWeight: "bold" }}>
+            Estimation Summary
+          </Typography>
+        </Col>
+      </Row>
+      <Row
+        justify="space-between"
+        align="right"
+        style={{ marginBottom: "10px" }}
+      >
+        <Col style={{ display: "flex", gap: "10px" }}>
+          <Button
+            type="primary"
+            htmlType="submit"
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              flexWrap: "wrap",
+              backgroundColor: "#0C1154",
+              borderColor: "#0C1154",
+              flex: "0 1 50px",
             }}
           >
-            {/* Estimation Card */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                flex: "1 1 150px",
-              }}
-            >
-              <div>From Date:</div>
-              <DatePicker
-                style={{ width: "80%" }}
-                ref={formRef}
-                onKeyDown={(e) => handleKeyDown(e, toRef)}
-                value={fromDate}
-                onChange={(date) => setFromDate(date)}
-                format="DD-MMM-YYYY" // Format: 11-Mar-2025
-              />
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                flex: "1 1 200px",
-              }}
-            >
-              <div>To Date:</div>
-              <DatePicker
-                style={{ width: "80%" }}
-                ref={toRef}
-                onKeyDown={(e) => handleKeyDown(e, partyRef)}
-                value={toDate}
-                onChange={(date) => setToDate(date)}
-                format="DD-MMM-YYYY"
-              />
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                flex: "1 1 150px",
-              }}
-            >
-              <div>Party Name:</div>
-              <Select
-                showSearch
-                placeholder="Select Party Name"
-                autoFocus={true}
-                style={{ width: "60%" }}
-                ref={partyRef}
-                value={selectedParty ? selectedParty : null}
-                onChange={(value) => {
-                  setSelectedParty(value);
-                  handlePartyChange();
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const filteredOptions = partyNames.filter((party) =>
-                      party.DESCRIPTION.toLowerCase().includes(
-                        e.target.value.toLowerCase()
-                      )
-                    );
-                    if (filteredOptions.length > 0) {
-                      setSelectedParty(filteredOptions[0].DESCRIPTION);
-                    }
-                  }
-                }}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-              >
-                {partyNames.map((party, index) => (
-                  <Option key={index} value={party.DESCRIPTION}>
-                    {party.DESCRIPTION}
-                  </Option>
-                ))}
-              </Select>
-            </div>
-          </Col>
-        </Row>
-        <Row gutter={[16, 16]} style={{ marginTop: "5px" }}>
-          <Col span={24}>
-            <div
-              style={{
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                backgroundColor: "#fff",
-                borderRadius: "8px",
-              }}
-            >
-              <TableHeaderStyles>
-                <Table
-                  columns={columns}
-                  dataSource={summaryData}
-                  pagination={false}
-                  size="small"
-                  rowClassName={(record, index) =>
-                    index % 2 === 0 ? "table-row-light" : "table-row-dark"
-                  }
-                  scroll={{ y: 450 }} // Internal scroll inside table
-                  summary={() => (
-                    <Table.Summary.Row
-                      style={{ backgroundColor: "#f5f5f5", fontWeight: "bold" }}
-                    >
-                      <Table.Summary.Cell index={0}>Total</Table.Summary.Cell>
-                      <Table.Summary.Cell index={1} />
-                      <Table.Summary.Cell index={2} />
-                      <Table.Summary.Cell index={3} />
-                      <Table.Summary.Cell index={4} align="center">
-                        {totalPcs}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={5} align="right">
-                        {totalGwt?.toFixed(2)}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={6} align="right">
-                        {totalSwt?.toFixed(2)}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={7} align="right">
-                        {totalNwt?.toFixed(2)}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={8} align="right">
-                        {totalFineGold?.toFixed(2)}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={9} />
-                      <Table.Summary.Cell index={10} align="right">
-                        {totalMcAmt?.toFixed(2)}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={11} align="right">
-                        {totalCharges?.toFixed(2)}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={12} align="right">
-                        {totalStoneAmt?.toFixed(2)}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={13} align="right">
-                        {totalCash?.toFixed(2)}
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={14} />
-                      <Table.Summary.Cell index={15} />
-                    </Table.Summary.Row>
-                  )}
-                />
-              </TableHeaderStyles>
-            </div>
-          </Col>
-        </Row>
+            Show
+          </Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            style={{
+              backgroundColor: "orange",
+              borderColor: "orange",
+              flex: "0 1 50px",
+            }}
+          >
+            Print
+          </Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            style={{
+              backgroundColor: "red",
+              borderColor: "red",
+              flex: "0 1 50px",
+            }}
+          >
+            Exit
+          </Button>
+        </Col>
+      </Row>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          flex: "0 1 200px",
+        }}
+      >
+        <div>From:</div>
+        <DatePicker
+          style={{ flex: 1, minWidth: "80px" }}
+          ref={formRef}
+          onKeyDown={(e) => handleKeyDown(e, toRef)}
+          value={fromDate ? dayjs(fromDate) : null}
+          onChange={(date) => setFromDate(date)}
+          format="DD-MMM-YYYY"
+        />
+        <div>To:</div>
+        <DatePicker
+          style={{ flex: 1, minWidth: "80px" }}
+          ref={toRef}
+          onKeyDown={(e) => handleKeyDown(e, partyRef)}
+          value={toDate ? dayjs(toDate) : null}
+          onChange={(date) => setToDate(date)}
+          format="DD-MMM-YYYY"
+        />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <FilterOutlined
+            style={{ color: "green", fontSize: "20px" }}
+            onClick={() => {
+              setFilterOpen(true);
+            }}
+          />
+        </div>
       </div>
-    </Spin>
+      <div className={styles.cardContainer}>
+        {summaryData?.map((item, index) => (
+          <div key={index} className={styles.infoBox}>
+            <div className={styles.rowTag}>
+              <div className={styles.estimationRow}>
+                <p style={{ fontSize: "16px" }}>
+                  <strong>Est NO:</strong> {item.ESTIMATIONNO}
+                </p>
+                <p style={{ fontSize: "16px", marginLeft: "16px" }}>
+                  <strong>Est Date:</strong>{" "}
+                  {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                </p>
+              </div>
+              <p style={{ fontSize: "12px", padding: "0px 8px 0px 8px" }}>
+                <strong>Party:</strong> {item?.DESCRIPTION}
+              </p>
+            </div>
+            <hr className={styles.fullWidthLine} />
+
+            {/* <div className={styles.row}>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Tag No:</strong> {item.TAGNO}
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Item:</strong> {item.PRODNAME}
+              </p>
+            </div>
+            <hr className={styles.fullWidthLine} /> */}
+
+            <div className={styles.row}>
+              <p style={{ fontSize: "14px" }}>
+                Gross Wt:{" "}
+                <span>
+                  <strong>{Number(item.GWT)?.toFixed(3)}</strong>
+                </span>
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Net Wt:</strong> {Number(item.NWT)?.toFixed(3)}
+              </p>
+            </div>
+            <hr className={styles.fullWidthLine} />
+
+            <div className={styles.row}>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Fine Gold:</strong> {Number(item.TOUCHPER)?.toFixed(3)}
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Mc (%):</strong> {item.MCPER}
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Mc Amt:</strong> {Number(item.MCAMT)?.toFixed(2)}
+              </p>
+            </div>
+            <hr className={styles.fullWidthLine} />
+
+            <div className={styles.row}>
+              <p style={{ fontSize: "14px" }}>
+                <strong>R-Charges:</strong> {item.RCHARGES}
+              </p>
+              <p style={{ fontSize: "14px" }}>
+                <strong>Stone Amt:</strong> {Number(item.STCHARGES)?.toFixed(2)}
+              </p>
+            </div>
+            <hr className={styles.fullWidthLine} />
+
+            <div className={styles.fullWidthStone}>
+              <p style={{ fontSize: "14px", padding: "0px 8px 0px 8px" }}>
+                <strong>Total Cash:</strong> {Number(item.TOTCASH)?.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <EstimationSummaryDialog
+        filterOpen={filterOpen}
+        setFilterOpen={setFilterOpen}
+        selectedParty={selectedParty}
+        setSelectedParty={setSelectedParty}
+        partyNames={partyNames}
+      />
+    </div>
   );
 };
 export default EstimationSummary;

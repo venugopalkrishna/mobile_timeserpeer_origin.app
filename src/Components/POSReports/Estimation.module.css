@@ -1,0 +1,243 @@
+.estimationContainer {
+    display: flex;
+    justify-content: space-between;
+    /* Align items properly */
+    align-items: center;
+    width: 100%;
+    padding: 10px 15px;
+    background: lightblue;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+    /* Prevents overflow on small screens */
+    position: sticky;
+    top: 0;
+    /* Ensures it sticks to the top */
+    z-index: 10;
+}
+
+/* Date on the right */
+.dateContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Party Name appears separately */
+.partyNameContainer {
+    width: 100%;
+    /* font-weight: bold; */
+    margin-top: 8px;
+}
+
+/* Touch & Wastage appear on the next line */
+.detailsContainer {
+    display: flex;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+    margin-top: 4px;
+    /* font-weight: bold; */
+}
+
+.filterIcon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Mobile & Tablet Responsive */
+@media (max-width: 768px) {
+    .estimationContainer {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .estimationContainer {
+        padding: 8px;
+    }
+
+    .detailsContainer {
+        flex-direction: row;
+        gap: 5px;
+    }
+}
+
+.estimationTagContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 15px;
+    background: lightblue;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+    position: sticky;
+    top: 50px;
+    z-index: 9;
+}
+
+.tagNoSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.tagLabel {
+    font-size: 18px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.tagInput {
+    width: 70%;
+    height: 40px;
+    font-size: 40px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.buttonSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.submitButton {
+    background-color: #0C1154 !important;
+    border-color: #0C1154 !important;
+    color: white;
+    padding: 6px 12px;
+    height: 70%;
+}
+
+.resetButton {
+    background-color: red !important;
+    border-color: red !important;
+    color: white;
+    padding: 6px 12px;
+    height: 70%;
+}
+
+.filesButton {
+    background-color: green !important;
+    border-color: green !important;
+    color: white;
+    padding: 6px 12px;
+    height: 70%;
+}
+
+.stoneButton {
+    background-color: gray !important;
+    border-color: gray !important;
+    color: white;
+    padding: 6px 12px;
+    height: 70%;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .estimationTagContainer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tagNoSection {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .buttonSection {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+.cardContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+    max-height: 500px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.infoBox {
+    width: 100%;
+    height: auto;
+    background: #fff;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid black;
+    text-align: left;
+    font-size: 12px;
+    font-weight: bold;
+    background: lightblue;
+    line-height: 1.2;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 0px 8px 0px 8px;
+}
+
+.rowTag {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 0px 8px 0px 8px;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.fullWidthStone {
+    width: 100%;
+    background-color: #52bd91;
+    padding: 1px;
+    border-radius: 0 0 5px 5px;
+}
+
+.weightDetails {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+}
+
+.fullWidthLine {
+    width: 100%;
+    border: 1px solid gray;
+    margin: 2px 0;
+}
+
+@media (max-width: 768px) {
+    .infoBox {
+        padding: 4px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .infoBox {
+        padding: 2px;
+        font-size: 12px;
+        line-height: 1;
+    }
+
+    .row,
+    .weightDetails {
+        font-size: 9px;
+    }
+}

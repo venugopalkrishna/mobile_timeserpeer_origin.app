@@ -10,7 +10,7 @@ const LoginPage = ({ onLogin }) => {
 
   useEffect(() => {
     if (localStorage.getItem("isLoggedIn") === "true") {
-      navigate("/dashboard"); // Redirect to dashboard if already logged in
+      navigate("/estimations"); // Redirect to estimations if already logged in
     }
   }, [navigate]);
 
@@ -24,7 +24,7 @@ const LoginPage = ({ onLogin }) => {
       if (data?.tenantName) {
         localStorage.setItem("isLoggedIn", "true"); // Store login status
         onLogin();
-        navigate("/dashboard");
+        navigate("/estimations");
       } else {
         console.log("Invalid username or password");
       }

@@ -10,6 +10,7 @@ import {
   TeamOutlined,
   LineChartOutlined,
   RightCircleFilled,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import logo from "../Components/Assets/textLogo.png"; // Import the logo
 
@@ -38,6 +39,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     setOpenKeys(keys.length ? [keys[keys.length - 1]] : []); // Only keep the last opened submenu
   };
 
+  const handleLogOut = () => {
+      localStorage.removeItem("isLoggedIn");
+      window.location.reload();
+  };
+
   const iconStyle = {
     display: "flex",
     alignItems: "center",
@@ -59,10 +65,10 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           onClick={() => {
             setCollapsed(false);
           }}
-          to="/dashboard"
+          to="/estimations"
           style={{ color: "#fff" }}
         >
-          Dashboard
+          Estimations
         </Link>
       ),
       style: !collapsed
@@ -81,727 +87,809 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "2",
       icon: <AppstoreOutlined style={iconStyle} />,
-      label: <span style={{ color: "#fff" }}>Masters</span>,
-      children: [
-        {
-          key: "2-1",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Area Master
-            </Link>
-          ),
-        },
-        {
-          key: "2-2",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Stock Master
-            </Link>
-          ),
-        },
-        {
-          key: "2-3",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Product Master
-            </Link>
-          ),
-        },
-        {
-          key: "2-4",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Counter Master
-            </Link>
-          ),
-        },
-        {
-          key: "2-5",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Stone Item
-            </Link>
-          ),
-        },
-        {
-          key: "2-6",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Stone Rate Fix
-            </Link>
-          ),
-        },
-        {
-          key: "2-7",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Main Item
-            </Link>
-          ),
-        },
-      ],
+      label: (
+        <Link
+          onClick={() => {
+            setCollapsed(false);
+          }}
+          to="/estimation-summary"
+          style={{ color: "#fff" }}
+        >
+          Estimation Summary
+        </Link>
+      ),
+      style: !collapsed
+        ? {
+            backgroundColor: "#52BD91", // Light green background for Dashboard
+            borderRadius: "10px",
+            margin: "5px 0",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            border: "1px solid grey", // Grey border
+            width: "227px",
+            marginLeft: "20px",
+            padding: "10px",
+          }
+        : {},
     },
     {
       key: "3",
       icon: <FileDoneOutlined style={iconStyle} />,
-      label: <span style={{ color: "#fff" }}>Inventory</span>,
-      children: [
-        {
-          key: "3-1",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Lot Creation
-            </Link>
-          ),
-        },
-        {
-          key: "3-2",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Tag Generation
-            </Link>
-          ),
-        },
-        {
-          key: "3-3",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Tag Edit
-            </Link>
-          ),
-        },
-        {
-          key: "3-4",
-          label: (
-            <span style={{ color: "#fff" }}>
-              Reports
-              <Popover
-                content={
-                  <Menu>
-                    <Menu.Item
-                      key="3-4-1"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Tag Stock Summary
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item
-                      key="3-4-2"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Tag Stock Details
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item
-                      key="3-4-3"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Slip Summary
-                      </Link>
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={collapsed ? "hover" : "click"} // Show popover on hover when collapsed, click otherwise
-                placement="right" // Change the direction of the popover
-                overlayStyle={{ width: "220px" }} // Increase the width of the popover
-              >
-                <RightCircleFilled
-                  style={{ marginLeft: "117px", color: "#fff" }}
-                />
-              </Popover>
-            </span>
-          ),
-        },
-        {
-          key: "3-5",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Elimination
-            </Link>
-          ),
-        },
-        {
-          key: "3-6",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Recycle Bin
-            </Link>
-          ),
-        },
-      ],
+      label: (
+        <Link
+          onClick={() => {
+            setCollapsed(false);
+          }}
+          to="/estimation-details"
+          style={{ color: "#fff" }}
+        >
+          Estimation Details
+        </Link>
+      ),
+      style: !collapsed
+        ? {
+            backgroundColor: "#52BD91", // Light green background for Dashboard
+            borderRadius: "10px",
+            margin: "5px 0",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            border: "1px solid grey", // Grey border
+            width: "227px",
+            marginLeft: "20px",
+            padding: "10px",
+          }
+        : {},
     },
     {
       key: "4",
-      icon: <ShopOutlined style={iconStyle} />,
-      label: <span style={{ color: "#fff" }}>Point of Sale</span>,
-      children: [
-        {
-          key: "4-1",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              to="/estimations"
-              style={{ color: "#fff" }}
-            >
-              Estimation
-            </Link>
-          ),
-        },
-        {
-          key: "4-2",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              to="/estimation-summary"
-              style={{ color: "#fff" }}
-            >
-              Estimation Summary
-            </Link>
-          ),
-        },
-        {
-          key: "4-3",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              to="/estimation-details"
-              style={{ color: "#fff" }}
-            >
-              Estimation Details
-            </Link>
-          ),
-        },
-        {
-          key: "4-4",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Sale Inovice
-            </Link>
-          ),
-        },
-        {
-          key: "4-5",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Sale Return
-            </Link>
-          ),
-        },
-        {
-          key: "4-6",
-          label: (
-            <span style={{ color: "#fff" }}>
-              Reports
-              <Popover
-                content={
-                  <Menu>
-                    <Menu.Item
-                      key="4-5-1"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Estimation Summary
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item
-                      key="4-5-2"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Estimation Detail
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item
-                      key="4-5-3"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Sale Summary
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item
-                      key="4-5-4"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Sale Register
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item
-                      key="4-5-5"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Sale Return Register
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item
-                      key="4-5-6"
-                      style={{ backgroundColor: "#555E9F", width: "190px" }}
-                    >
-                      <Link
-                        onClick={() => {
-                          setCollapsed(false);
-                        }}
-                        style={{ color: "#fff" }}
-                      >
-                        Item Wise Sale Register
-                      </Link>
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={collapsed ? "hover" : "click"} // Show popover on hover when collapsed, click otherwise
-                placement="right" // Change the direction of the popover
-                overlayStyle={{ width: "220px" }} // Increase the width of the popover
-              >
-                <RightCircleFilled
-                  style={{ marginLeft: "117px", color: "#fff" }}
-                />
-              </Popover>
-            </span>
-          ),
-        },
-      ],
+      icon: <LogoutOutlined style={iconStyle} />,
+      label: (
+        <Link
+          onClick={() => {
+            setCollapsed(false);
+            handleLogOut();
+          }}
+          to="/"
+          style={{ color: "#fff" }}
+        >
+          Logout
+        </Link>
+      ),
+      style: !collapsed
+        ? {
+            backgroundColor: "#52BD91", // Light green background for Dashboard
+            borderRadius: "10px",
+            margin: "5px 0",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            border: "1px solid grey", // Grey border
+            width: "227px",
+            marginLeft: "20px",
+            padding: "10px",
+          }
+        : {},
     },
-    {
-      key: "5",
-      icon: <DollarOutlined style={iconStyle} />,
-      label: <span style={{ color: "#fff" }}>Accounts</span>,
-      children: [
-        {
-          key: "5-1",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Voucher Entry
-            </Link>
-          ),
-        },
-        {
-          key: "5-2",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Journal Entry
-            </Link>
-          ),
-        },
-        {
-          key: "5-3",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Day Balance
-            </Link>
-          ),
-        },
-        {
-          key: "5-4",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Cask Book
-            </Link>
-          ),
-        },
-        {
-          key: "5-5",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Stock Book
-            </Link>
-          ),
-        },
-        {
-          key: "5-6",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Bullion Book
-            </Link>
-          ),
-        },
-        {
-          key: "5-7",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Day Transactions
-            </Link>
-          ),
-        },
-        {
-          key: "5-8",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Dealer Ledger
-            </Link>
-          ),
-        },
-        {
-          key: "5-9",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Dealer Out Standings
-            </Link>
-          ),
-        },
-        {
-          key: "5-10",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Customer Ledger
-            </Link>
-          ),
-        },
-        {
-          key: "5-11",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Customer Out Standings
-            </Link>
-          ),
-        },
-        {
-          key: "5-12",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Journal Entry Register
-            </Link>
-          ),
-        },
-        {
-          key: "5-13",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Journal Ledger
-            </Link>
-          ),
-        },
-      ],
-    },
-    {
-      key: "6",
-      icon: <TeamOutlined style={iconStyle} />,
-      label: <span style={{ color: "#fff" }}>Purchase</span>,
-      children: [
-        {
-          key: "6-1",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              ornaments Purchase
-            </Link>
-          ),
-        },
-        {
-          key: "6-2",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Purchase Return
-            </Link>
-          ),
-        },
-        {
-          key: "6-3",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Bullion Purchase
-            </Link>
-          ),
-        },
-        {
-          key: "6-4",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Stone Purchase
-            </Link>
-          ),
-        },
-        {
-          key: "6-5",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Stone Purchase Return
-            </Link>
-          ),
-        },
-      ],
-    },
-    {
-      key: "7",
-      icon: <LineChartOutlined style={iconStyle} />,
-      label: <span style={{ color: "#fff" }}>Gold Smith</span>,
-      children: [
-        {
-          key: "7-1",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Worker Book
-            </Link>
-          ),
-        },
-        {
-          key: "7-2",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Issue Register
-            </Link>
-          ),
-        },
-        {
-          key: "7-3",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Return Register
-            </Link>
-          ),
-        },
-        {
-          key: "7-4",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Worker Transaction
-            </Link>
-          ),
-        },
-        {
-          key: "7-5",
-          label: (
-            <Link
-              onClick={() => {
-                setCollapsed(false);
-              }}
-              style={{ color: "#fff" }}
-            >
-              Slip Wise Stone Summary
-            </Link>
-          ),
-        },
-      ],
-    },
+    // {
+    //   key: "2",
+    //   icon: <AppstoreOutlined style={iconStyle} />,
+    //   label: <span style={{ color: "#fff" }}>Masters</span>,
+    //   children: [
+    //     {
+    //       key: "2-1",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Area Master
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "2-2",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Stock Master
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "2-3",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Product Master
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "2-4",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Counter Master
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "2-5",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Stone Item
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "2-6",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Stone Rate Fix
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "2-7",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Main Item
+    //         </Link>
+    //       ),
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: "3",
+    //   icon: <FileDoneOutlined style={iconStyle} />,
+    //   label: <span style={{ color: "#fff" }}>Inventory</span>,
+    //   children: [
+    //     {
+    //       key: "3-1",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Lot Creation
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "3-2",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Tag Generation
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "3-3",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Tag Edit
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "3-4",
+    //       label: (
+    //         <span style={{ color: "#fff" }}>
+    //           Reports
+    //           <Popover
+    //             content={
+    //               <Menu>
+    //                 <Menu.Item
+    //                   key="3-4-1"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Tag Stock Summary
+    //                   </Link>
+    //                 </Menu.Item>
+    //                 <Menu.Item
+    //                   key="3-4-2"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Tag Stock Details
+    //                   </Link>
+    //                 </Menu.Item>
+    //                 <Menu.Item
+    //                   key="3-4-3"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Slip Summary
+    //                   </Link>
+    //                 </Menu.Item>
+    //               </Menu>
+    //             }
+    //             trigger={collapsed ? "hover" : "click"} // Show popover on hover when collapsed, click otherwise
+    //             placement="right" // Change the direction of the popover
+    //             overlayStyle={{ width: "220px" }} // Increase the width of the popover
+    //           >
+    //             <RightCircleFilled
+    //               style={{ marginLeft: "117px", color: "#fff" }}
+    //             />
+    //           </Popover>
+    //         </span>
+    //       ),
+    //     },
+    //     {
+    //       key: "3-5",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Elimination
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "3-6",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Recycle Bin
+    //         </Link>
+    //       ),
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: "4",
+    //   icon: <ShopOutlined style={iconStyle} />,
+    //   label: <span style={{ color: "#fff" }}>Point of Sale</span>,
+    //   children: [
+    //     {
+    //       key: "4-1",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           to="/estimations"
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Estimation
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "4-2",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           to="/estimation-summary"
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Estimation Summary
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "4-3",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           to="/estimation-details"
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Estimation Details
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "4-4",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Sale Inovice
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "4-5",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Sale Return
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "4-6",
+    //       label: (
+    //         <span style={{ color: "#fff" }}>
+    //           Reports
+    //           <Popover
+    //             content={
+    //               <Menu>
+    //                 <Menu.Item
+    //                   key="4-5-1"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Estimation Summary
+    //                   </Link>
+    //                 </Menu.Item>
+    //                 <Menu.Item
+    //                   key="4-5-2"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Estimation Detail
+    //                   </Link>
+    //                 </Menu.Item>
+    //                 <Menu.Item
+    //                   key="4-5-3"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Sale Summary
+    //                   </Link>
+    //                 </Menu.Item>
+    //                 <Menu.Item
+    //                   key="4-5-4"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Sale Register
+    //                   </Link>
+    //                 </Menu.Item>
+    //                 <Menu.Item
+    //                   key="4-5-5"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Sale Return Register
+    //                   </Link>
+    //                 </Menu.Item>
+    //                 <Menu.Item
+    //                   key="4-5-6"
+    //                   style={{ backgroundColor: "#555E9F", width: "190px" }}
+    //                 >
+    //                   <Link
+    //                     onClick={() => {
+    //                       setCollapsed(false);
+    //                     }}
+    //                     style={{ color: "#fff" }}
+    //                   >
+    //                     Item Wise Sale Register
+    //                   </Link>
+    //                 </Menu.Item>
+    //               </Menu>
+    //             }
+    //             trigger={collapsed ? "hover" : "click"} // Show popover on hover when collapsed, click otherwise
+    //             placement="right" // Change the direction of the popover
+    //             overlayStyle={{ width: "220px" }} // Increase the width of the popover
+    //           >
+    //             <RightCircleFilled
+    //               style={{ marginLeft: "117px", color: "#fff" }}
+    //             />
+    //           </Popover>
+    //         </span>
+    //       ),
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: "5",
+    //   icon: <DollarOutlined style={iconStyle} />,
+    //   label: <span style={{ color: "#fff" }}>Accounts</span>,
+    //   children: [
+    //     {
+    //       key: "5-1",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Voucher Entry
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-2",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Journal Entry
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-3",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Day Balance
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-4",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Cask Book
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-5",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Stock Book
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-6",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Bullion Book
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-7",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Day Transactions
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-8",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Dealer Ledger
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-9",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Dealer Out Standings
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-10",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Customer Ledger
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-11",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Customer Out Standings
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-12",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Journal Entry Register
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "5-13",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Journal Ledger
+    //         </Link>
+    //       ),
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: "6",
+    //   icon: <TeamOutlined style={iconStyle} />,
+    //   label: <span style={{ color: "#fff" }}>Purchase</span>,
+    //   children: [
+    //     {
+    //       key: "6-1",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           ornaments Purchase
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "6-2",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Purchase Return
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "6-3",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Bullion Purchase
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "6-4",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Stone Purchase
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "6-5",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Stone Purchase Return
+    //         </Link>
+    //       ),
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: "7",
+    //   icon: <LineChartOutlined style={iconStyle} />,
+    //   label: <span style={{ color: "#fff" }}>Gold Smith</span>,
+    //   children: [
+    //     {
+    //       key: "7-1",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Worker Book
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "7-2",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Issue Register
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "7-3",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Return Register
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "7-4",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Worker Transaction
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "7-5",
+    //       label: (
+    //         <Link
+    //           onClick={() => {
+    //             setCollapsed(false);
+    //           }}
+    //           style={{ color: "#fff" }}
+    //         >
+    //           Slip Wise Stone Summary
+    //         </Link>
+    //       ),
+    //     },
+    //   ],
+    // },
   ];
 
   return (
