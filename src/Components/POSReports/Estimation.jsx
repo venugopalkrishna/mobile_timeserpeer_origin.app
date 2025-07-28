@@ -62,6 +62,7 @@ const Estimation = () => {
   const [qrOpen, setQrOpen] = useState(false);
   const [scanner, setScanner] = useState(null);
   const [scanOpen, setScanOpen] = useState(false);
+  const [code, setCode] = useState()
   console.log(stoneMainData, "stoneMainData");
   console.log(tableData, "tableData");
   console.log(stoneRate, "stoneRate");
@@ -267,7 +268,7 @@ const Estimation = () => {
     // setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${tagNoValue}`,
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${tagNoValue ? tagNoValue : code}`,
         {
           headers: {
             tenantName: tenantName,
@@ -903,15 +904,12 @@ const Estimation = () => {
 
       qrScanner.render(
         (decodedText) => {
-          setTagNoValue(decodedText);
+          setCode(decodedText);
 
           // Call your APIs
-          stonesAPI();
+          stonesAPI(decodedText);
           mainAPI();
 
-          setTimeout(() => {
-            setTagNoValue("");
-          }, 500);
         },
         (errorMessage) => {
           console.warn("QR Scan Error:", errorMessage);
