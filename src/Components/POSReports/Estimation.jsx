@@ -168,8 +168,8 @@ const Estimation = () => {
 
       if (Array.isArray(newData) && newData.length > 0) {
         setStoneMainData((prevData) => {
-          const existingTag = prevData.some((item) =>
-            item.TAGNO === tagNoValue ? tagNoValue : tagNo
+          const existingTag = prevData.some(
+            (item) => item.TAGNO === tagNoValue ? tagNoValue : tagNo
           );
 
           if (existingTag) {
@@ -286,9 +286,7 @@ const Estimation = () => {
       }
 
       setTableData((prevData) => {
-        const existingTag = prevData.some((item) =>
-          item.TAGNO === tagNoValue ? tagNoValue : tagNO
-        );
+        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue ? tagNoValue : tagNO);
 
         if (existingTag) {
           // message.warning("Already Existed This Tag No");
@@ -922,41 +920,48 @@ const Estimation = () => {
   };
 
   useEffect(() => {
-    let qrScanner;
-    let lastScanned = null;
+  let qrScanner;
 
-    if (qrOpen) {
-      const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true,
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-      };
-
-      qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
-
-      qrScanner.render(
-        (decodedText) => {
-          if (decodedText !== lastScanned) {
-            lastScanned = decodedText;
-            stonesAPI(decodedText);
-            mainAPI(decodedText);
-          }
-        },
-        (errorMessage) => {
-          console.warn("QR Scan Error:", errorMessage);
-        }
-      );
-
-      setScanner(qrScanner);
-    }
-
-    return () => {
-      if (qrScanner) {
-        qrScanner.clear().catch((err) => console.error("Clear failed:", err));
-      }
+  if (qrOpen) {
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      rememberLastUsedCamera: true,
+      supportedScanTypes: [
+        Html5QrcodeScanType.SCAN_TYPE_CAMERA,
+        Html5QrcodeScanType.SCAN_TYPE_FILE
+      ]
     };
-  }, [qrOpen]);
+
+    qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
+
+    const onScanSuccess = (decodedText, decodedResult) => {
+      // Stop scanning to prevent multiple calls
+      qrScanner.clear().then(() => {
+        console.log("Scanner cleared after successful scan");
+      }).catch((err) => {
+        console.error("Error stopping scanner:", err);
+      });
+
+      // Call your APIs only once
+      stonesAPI(decodedText);
+      mainAPI(decodedText);
+    };
+
+    const onScanFailure = (errorMessage) => {
+      console.warn("QR Scan Error:", errorMessage);
+    };
+
+    qrScanner.render(onScanSuccess, onScanFailure);
+    setScanner(qrScanner);
+  }
+
+  return () => {
+    if (qrScanner) {
+      qrScanner.clear().catch((err) => console.error("Clear failed:", err));
+    }
+  };
+}, [qrOpen]);
 
   const handleStopScanner = () => {
     if (scanner) {
