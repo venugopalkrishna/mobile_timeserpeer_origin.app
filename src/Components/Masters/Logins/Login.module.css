@@ -1,23 +1,23 @@
-.login-page-container {
+/* .login-page-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     background-color: #f0f2f5;
-    padding: 20px; /* Add padding for smaller screens */
+    padding: 20px; 
 }
 
 .login-wrapper {
     display: flex;
     width: 100%;
-    max-width: 900px; /* Limit max width */
+    max-width: 900px; 
     background: white;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     overflow: hidden;
 }
 
-/* Welcome section */
+
 .welcome-section {
     flex: 1;
     background: linear-gradient(135deg, #007bff, #0056b3);
@@ -37,22 +37,22 @@
     margin-bottom: 15px;
 }
 
-/* Login section */
+
 .login-section {
     flex: 1;
     padding: 40px;
 }
 
-/* Card styling */
+
 .login-card {
     width: 100%;
     text-align: center;
 }
 
-/* Responsive styles */
-@media (max-width: 1024px) { /* Tablet */
+
+@media (max-width: 1024px) { 
     .login-wrapper {
-        flex-direction: column; /* Stack sections vertically */
+        flex-direction: column; 
         max-width: 600px;
     }
 
@@ -65,7 +65,7 @@
     }
 }
 
-@media (max-width: 768px) { /* Mobile */
+@media (max-width: 768px) { 
     .login-page-container {
         height: auto;
         padding: 20px;
@@ -77,10 +77,171 @@
     }
 
     .welcome-section {
-        display: none; /* Hide welcome section on mobile */
+        display: none;
     }
 
     .login-section {
         padding: 20px;
     }
+} */
+
+
+.loginContainer {
+    display: flex;
+    /* flex-direction: column; */
+    /* align-items: center; */
+    /* justify-content: flex-start; */
+    height: auto;
+    min-height: 100vh;
+    width: 100%;
+    /* background: linear-gradient(to bottom, #6DC89B, #0C1E48); */
+    /* padding: 20px; */
+    position: relative;
+}
+
+.backgroundImageContainer {
+    width: auto;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+    /* background: #302623; */
+}
+
+.backgroundImage {
+    max-width: 100%;
+    height: auto;
+}
+
+.logoSection {
+    /* text-align: center; */
+    margin-bottom: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    /* gap: 2px; */
+}
+
+.logoImage {
+    width: 50px;
+    height: 50px;
+}
+
+.logoImage1 {
+    width: 300px;
+    max-width: 400px;
+    /* background: #08112E; */
+    height: auto;
+}
+
+.loginBox {
+    width: 100%;
+    /* max-width: 350px; */
+    background: linear-gradient(to bottom, #0D1B45, #08112E);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    height: 100%;
+    color: white;
+    position: relative;
+    z-index: 2;
+    margin-top: 160px;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.inputField {
+    height: 50px !important;
+    width: auto !important;
+    border-radius: 8px !important;
+    border-color: #6DC89B;
+    font-size: 16px;
+    font-weight: 600;
+    /* background: #0C1E48; */
+    color: #0C1E48 !important;
+}
+
+.inputField::placeholder {
+    color: #0C1E48 !important;
+    opacity: 0.8;
+}
+
+.inputField1 {
+    height: 50px !important;
+    width: auto !important;
+    border-radius: 8px !important;
+    border-color: #6DC89B;
+    font-size: 16px;
+    font-weight: 600;
+    /* background: #0C1E48; */
+    color: #0C1E48 !important;
+}
+
+.inputField1::placeholder {
+    color: #0C1E48 !important;
+    opacity: 0.8;
+}
+
+.submitBtn {
+    width: 40%;
+    background: #5BD192 !important;
+    border: none;
+    height: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.submitBtn:hover {
+    background: #4ABB7B !important;
+}
+
+@media (max-width: 768px) {
+    .loginBox {
+        width: 100%;
+        padding: 20px 20px 20px 20px;
+    }
+
+    .logoImage {
+        width: 30px;
+        height: 30px;
+    }
+
+    .logoImage1 {
+        width: 100px;
+    }
+}
+
+@media (max-width: 480px) and (max-width: 768px) {
+    .loginContainer {
+        width: 100%;
+        height: 100%;
+    }
+
+    .backgroundImageContainer {
+        width: 100%;
+        height: 100%;
+    }
+
+    .backgroundImage{
+        width: 100%;
+        height: 100%;
+    }
+
 }

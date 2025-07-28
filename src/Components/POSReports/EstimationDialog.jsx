@@ -26,6 +26,8 @@ const EstimationDialog = ({
   const [toDate, setToDate] = useState(dayjs());
   const [loading, setLoading] = useState(false);
 
+  const tenantName = localStorage.getItem("tenantName");
+
   const EstimationSummaryAPI = async () => {
     setLoading(true);
     try {
@@ -46,7 +48,7 @@ const EstimationDialog = ({
         {
           params,
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -186,8 +188,8 @@ const EstimationDialog = ({
               >
                 {/* Tag No */}
                 <div className={styles.rowTag}>
-                  <p style={{ fontWeight: "bold", fontSize: "16px" }}>
-                    <strong>Est No:</strong> {item.ESTIMATIONNO}
+                  <p style={{ fontSize: "12px" }}>
+                    Est No: <span style={{ fontWeight: "bold", fontSize: "16px" }}>{item.ESTIMATIONNO}</span>
                   </p>
                   <Checkbox
                     checked={selectedObject?.ESTIMATIONNO === item.ESTIMATIONNO}
@@ -202,12 +204,12 @@ const EstimationDialog = ({
 
                 {/* Item and Purity */}
                 <div className={styles.row}>
-                  <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                    <strong>Est Date:</strong>{" "}
-                    {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                  <p style={{ fontSize: "11px" }}>
+                    Est Date:{" "}
+                    <span style={{ fontWeight: "bold", fontSize: "12px" }}>{dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}</span>
                   </p>
                   <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                    <strong>Party Name:</strong> {item.DESCRIPTION}
+                    Party Name: <span style={{ fontWeight: "bold", fontSize: "12px", color: "#52bd91" }}>{item.DESCRIPTION}</span>
                   </p>
                 </div>
                 <hr className={styles.fullWidthLine} />
@@ -217,17 +219,17 @@ const EstimationDialog = ({
                   {/* <p style={{ fontWeight: "bold", fontSize: "12px" }}>
                     <strong>Pieces:</strong> {item.TOTPCS}
                   </p> */}
-                  <p style={{ fontWeight: "bold", fontSize: "11px" }}>
+                  <p style={{ fontSize: "11px" }}>
                     Gross Wt:{" "}
-                    <span>
-                      <strong>{item.GWT}</strong>
+                    <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>
+                      {item.GWT}
                     </span>
                   </p>
-                  <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                    <strong>Less Wt:</strong> {item.STONEWT}
+                  <p style={{ fontSize: "11px" }}>
+                    Less Wt: <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>{item.STONEWT}</span>
                   </p>
-                  <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                    <strong>Net Wt:</strong> {item.NWT}
+                  <p style={{ fontSize: "11px" }}>
+                    Net Wt: <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>{item.NWT}</span>
                   </p>
                 </div>
               </div>

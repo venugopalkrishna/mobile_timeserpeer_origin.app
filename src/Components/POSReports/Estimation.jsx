@@ -1,9 +1,18 @@
-import { DeleteOutlined, FilterOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  FilterOutlined,
+  ScanOutlined,
+} from "@ant-design/icons";
 import { Button, DatePicker, Form, Input, message, Select } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import CloseIcon from "@mui/icons-material/Close";
+import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 import { CREATE_jwel } from "../../Config/Config";
+import Header from "../Header";
+import SidebarDrawer from "../SidebarDrawer";
 import styles from "./Estimation.module.css";
 import EstimationDialog from "./EstimationDialog";
 import EstimationDrawer from "./EstimationDrawer";
@@ -19,6 +28,7 @@ const Estimation = () => {
   const tagNoRef = useRef(null);
   const submitRef = useRef(null);
 
+  const [open, setOpen] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
   const [selectEstimationNo, setSelectEstimationNo] = useState(null);
   const [tableData, setTableData] = useState([]);
@@ -49,6 +59,9 @@ const Estimation = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [stonesDrawerOpen, setStonesDrawerOpen] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
+  const [scanner, setScanner] = useState(null);
+  const [scanOpen, setScanOpen] = useState(false);
   console.log(stoneMainData, "stoneMainData");
   console.log(tableData, "tableData");
   console.log(stoneRate, "stoneRate");
@@ -62,6 +75,17 @@ const Estimation = () => {
     "ddd, DD MMM YYYY HH:mm:ss [GMT]"
   );
 
+  const imageUrls = localStorage.getItem("images")?.split(",");
+  const imagesData = imageUrls?.length > 0 ? imageUrls : [];
+  const userArea = localStorage.getItem("city");
+  const userName = localStorage.getItem("userName");
+  const singleImage = localStorage.getItem("singleImage");
+  const tenantName = localStorage.getItem("tenantName");
+
+  const toggleDrawer = () => {
+    setOpen(false);
+  };
+
   // Estimation Count API
   const estimationCountAPI = async () => {
     // setLoading(true);
@@ -70,7 +94,7 @@ const Estimation = () => {
         `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTable?tableName=ESTIMATION_MAST&column=ESTIMATIONNO`,
         {
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -96,7 +120,7 @@ const Estimation = () => {
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder?tableName=Dealer_Master&where=Custtype%3D%27CUSTOMER%27&order=Dealername`,
         {
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -128,7 +152,7 @@ const Estimation = () => {
         }`,
         {
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -136,7 +160,6 @@ const Estimation = () => {
       let newData = response.data;
       console.log(newData, "newData");
 
-      
       if (!Array.isArray(newData) || newData.length === 0) {
         message.warning("Tag Not existed");
         return;
@@ -152,35 +175,62 @@ const Estimation = () => {
             message.warning("Already Existed This Tag No");
             return prevData;
           }
-          const allData = [...prevData, ...newData];
 
-          const mergedData = allData.reduce((acc, item) => {
-            let existingItem = acc.find((el) => el.TAGNO === item.TAGNO);
+          const validNewData = (Array.isArray(newData) ? newData : []).filter(
+            (item) => item?.TAGNO && item?.MAINTYPE && item?.ACTGRAMS
+          );
 
-            if (existingItem) {
-              existingItem.MAINTYPES = existingItem.MAINTYPES || {};
-              if (existingItem.MAINTYPES[item.MAINTYPE]) {
-                existingItem.MAINTYPES[item.MAINTYPE] += item.ACTGRAMS;
-              } else {
-                existingItem.MAINTYPES[item.MAINTYPE] = item.ACTGRAMS;
-              }
-            } else {
-              acc.push({
-                TAGNO: item.TAGNO,
-                MAINTYPES: { [item.MAINTYPE]: item.ACTGRAMS },
+          const mergedMap = {};
+
+          prevData.forEach((item) => {
+            mergedMap[item.TAGNO] = {
+              TAGNO: item.TAGNO,
+              MAINTYPES: {},
+            };
+
+            if (typeof item.ACTGRAMS === "string") {
+              item.ACTGRAMS.split(",").forEach((entry) => {
+                const match = entry.trim().match(/^(.+?)\(([\d.]+)\)$/);
+                if (match) {
+                  const type = match[0] && match[1].trim();
+                  const grams = parseFloat(match[2]);
+                  if (type && !isNaN(grams)) {
+                    mergedMap[item.TAGNO].MAINTYPES[type] = grams;
+                  }
+                }
               });
             }
+          });
 
-            return acc;
-          }, []);
+          validNewData.forEach((item) => {
+            const tagNo = item.TAGNO;
+            const type = item.MAINTYPE;
+            const grams = Number(item.ACTGRAMS) || 0;
 
-          // Convert MAINTYPES object into a formatted string
-          return mergedData.map((item) => ({
+            if (!mergedMap[tagNo]) {
+              mergedMap[tagNo] = {
+                TAGNO: tagNo,
+                MAINTYPES: {},
+              };
+            }
+
+            if (mergedMap[tagNo].MAINTYPES[type]) {
+              mergedMap[tagNo].MAINTYPES[type] += grams;
+            } else {
+              mergedMap[tagNo].MAINTYPES[type] = grams;
+            }
+          });
+
+          const finalData = Object.values(mergedMap).map((item) => ({
             TAGNO: item.TAGNO,
             ACTGRAMS: Object.entries(item.MAINTYPES)
-              .map(([key, value]) => `${key}(${value ?? 0})`)
+              .map(
+                ([key, value]) => `${key}(${(Number(value) || 0).toFixed(3)})`
+              )
               .join(", "),
           }));
+
+          return finalData;
         });
 
         // mainAPI(formattedData);
@@ -217,10 +267,10 @@ const Estimation = () => {
     // setLoading(true);
     try {
       const response = await axios.get(
-        `http://www.jewelerp.timeserasoftware.in/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${tagNoValue}`,
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${tagNoValue}`,
         {
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -470,7 +520,7 @@ const Estimation = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -507,7 +557,7 @@ const Estimation = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -593,7 +643,7 @@ const Estimation = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -622,7 +672,7 @@ const Estimation = () => {
         {
           params,
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -742,7 +792,7 @@ const Estimation = () => {
         {
           params,
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -799,7 +849,7 @@ const Estimation = () => {
         `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_DATA&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
         {
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -814,7 +864,7 @@ const Estimation = () => {
         `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
         {
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -829,7 +879,7 @@ const Estimation = () => {
         `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_ITEMS&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
         {
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -838,13 +888,68 @@ const Estimation = () => {
     }
   };
 
+  useEffect(() => {
+    let qrScanner;
+
+    if (qrOpen) {
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        rememberLastUsedCamera: true,
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA], // <- this fixes the error
+      };
+
+      qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
+
+      qrScanner.render(
+        (decodedText) => {
+          setTagNoValue(decodedText);
+          // qrScanner.clear(); // Stop the scanner once something is scanned
+          // setQrOpen(false);
+          stonesAPI();
+          mainAPI();
+          setTagNoValue("");
+        },
+        (errorMessage) => {
+          console.warn("QR Scan Error:", errorMessage);
+        }
+      );
+
+      setScanner(qrScanner);
+    }
+
+    // return () => {
+    //   if (qrScanner) {
+    //     qrScanner.clear().catch((err) => console.error("Clear failed:", err));
+    //   }
+    // };
+  }, [qrOpen]);
+
+  const handleStopScanner = () => {
+    if (scanner) {
+      scanner
+        .clear()
+        .catch((err) => console.error("Error stopping scanner:", err))
+        .finally(() => {
+          setScanner(null);
+          setQrOpen(false);
+        });
+    } else {
+      setQrOpen(false);
+    }
+  };
+
+  const handleToggleScan = () => {
+    setScanOpen((prev) => !prev);
+  };
+
   const handleReset = () => {
     setTableData([]); // Clear the table data
     setStonesData([]);
     setStoneMainData([]);
     setSelectedParty(null);
-    setWastageValue(0);
-    setTouchValue(0);
+    setWastageValue();
+    setTouchValue();
     setTotalPieces(0);
     setTotalGrossWeight(0);
     setTotalStoneWeight(0);
@@ -1241,153 +1346,186 @@ const Estimation = () => {
 
   return (
     <div>
-      <div className={styles.estimationContainer}>
-        <span style={{ fontWeight: "bold" }}>
-          Estimation:{" "}
-          <strong style={{ fontWeight: "bold", fontSize: "14px" }}>
-            {selectEstimationNo
-              ? selectEstimationNo?.ESTIMATIONNO
-              : estimationCount + 1}
-          </strong>
-        </span>
-
-        <div className={styles.dateContainer}>
-          <string>
-            <span>Date:</span>
-          </string>
-          <DatePicker
-            style={{ width: "70%" }}
-            value={selectedDate ? dayjs(selectedDate) : null}
-            onChange={(date) => setSelectedDate(date)}
-            format="DD-MMM-YYYY"
-          />
-        </div>
-
-        <div className="filterIcon">
-          <FilterOutlined
-            style={{ color: "green", marginLeft: "-20px", fontSize: "20px" }}
-            onClick={() => {
-              setFilterOpen(true);
+      <Header setOpen={setOpen} />
+      <div className={styles.cardContainer}>
+        <div className={styles.estimationContainer}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
             }}
-          />
-        </div>
-        {selectedParty ? (
-          <div className={styles.partyNameContainer}>
-            <span style={{ fontWeight: "bold" }}>
-              Party Name:{" "}
-              <strong style={{ fontSize: "16px" }}>{selectedParty}</strong>
-            </span>
-          </div>
-        ) : (
-          ""
-        )}
-        <div className={styles.detailsContainer}>
-          {touchValue ? (
-            <span style={{ fontWeight: "bold" }}>
-              Touch: <strong style={{ fontSize: "16px" }}>{touchValue}</strong>
-            </span>
-          ) : (
-            ""
-          )}
-          {wastageValue ? (
-            <>
-              |{" "}
-              <span style={{ fontWeight: "bold" }}>
-                Wastage:{" "}
-                <strong style={{ fontSize: "16px" }}>{wastageValue}</strong>
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+              <span style={{ fontSize: "13px" }}>
+                Estimation:{" "}
+                <strong style={{ fontWeight: "bold", fontSize: "18px" }}>
+                  {selectEstimationNo
+                    ? selectEstimationNo?.ESTIMATIONNO
+                    : estimationCount + 1}
+                </strong>
               </span>
-            </>
+
+              <div
+                className={styles.dateContainer}
+                style={{ display: "flex", alignItems: "center", gap: "2px" }}
+              >
+                <span>Date:</span>
+                <DatePicker
+                  style={{ width: "130px" }}
+                  value={selectedDate ? dayjs(selectedDate) : null}
+                  onChange={(date) => setSelectedDate(date)}
+                  format="DD-MMM-YYYY"
+                />
+              </div>
+            </div>
+
+            <FilterOutlined
+              style={{ color: "green", fontSize: "25px", cursor: "pointer" }}
+              onClick={() => setFilterOpen(true)}
+            />
+          </div>
+          {selectedParty ? (
+            <div className={styles.partyNameContainer}>
+              <span>
+                Party Name:{" "}
+                <strong
+                  style={{ fontSize: "16px", fontWeight: "bold", color: "red" }}
+                >
+                  {selectedParty}
+                </strong>
+              </span>
+            </div>
           ) : (
             ""
           )}
-          {tableData.length > 0 ? (
-            <Button
-              type="primary"
-              htmlType="submit"
-              className={styles.filesButton}
-              onClick={() => {
-                setDrawerOpen(true);
-              }}
-            >
-              Total
-            </Button>
-          ) : (
-            ""
-          )}
-          {stonesData.length > 0 ? (
-            <Button
-              type="primary"
-              htmlType="submit"
-              className={styles.stoneButton}
-              onClick={() => {
-                setStonesDrawerOpen(true);
-              }}
-            >
-              Stone
-            </Button>
-          ) : (
-            ""
-          )}
+          <div className={styles.detailsContainer}>
+            {touchValue ? (
+              <span>
+                Touch:{" "}
+                <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                  {touchValue}
+                </span>
+              </span>
+            ) : (
+              ""
+            )}
+            {wastageValue ? (
+              <>
+                |{" "}
+                <span>
+                  Wastage:{" "}
+                  <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                    {wastageValue}
+                  </span>
+                </span>
+              </>
+            ) : (
+              ""
+            )}
+            {tableData.length > 0 ? (
+              <Button
+                type="primary"
+                htmlType="submit"
+                className={styles.filesButton}
+                onClick={() => {
+                  setDrawerOpen(true);
+                }}
+              >
+                Total
+              </Button>
+            ) : (
+              ""
+            )}
+            {stonesData.length > 0 ? (
+              <Button
+                type="primary"
+                htmlType="submit"
+                className={styles.stoneButton}
+                onClick={() => {
+                  setStonesDrawerOpen(true);
+                }}
+              >
+                Stone
+              </Button>
+            ) : (
+              ""
+            )}
+          </div>
         </div>
       </div>
-      <div className={styles.estimationTagContainer}>
-        <div className={styles.tagNoSection}>
-          <span className={styles.tagLabel}>Tag No:</span>
-          <Input
-            // placeholder="Enter Tag No"
-            ref={tagNoRef}
-            className={styles.tagInput}
-            onKeyDown={handleTagNoKeyDown}
-            disabled={
-              selectedParty && touchValue && wastageValue ? false : true
-            }
-            value={tagNoValue}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 8) {
-                setTagNoValue(value);
+      <div className={styles.cardContainer}>
+        <div className={styles.estimationTagContainer}>
+          <div className={styles.tagNoSection}>
+            <span className={styles.tagLabel}>Tag No:</span>
+            <Input
+              // placeholder="Enter Tag No"
+              ref={tagNoRef}
+              className={styles.tagInput}
+              onKeyDown={handleTagNoKeyDown}
+              disabled={
+                selectedParty && touchValue && wastageValue ? false : true
               }
-            }}
-          />
-        </div>
+              value={tagNoValue}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                if (value.length <= 8) {
+                  setTagNoValue(value);
+                }
+              }}
+            />
+          </div>
 
-        <div className={styles.buttonSection}>
-          <Button
-            type="primary"
-            htmlType="submit"
-            className={styles.submitButton}
-            ref={submitRef}
-            onClick={() => {
-              if (!tagNoValue) {
-                message.warning("Enter Tag No");
-              } else {
-                stonesAPI();
-                mainAPI();
-                setTagNoValue("");
-              }
-            }}
-          >
-            Submit
-          </Button>
+          <div className={styles.buttonSection}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className={styles.submitButton}
+              ref={submitRef}
+              onClick={() => {
+                if (!tagNoValue) {
+                  message.warning("Enter Tag No");
+                } else {
+                  stonesAPI();
+                  mainAPI();
+                  setTagNoValue("");
+                }
+              }}
+            >
+              Submit
+            </Button>
 
-          <Button
-            type="primary"
-            danger
-            className={styles.resetButton}
-            onClick={handleReset}
-          >
-            Reset
-          </Button>
-          <Button
-            type="dashed"
-            danger
-            className={styles.filesButton}
-            onClick={() => {
-              setOpenDialog(true);
-            }}
-          >
-            Files
-          </Button>
+            <Button
+              type="primary"
+              danger
+              className={styles.resetButton}
+              onClick={handleReset}
+            >
+              Reset
+            </Button>
+            <Button
+              type="dashed"
+              danger
+              className={styles.filesButton}
+              onClick={() => {
+                setOpenDialog(true);
+              }}
+            >
+              Files
+            </Button>
+            <div
+              onClick={handleToggleScan}
+              style={{ width: "20px", height: "20px" }}
+            >
+              <ScanOutlined
+                style={{
+                  fontSize: "25px",
+                  color: scanOpen === true ? "#162566" : "#eb14bcff",
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1396,8 +1534,24 @@ const Estimation = () => {
           <div key={index} className={styles.infoBox}>
             {/* Tag No */}
             <div className={styles.rowTag}>
-              <p style={{ fontSize: "16px" }}>
-                <strong>Tag No:</strong> {item.TAGNO}
+              <p>
+                <span
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    borderRadius: "50%",
+                    padding: "5px",
+                    background: "red",
+                    color: "white",
+                  }}
+                >
+                  #{index + 1}
+                </span>
+              </p>
+              <p>
+                <span style={{ fontSize: "20px", fontWeight: "bold" }}>
+                  {item.TAGNO}
+                </span>
               </p>
               <DeleteOutlined
                 style={{ color: "red", cursor: "pointer", fontSize: "20px" }}
@@ -1408,46 +1562,76 @@ const Estimation = () => {
 
             {/* Item and Purity */}
             <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Item:</strong> {item.PRODNAME}
+              <p style={{ fontSize: "12px" }}>
+                Item:{" "}
+                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                  {item.PRODNAME}
+                </span>
               </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Purity:</strong> {item.PREFIX}
+              <p style={{ fontSize: "12px" }}>
+                Purity:{" "}
+                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                  {item.PREFIX}
+                </span>
               </p>
             </div>
             <hr className={styles.fullWidthLine} />
 
             {/* Gross Wt, Less Wt, Net Wt */}
             <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
+              <p style={{ fontSize: "12px" }}>
                 Gross Wt:{" "}
-                <span>
-                  <strong>{Number(item.GROSSWEIGHT)?.toFixed(3)}</strong>
+                <span
+                  style={{ color: "red", fontSize: "14px", fontWeight: "bold" }}
+                >
+                  {Number(item.GROSSWEIGHT)?.toFixed(3)}
                 </span>
               </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
+              <p style={{ fontSize: "12px" }}>
+                Less Wt:{" "}
+                <span
+                  style={{ color: "red", fontSize: "14px", fontWeight: "bold" }}
+                >
+                  {Number(item.STONEWT)?.toFixed(3)}
+                </span>
               </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Net Wt:</strong> {Number(item.NETWT)?.toFixed(3)}
+              <p style={{ fontSize: "12px" }}>
+                Net Wt:{" "}
+                <span
+                  style={{ color: "red", fontSize: "14px", fontWeight: "bold" }}
+                >
+                  {Number(item.NETWT)?.toFixed(3)}
+                </span>
               </p>
             </div>
             <hr className={styles.fullWidthLine} />
 
             {/* Touch and Fine Gold */}
             <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Touch:</strong> {item.TOUCH}
+              <p style={{ fontSize: "12px" }}>
+                Touch:{" "}
+                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                  {item.TOUCH}
+                </span>
               </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Fine Gold:</strong> {Number(item.FINALGOLD)?.toFixed(3)}
+              <p style={{ fontSize: "12px" }}>
+                Fine Gold:{" "}
+                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                  {Number(item.FINALGOLD)?.toFixed(3)}
+                </span>
               </p>
             </div>
             <hr className={styles.fullWidthLine} />
 
             {/* Stones */}
             <div className={styles.fullWidthStone}>
-              <p style={{ fontSize: "14px", padding: "0px 8px 0px 8px" }}>
+              <p
+                style={{
+                  fontSize: "14px",
+                  padding: "0px 8px 0px 8px",
+                  fontWeight: "bold",
+                }}
+              >
                 {(() => {
                   const actGrams =
                     stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)
@@ -1471,6 +1655,30 @@ const Estimation = () => {
           </div>
         ))}
       </div>
+      {scanOpen === true && (
+        <>
+          {!qrOpen && (
+            <div
+              className={styles.scanIconContainer}
+              onClick={() => setQrOpen(true)}
+            >
+              <QrCodeScannerIcon style={{ fontSize: 30, color: "white" }} />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* QR Scanner Modal */}
+      {qrOpen && (
+        <div className={styles.qrScannerOverlay}>
+          <div className={styles.qrScannerContent}>
+            <div className={styles.closeIcon} onClick={handleStopScanner}>
+              <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
+            </div>
+            <div id="qr-reader" style={{ width: "100%" }}></div>
+          </div>
+        </div>
+      )}
       <EstimationFields
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
@@ -1533,6 +1741,13 @@ const Estimation = () => {
         stonesData={stonesData}
         setStoneRate={setStoneRate}
         stoneRate={stoneRate}
+      />
+      <SidebarDrawer
+        open={open}
+        toggleDrawer={toggleDrawer}
+        singleImage={singleImage}
+        userArea={userArea}
+        userName={userName}
       />
     </div>
   );

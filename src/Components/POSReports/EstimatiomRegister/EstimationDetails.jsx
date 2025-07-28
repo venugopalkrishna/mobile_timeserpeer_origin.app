@@ -1,23 +1,18 @@
+import { FilterOutlined } from "@ant-design/icons";
 import {
   Button,
   Col,
   DatePicker,
-  Form,
-  Input,
   Row,
   Select,
-  Spin,
-  Table,
-  Tooltip,
-  Typography,
+  Typography
 } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import { CREATE_jwel } from "../../../Config/Config";
-import TableHeaderStyles from "../../Pages/TableHeaderStyles";
-import logo from "../../../Components/Assets/stones-image.png";
-import { FilterOutlined } from "@ant-design/icons";
+import Header from "../../Header";
+import SidebarDrawer from "../../SidebarDrawer";
 import EstimationDetailsDialog from "./EstimationDetailsDialog";
 import styles from "./EstimationRegister.module.css";
 
@@ -31,6 +26,7 @@ const EstimationDetails = () => {
   const tagNoRef = useRef(null);
   const estRef = useRef(null);
 
+  const [open, setOpen] = useState(false);
   const [summaryData, setSummaryData] = useState([]);
   const [fromDate, setFromDate] = useState(dayjs());
   const [toDate, setToDate] = useState(dayjs());
@@ -48,6 +44,17 @@ const EstimationDetails = () => {
   const [loading, setLoading] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
+  const imageUrls = localStorage.getItem("images")?.split(",");
+  const imagesData = imageUrls?.length > 0 ? imageUrls : [];
+  const userArea = localStorage.getItem("city");
+  const userName = localStorage.getItem("userName");
+  const singleImage = localStorage.getItem("singleImage");
+  const tenantName = localStorage.getItem("tenantName");
+
+  const toggleDrawer = () => {
+    setOpen(false);
+  };
+
   const EstimationSummaryAPI = async () => {
     // setLoading(true);
     try {
@@ -55,7 +62,7 @@ const EstimationDetails = () => {
       if (fromDate && toDate) {
         whereCondition = `ESTIMATIONDATE>='${dayjs(fromDate).format(
           "MM/DD/YYYY"
-        )}' and ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
+        )}' AND ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
       }
       let params = {
         tableName: "ESTIMATION_DATA",
@@ -68,7 +75,7 @@ const EstimationDetails = () => {
         {
           params,
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -176,96 +183,98 @@ const EstimationDetails = () => {
   };
 
   return (
-    <div style={{ padding: "5px", backgroundColor: "#f4f6f9" }}>
-      <Row
-        justify="space-between"
-        align="middle"
-        style={{ marginBottom: "10px" }}
-      >
-        <Col>
-          <Typography style={{ fontSize: "15px", fontWeight: "bold" }}>
-            Estimation Details
-          </Typography>
-        </Col>
-      </Row>
-      <Row
-        justify="space-between"
-        align="right"
-        style={{ marginBottom: "10px" }}
-      >
-        <Col style={{ display: "flex", gap: "10px" }}>
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{
-              backgroundColor: "#0C1154",
-              borderColor: "#0C1154",
-              flex: "0 1 50px",
-            }}
-          >
-            Show
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{
-              backgroundColor: "orange",
-              borderColor: "orange",
-              flex: "0 1 50px",
-            }}
-          >
-            Print
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{
-              backgroundColor: "red",
-              borderColor: "red",
-              flex: "0 1 50px",
-            }}
-          >
-            Exit
-          </Button>
-        </Col>
-      </Row>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          flex: "0 1 200px",
-        }}
-      >
-        <div>From:</div>
-        <DatePicker
-          style={{ flex: 1, minWidth: "80px" }}
-          ref={formRef}
-          onKeyDown={(e) => handleKeyDown(e, toRef)}
-          value={fromDate ? dayjs(fromDate) : null}
-          onChange={(date) => setFromDate(date)}
-          format="DD-MMM-YYYY"
-        />
-        <div>To:</div>
-        <DatePicker
-          style={{ flex: 1, minWidth: "80px" }}
-          ref={toRef}
-          onKeyDown={(e) => handleKeyDown(e, partyRef)}
-          value={toDate ? dayjs(toDate) : null}
-          onChange={(date) => setToDate(date)}
-          format="DD-MMM-YYYY"
-        />
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <FilterOutlined
-            style={{ color: "green", fontSize: "20px" }}
-            onClick={() => {
-              setFilterOpen(true);
-            }}
+    <div>
+      <Header setOpen={setOpen} />
+      <div style={{ padding: "5px", backgroundColor: "#f4f6f9" }}>
+        <Row
+          justify="space-between"
+          align="middle"
+          style={{ marginBottom: "10px" }}
+        >
+          <Col>
+            <Typography style={{ fontSize: "15px", fontWeight: "bold" }}>
+              Estimation Details
+            </Typography>
+          </Col>
+        </Row>
+        <Row
+          justify="space-between"
+          align="right"
+          style={{ marginBottom: "10px" }}
+        >
+          <Col style={{ display: "flex", gap: "10px" }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                backgroundColor: "#0C1154",
+                borderColor: "#0C1154",
+                flex: "0 1 50px",
+              }}
+            >
+              Show
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                backgroundColor: "orange",
+                borderColor: "orange",
+                flex: "0 1 50px",
+              }}
+            >
+              Print
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                backgroundColor: "red",
+                borderColor: "red",
+                flex: "0 1 50px",
+              }}
+            >
+              Exit
+            </Button>
+          </Col>
+        </Row>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            flex: "0 1 200px",
+          }}
+        >
+          <div>From:</div>
+          <DatePicker
+            style={{ flex: 1, minWidth: "80px" }}
+            ref={formRef}
+            onKeyDown={(e) => handleKeyDown(e, toRef)}
+            value={fromDate ? dayjs(fromDate) : null}
+            onChange={(date) => setFromDate(date)}
+            format="DD-MMM-YYYY"
           />
+          <div>To:</div>
+          <DatePicker
+            style={{ flex: 1, minWidth: "80px" }}
+            ref={toRef}
+            onKeyDown={(e) => handleKeyDown(e, partyRef)}
+            value={toDate ? dayjs(toDate) : null}
+            onChange={(date) => setToDate(date)}
+            format="DD-MMM-YYYY"
+          />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <FilterOutlined
+              style={{ color: "green", fontSize: "20px" }}
+              onClick={() => {
+                setFilterOpen(true);
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* <div
+        {/* <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -309,7 +318,7 @@ const EstimationDetails = () => {
           </Select>
         </div> */}
 
-      {/* <div
+        {/* <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -354,8 +363,8 @@ const EstimationDetails = () => {
           </Select>
         </div> */}
 
-      {/* Touch & Wast Inputs */}
-      {/* <div
+        {/* Touch & Wast Inputs */}
+        {/* <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -378,7 +387,7 @@ const EstimationDetails = () => {
             }}
           />
         </div> */}
-      {/* <div
+        {/* <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -400,9 +409,9 @@ const EstimationDetails = () => {
             }}
           />
         </div> */}
-      {/* </Col>
+        {/* </Col>
         </Row> */}
-      {/* <Row gutter={[16, 16]} style={{ marginTop: "5px" }}>
+        {/* <Row gutter={[16, 16]} style={{ marginTop: "5px" }}>
         <Col span={24}>
           <div
             style={{
@@ -457,80 +466,91 @@ const EstimationDetails = () => {
           </div>
         </Col>
       </Row> */}
-      <div className={styles.cardContainer}>
-        {summaryData?.map((item, index) => (
-          <div key={index} className={styles.infoBox}>
-            <div className={styles.rowTag}>
-              <div className={styles.estimationRow}>
-                <p style={{ fontSize: "16px" }}>
-                  <strong>Est NO:</strong> {item.ESTIMATIONNO}
-                </p>
-                <p style={{ fontSize: "16px", marginLeft: "16px" }}>
-                  <strong>Est Date:</strong>{" "}
-                  {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+        <div className={styles.cardContainer}>
+          {summaryData?.map((item, index) => (
+            <div key={index} className={styles.infoBox}>
+              <div className={styles.rowTag}>
+                <div className={styles.estimationRow}>
+                  <p style={{ fontSize: "16px" }}>
+                    <strong>Est NO:</strong> {item.ESTIMATIONNO}
+                  </p>
+                  <p style={{ fontSize: "16px", marginLeft: "16px" }}>
+                    <strong>Est Date:</strong>{" "}
+                    {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                  </p>
+                </div>
+                <p style={{ fontSize: "12px", padding: "0px 8px 0px 8px" }}>
+                  <strong>Party:</strong> {item?.DESCRIPTION}
                 </p>
               </div>
-              <p style={{ fontSize: "12px", padding: "0px 8px 0px 8px"}}>
-                <strong>Party:</strong> {item?.DESCRIPTION}
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
+              <hr className={styles.fullWidthLine} />
 
-            <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Tag No:</strong> {item.TAGNO}
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Item:</strong> {item.PRODNAME}
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
+              <div className={styles.row}>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Tag No:</strong> {item.TAGNO}
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Item:</strong> {item.PRODNAME}
+                </p>
+              </div>
+              <hr className={styles.fullWidthLine} />
 
-            <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
-                Gross Wt:{" "}
-                <span>
-                  <strong>{Number(item.GWT)?.toFixed(3)}</strong>
-                </span>
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Net Wt:</strong> {Number(item.NWT)?.toFixed(3)}
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
+              <div className={styles.row}>
+                <p style={{ fontSize: "14px" }}>
+                  Gross Wt:{" "}
+                  <span>
+                    <strong>{Number(item.GWT)?.toFixed(3)}</strong>
+                  </span>
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Net Wt:</strong> {Number(item.NWT)?.toFixed(3)}
+                </p>
+              </div>
+              <hr className={styles.fullWidthLine} />
 
-            <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Touch:</strong> {item.TOUCH}
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Fine Gold:</strong> {Number(item.FINEGOLD)?.toFixed(3)}
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
+              <div className={styles.row}>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Touch:</strong> {item.TOUCH}
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Fine Gold:</strong>{" "}
+                  {Number(item.FINEGOLD)?.toFixed(3)}
+                </p>
+              </div>
+              <hr className={styles.fullWidthLine} />
 
-            <div className={styles.fullWidthStone}>
-              <p style={{ fontSize: "14px", padding: "0px 8px 0px 8px" }}>{item.STDET}</p>
+              <div className={styles.fullWidthStone}>
+                <p style={{ fontSize: "14px", padding: "0px 8px 0px 8px" }}>
+                  {item.STDET}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <EstimationDetailsDialog
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+          selectedParty={selectedParty}
+          setSelectedParty={setSelectedParty}
+          partyNames={partyNames}
+          selectedItem={selectedItem}
+          setSelectedItem={setSelectedItem}
+          itemNames={itemNames}
+          searchTagNo={searchTagNo}
+          setSearchTagNo={setSearchTagNo}
+          searchEstimationNo={searchEstimationNo}
+          setSearchEstimationNO={setSearchEstimationNO}
+        />
       </div>
-      <EstimationDetailsDialog
-        filterOpen={filterOpen}
-        setFilterOpen={setFilterOpen}
-        selectedParty={selectedParty}
-        setSelectedParty={setSelectedParty}
-        partyNames={partyNames}
-        selectedItem={selectedItem}
-        setSelectedItem={setSelectedItem}
-        itemNames={itemNames}
-        searchTagNo={searchTagNo}
-        setSearchTagNo={setSearchTagNo}
-        searchEstimationNo={searchEstimationNo}
-        setSearchEstimationNO={setSearchEstimationNO}
+      <SidebarDrawer
+        open={open}
+        toggleDrawer={toggleDrawer}
+        singleImage={singleImage}
+        userArea={userArea}
+        userName={userName}
       />
     </div>
   );

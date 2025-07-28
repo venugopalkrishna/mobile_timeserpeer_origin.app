@@ -42,6 +42,7 @@ const EstimationDetailsDialog = ({
         <div>Party Name:</div>
         <Select
           showSearch
+          allowClear
           placeholder="Select Party Name"
           autoFocus={true}
           style={{ width: "60%" }}
@@ -85,6 +86,7 @@ const EstimationDetailsDialog = ({
         <div>Item Name:</div>
         <Select
           showSearch
+          allowClear
           placeholder="Select Item Name"
           autoFocus={true}
           style={{ width: "60%" }}

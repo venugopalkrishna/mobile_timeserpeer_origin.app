@@ -34,19 +34,19 @@ const EstimationStonesDrawer = ({
           <div key={index} className={styles.infoBox}>
             {/* Tag No */}
             <div className={styles.rowTag}>
-              <p style={{ fontWeight: "bold", fontSize: "16px" }}>
-                <strong>Item Name:</strong> {item.MAINTYPE}
+              <p style={{ fontSize: "14px" }}>
+                Item Name : <span style={{ fontWeight: "bold", fontSize: "16px" }}>{item.MAINTYPE}</span>
               </p>
             </div>
             <hr className={styles.fullWidthLine} />
 
             {/* Item and Purity */}
             <div className={styles.row}>
-              <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                <strong>Pieces:</strong> {item.PCS}
+              <p style={{ fontSize: "11px" }}>
+                Pieces : <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>{item.PCS}</span>
               </p>
-              <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                <strong>Grams:</strong> {item?.ACTGRAMS?.toFixed(3)}
+              <p style={{ fontSize: "11px" }}>
+                Grams : <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>{item?.ACTGRAMS?.toFixed(3)}</span>
               </p>
             </div>
             <hr className={styles.fullWidthLine} />
@@ -55,7 +55,7 @@ const EstimationStonesDrawer = ({
             <div className={styles.row}>
               <p style={{ fontWeight: "bold", fontSize: "11px" }}>Rate</p>
               <Input
-                style={{ width: "50%" }}
+                style={{ width: "50%", fontSize: "14px", fontWeight:"bold" }}
                 placeholder="Enter Rate"
                 value={stoneRate[index] || ""}
                 onChange={(e) => {
@@ -71,11 +71,11 @@ const EstimationStonesDrawer = ({
             </div>
             <hr className={styles.fullWidthLine} />
             <div className={styles.row}>
-              <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                <strong>Amount:</strong>
-                {(
+              <p style={{ fontSize: "11px" }}>
+                Amount : {" "}
+                <span style={{ fontWeight: "bold", fontSize: "14px", color: "#52bd91" }}>{(
                   (parseFloat(stoneRate[index]) || 0) * (item?.ACTGRAMS || 0)
-                ).toFixed(2)}
+                ).toFixed(2)}</span>
               </p>
             </div>
           </div>

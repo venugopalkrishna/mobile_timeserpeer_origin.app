@@ -9,13 +9,15 @@ import EstimationDetails from "./Components/POSReports/EstimatiomRegister/Estima
 import EstimationSummary from "./Components/POSReports/EstimatiomRegister/EstimationSummary";
 import LoginPage from "./Components/Masters/Logins/LoginPage";
 const App = () => {
+   const tenantName = localStorage.getItem("tenantName");
   const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem("isLoggedIn") === "true"
+    // localStorage.getItem("isLoggedIn") === "true"
+    tenantName
   );
-  
-  const handleLogin = () => {
-    localStorage.setItem("isLoggedIn", "true"); // Store login status
-    setIsAuthenticated(true);
+
+  const handleLogin = (name) => {
+    // localStorage.setItem("isLoggedIn", "true"); // Store login status
+    setIsAuthenticated(name);
   };
 
   
@@ -27,7 +29,6 @@ const App = () => {
           path="*"
           element={
             isAuthenticated ? (
-              <DashboardLayout>
                 <Routes>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/settings" element={<Settings />} />
@@ -36,7 +37,6 @@ const App = () => {
                   <Route path="/estimation-details" element={<EstimationDetails />} />
                   <Route path="/estimation-summary" element={<EstimationSummary />} />
                 </Routes>
-              </DashboardLayout>
             ) : (
               <Navigate to="/" />
             )

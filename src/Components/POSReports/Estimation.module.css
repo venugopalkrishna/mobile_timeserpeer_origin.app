@@ -58,6 +58,7 @@
 @media (max-width: 480px) {
     .estimationContainer {
         padding: 8px;
+        min-width: auto;
     }
 
     .detailsContainer {
@@ -113,7 +114,8 @@
     border-color: #0C1154 !important;
     color: white;
     padding: 6px 12px;
-    height: 70%;
+    font-size: medium;
+    /* height: 70%; */
 }
 
 .resetButton {
@@ -121,7 +123,7 @@
     border-color: red !important;
     color: white;
     padding: 6px 12px;
-    height: 70%;
+    /* height: 70%; */
 }
 
 .filesButton {
@@ -129,7 +131,7 @@
     border-color: green !important;
     color: white;
     padding: 6px 12px;
-    height: 70%;
+    /* height: 70%; */
 }
 
 .stoneButton {
@@ -137,7 +139,7 @@
     border-color: gray !important;
     color: white;
     padding: 6px 12px;
-    height: 70%;
+    /* height: 70%; */
 }
 
 /* Responsive styles */
@@ -168,20 +170,21 @@
     justify-content: center;
     max-height: 500px;
     overflow-y: auto;
-    width: 100%;
+    width: auto;
+    padding: 0px 5px 0px 5px;
 }
 
 .infoBox {
     width: 100%;
     height: auto;
-    background: #fff;
-    padding: 5px;
+    background: radial-gradient(circle at center, #ffffff 50%, #f3f6fb 60%, #e0e7f1 80%);
+    padding: 0px 5px 0px 5px;
     border-radius: 5px;
-    border: 1px solid black;
+    border: 1px solid rgb(83, 81, 81);
     text-align: left;
     font-size: 12px;
-    font-weight: bold;
-    background: lightblue;
+    /* font-weight: bold; */
+    /* background: rgb(248, 249, 250); */
     line-height: 1.2;
 }
 
@@ -189,14 +192,15 @@
     display: flex;
     justify-content: space-between;
     font-size: 12px;
-    padding: 0px 8px 0px 8px;
+    padding: 0px 4px 0px 4px;
 }
 
 .rowTag {
     display: flex;
+    background-color: #52a4bd;
     justify-content: space-between;
     font-size: 12px;
-    padding: 0px 8px 0px 8px;
+    padding: 5px 8px 2px 8px;
 }
 
 .fullWidth {
@@ -222,6 +226,45 @@
     margin: 2px 0;
 }
 
+.scanIconContainer {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgb(58, 106, 184);
+    border-radius: 50%;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+}
+
+.qrScannerOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.qrScannerContent {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.closeIcon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    z-index: 2;
+}
+
 @media (max-width: 768px) {
     .infoBox {
         padding: 4px;
@@ -231,9 +274,9 @@
 
 @media (max-width: 480px) {
     .infoBox {
-        padding: 2px;
+        padding: 0px 2px 0px 2px;
         font-size: 12px;
-        line-height: 1;
+        line-height: 0.1;
     }
 
     .row,

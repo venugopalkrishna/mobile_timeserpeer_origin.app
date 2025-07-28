@@ -1,24 +1,20 @@
+import { FilterOutlined } from "@ant-design/icons";
 import {
   Button,
   Col,
   DatePicker,
-  Form,
-  Input,
   Row,
   Select,
-  Spin,
-  Table,
-  Tooltip,
-  Typography,
+  Typography
 } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import { CREATE_jwel } from "../../../Config/Config";
-import TableHeaderStyles from "../../Pages/TableHeaderStyles";
-import { FilterOutlined } from "@ant-design/icons";
-import EstimationSummaryDialog from "./EstimationSummaryDialog";
+import Header from "../../Header";
+import SidebarDrawer from "../../SidebarDrawer";
 import styles from "./EstimationRegister.module.css";
+import EstimationSummaryDialog from "./EstimationSummaryDialog";
 
 const { Option } = Select;
 
@@ -27,6 +23,7 @@ const EstimationSummary = () => {
   const toRef = useRef(null);
   const partyRef = useRef(null);
 
+  const [open, setOpen] = useState(false);
   const [summaryData, setSummaryData] = useState([]);
   const [fromDate, setFromDate] = useState(dayjs());
   const [toDate, setToDate] = useState(dayjs());
@@ -45,6 +42,17 @@ const EstimationSummary = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   console.log(summaryData);
 
+  const imageUrls = localStorage.getItem("images")?.split(",");
+  const imagesData = imageUrls?.length > 0 ? imageUrls : [];
+  const userArea = localStorage.getItem("city");
+  const userName = localStorage.getItem("userName");
+  const singleImage = localStorage.getItem("singleImage");
+  const tenantName = localStorage.getItem("tenantName");
+
+  const toggleDrawer = () => {
+    setOpen(false);
+  };
+
   const estimationSummaryAPI = async () => {
     setLoading(true);
     try {
@@ -52,7 +60,7 @@ const EstimationSummary = () => {
       if (fromDate && toDate) {
         whereCondition = `ESTIMATIONDATE>='${dayjs(fromDate).format(
           "MM/DD/YYYY"
-        )}' and ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
+        )}' AND ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
       }
       let params = {
         tableName: "ESTIMATION_MAST",
@@ -65,7 +73,7 @@ const EstimationSummary = () => {
         {
           params,
           headers: {
-            tenantName: "fd7V0CCCS3URhSfa/g6drA==",
+            tenantName: tenantName,
           },
         }
       );
@@ -146,235 +154,6 @@ const EstimationSummary = () => {
     }
   }, [fromDate, toDate, selectedParty]);
 
-  const columns = [
-    {
-      title: "SNo",
-      dataIndex: "SNo",
-      key: "SNo",
-      className: "blue-background-column",
-      render: (text, record, index) => index + 1,
-      width: 50,
-    },
-    {
-      title: "Est No",
-      dataIndex: "ESTIMATIONNO",
-      key: "ESTIMATIONNO",
-      align: "center",
-      width: 60,
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>
-              {record?.ESTIMATIONNO || 0}
-            </div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Est Date",
-      dataIndex: "ESTIMATIONDATE",
-      key: "ESTIMATIONDATE",
-      align: "center",
-      align: "left",
-      width: 100,
-      render: (text, record) => {
-        return (
-          <>
-            <div>
-              {record?.ESTIMATIONDATE
-                ? dayjs(record.ESTIMATIONDATE).format("DD-MMM-YYYY")
-                : "-"}
-            </div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Party Name",
-      dataIndex: "DESCRIPTION",
-      key: "DESCRIPTION",
-      width: 100,
-      align: "left",
-      width: 100,
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.DESCRIPTION}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Pieces",
-      dataIndex: "TOTPCS",
-      key: "TOTPCS",
-      width: 100,
-      align: "center",
-      width: 60,
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.TOTPCS}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Gross.Wt",
-      dataIndex: "GWT",
-      key: "GWT",
-      align: "right",
-      width: 80,
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.GWT}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Less.Wt",
-      dataIndex: "STONEWT",
-      key: "STONEWT",
-      align: "right",
-      width: 70,
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.STONEWT}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Net.Wt",
-      dataIndex: "NWT",
-      key: "NWT",
-      align: "right",
-      width: 70,
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.NWT}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Fine Gold",
-      dataIndex: "TOUCHPER",
-      key: "TOUCHPER",
-      align: "right",
-      width: 100,
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.TOUCHPER}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Mc (%)",
-      dataIndex: "MCPER",
-      key: "MCPER",
-      align: "right",
-      width: 70,
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.MCPER}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Mc Amt",
-      dataIndex: "MCAMT",
-      key: "MCAMT",
-      align: "right",
-      width: 100,
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.MCAMT}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "R-Charges",
-      dataIndex: "RCHARGES",
-      key: "RCHARGES",
-      align: "right",
-      width: 100,
-      render: (text, record) => {
-        return (
-          <>
-            <div>{record?.RCHARGES}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Stone Amt",
-      dataIndex: "Homekey",
-      key: "Homekey",
-      align: "right",
-      width: 100,
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.STCHARGES}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Total Cash",
-      dataIndex: "TOTCASH",
-      key: "TOTCASH",
-      align: "right",
-      width: 100,
-      render: (text, record) => {
-        return (
-          <>
-            <div style={{ fontWeight: "bold" }}>{record?.TOTCASH}</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Inv No",
-      dataIndex: "Homekey",
-      key: "Homekey",
-      align: "left",
-      width: 70,
-      render: (text, record) => {
-        return (
-          <>
-            <div>0</div>
-          </>
-        );
-      },
-    },
-    {
-      title: "Inv Date",
-      dataIndex: "Homekey",
-      key: "Homekey",
-      align: "left",
-      width: 70,
-      render: (text, record) => {
-        return (
-          <>
-            <div>-</div>
-          </>
-        );
-      },
-    },
-  ];
 
   const handleKeyDown = (e, nextRef) => {
     if (e.key === "Enter") {
@@ -398,114 +177,116 @@ const EstimationSummary = () => {
   };
 
   return (
-    <div style={{ padding: "5px", backgroundColor: "#f4f6f9" }}>
-      <Row
-        justify="space-between"
-        align="middle"
-        style={{ marginBottom: "10px" }}
-      >
-        <Col>
-          <Typography style={{ fontSize: "15px", fontWeight: "bold" }}>
-            Estimation Summary
-          </Typography>
-        </Col>
-      </Row>
-      <Row
-        justify="space-between"
-        align="right"
-        style={{ marginBottom: "10px" }}
-      >
-        <Col style={{ display: "flex", gap: "10px" }}>
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{
-              backgroundColor: "#0C1154",
-              borderColor: "#0C1154",
-              flex: "0 1 50px",
-            }}
-          >
-            Show
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{
-              backgroundColor: "orange",
-              borderColor: "orange",
-              flex: "0 1 50px",
-            }}
-          >
-            Print
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{
-              backgroundColor: "red",
-              borderColor: "red",
-              flex: "0 1 50px",
-            }}
-          >
-            Exit
-          </Button>
-        </Col>
-      </Row>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          flex: "0 1 200px",
-        }}
-      >
-        <div>From:</div>
-        <DatePicker
-          style={{ flex: 1, minWidth: "80px" }}
-          ref={formRef}
-          onKeyDown={(e) => handleKeyDown(e, toRef)}
-          value={fromDate ? dayjs(fromDate) : null}
-          onChange={(date) => setFromDate(date)}
-          format="DD-MMM-YYYY"
-        />
-        <div>To:</div>
-        <DatePicker
-          style={{ flex: 1, minWidth: "80px" }}
-          ref={toRef}
-          onKeyDown={(e) => handleKeyDown(e, partyRef)}
-          value={toDate ? dayjs(toDate) : null}
-          onChange={(date) => setToDate(date)}
-          format="DD-MMM-YYYY"
-        />
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <FilterOutlined
-            style={{ color: "green", fontSize: "20px" }}
-            onClick={() => {
-              setFilterOpen(true);
-            }}
+    <div>
+      <Header setOpen={setOpen} />
+      <div style={{ padding: "5px", backgroundColor: "#f4f6f9" }}>
+        <Row
+          justify="space-between"
+          align="middle"
+          style={{ marginBottom: "10px" }}
+        >
+          <Col>
+            <Typography style={{ fontSize: "15px", fontWeight: "bold" }}>
+              Estimation Summary
+            </Typography>
+          </Col>
+        </Row>
+        <Row
+          justify="space-between"
+          align="right"
+          style={{ marginBottom: "10px" }}
+        >
+          <Col style={{ display: "flex", gap: "10px" }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                backgroundColor: "#0C1154",
+                borderColor: "#0C1154",
+                flex: "0 1 50px",
+              }}
+            >
+              Show
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                backgroundColor: "orange",
+                borderColor: "orange",
+                flex: "0 1 50px",
+              }}
+            >
+              Print
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                backgroundColor: "red",
+                borderColor: "red",
+                flex: "0 1 50px",
+              }}
+            >
+              Exit
+            </Button>
+          </Col>
+        </Row>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            flex: "0 1 200px",
+          }}
+        >
+          <div>From:</div>
+          <DatePicker
+            style={{ flex: 1, minWidth: "80px" }}
+            ref={formRef}
+            onKeyDown={(e) => handleKeyDown(e, toRef)}
+            value={fromDate ? dayjs(fromDate) : null}
+            onChange={(date) => setFromDate(date)}
+            format="DD-MMM-YYYY"
           />
+          <div>To:</div>
+          <DatePicker
+            style={{ flex: 1, minWidth: "80px" }}
+            ref={toRef}
+            onKeyDown={(e) => handleKeyDown(e, partyRef)}
+            value={toDate ? dayjs(toDate) : null}
+            onChange={(date) => setToDate(date)}
+            format="DD-MMM-YYYY"
+          />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <FilterOutlined
+              style={{ color: "green", fontSize: "20px" }}
+              onClick={() => {
+                setFilterOpen(true);
+              }}
+            />
+          </div>
         </div>
-      </div>
-      <div className={styles.cardContainer}>
-        {summaryData?.map((item, index) => (
-          <div key={index} className={styles.infoBox}>
-            <div className={styles.rowTag}>
-              <div className={styles.estimationRow}>
-                <p style={{ fontSize: "16px" }}>
-                  <strong>Est NO:</strong> {item.ESTIMATIONNO}
-                </p>
-                <p style={{ fontSize: "16px", marginLeft: "16px" }}>
-                  <strong>Est Date:</strong>{" "}
-                  {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+        <div className={styles.cardContainer}>
+          {summaryData?.map((item, index) => (
+            <div key={index} className={styles.infoBox}>
+              <div className={styles.rowTag}>
+                <div className={styles.estimationRow}>
+                  <p style={{ fontSize: "16px" }}>
+                    <strong>Est NO:</strong> {item.ESTIMATIONNO}
+                  </p>
+                  <p style={{ fontSize: "16px", marginLeft: "16px" }}>
+                    <strong>Est Date:</strong>{" "}
+                    {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                  </p>
+                </div>
+                <p style={{ fontSize: "12px", padding: "0px 8px 0px 8px" }}>
+                  <strong>Party:</strong> {item?.DESCRIPTION}
                 </p>
               </div>
-              <p style={{ fontSize: "12px", padding: "0px 8px 0px 8px" }}>
-                <strong>Party:</strong> {item?.DESCRIPTION}
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
+              <hr className={styles.fullWidthLine} />
 
-            {/* <div className={styles.row}>
+              {/* <div className={styles.row}>
               <p style={{ fontSize: "14px" }}>
                 <strong>Tag No:</strong> {item.TAGNO}
               </p>
@@ -515,59 +296,70 @@ const EstimationSummary = () => {
             </div>
             <hr className={styles.fullWidthLine} /> */}
 
-            <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
-                Gross Wt:{" "}
-                <span>
-                  <strong>{Number(item.GWT)?.toFixed(3)}</strong>
-                </span>
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Net Wt:</strong> {Number(item.NWT)?.toFixed(3)}
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
+              <div className={styles.row}>
+                <p style={{ fontSize: "14px" }}>
+                  Gross Wt:{" "}
+                  <span>
+                    <strong>{Number(item.GWT)?.toFixed(3)}</strong>
+                  </span>
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Net Wt:</strong> {Number(item.NWT)?.toFixed(3)}
+                </p>
+              </div>
+              <hr className={styles.fullWidthLine} />
 
-            <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Fine Gold:</strong> {Number(item.TOUCHPER)?.toFixed(3)}
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Mc (%):</strong> {item.MCPER}
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Mc Amt:</strong> {Number(item.MCAMT)?.toFixed(2)}
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
+              <div className={styles.row}>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Fine Gold:</strong>{" "}
+                  {Number(item.TOUCHPER)?.toFixed(3)}
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Mc (%):</strong> {item.MCPER}
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Mc Amt:</strong> {Number(item.MCAMT)?.toFixed(2)}
+                </p>
+              </div>
+              <hr className={styles.fullWidthLine} />
 
-            <div className={styles.row}>
-              <p style={{ fontSize: "14px" }}>
-                <strong>R-Charges:</strong> {item.RCHARGES}
-              </p>
-              <p style={{ fontSize: "14px" }}>
-                <strong>Stone Amt:</strong> {Number(item.STCHARGES)?.toFixed(2)}
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
+              <div className={styles.row}>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>R-Charges:</strong> {item.RCHARGES}
+                </p>
+                <p style={{ fontSize: "14px" }}>
+                  <strong>Stone Amt:</strong>{" "}
+                  {Number(item.STCHARGES)?.toFixed(2)}
+                </p>
+              </div>
+              <hr className={styles.fullWidthLine} />
 
-            <div className={styles.fullWidthStone}>
-              <p style={{ fontSize: "14px", padding: "0px 8px 0px 8px" }}>
-                <strong>Total Cash:</strong> {Number(item.TOTCASH)?.toFixed(2)}
-              </p>
+              <div className={styles.fullWidthStone}>
+                <p style={{ fontSize: "14px", padding: "0px 8px 0px 8px" }}>
+                  <strong>Total Cash:</strong>{" "}
+                  {Number(item.TOTCASH)?.toFixed(2)}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <EstimationSummaryDialog
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+          selectedParty={selectedParty}
+          setSelectedParty={setSelectedParty}
+          partyNames={partyNames}
+        />
       </div>
-      <EstimationSummaryDialog
-        filterOpen={filterOpen}
-        setFilterOpen={setFilterOpen}
-        selectedParty={selectedParty}
-        setSelectedParty={setSelectedParty}
-        partyNames={partyNames}
+      <SidebarDrawer
+        open={open}
+        toggleDrawer={toggleDrawer}
+        singleImage={singleImage}
+        userArea={userArea}
+        userName={userName}
       />
     </div>
   );

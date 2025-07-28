@@ -1,29 +1,61 @@
-import React, { useEffect } from "react";
-import { Card, Button, Form, Input, Checkbox } from "antd";
+import { Button, Form, Input } from "antd";
+import axios from "axios";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../../../Components/Assets/textLogo.png";
 import { CREATE_jwel } from "../../../Config/Config";
-import styles from "./Login.module.css";
+import mainLogo from "../../Assets/main-logo.jpg";
+import timeseraLogo from "../../Assets/timesers-logo.png";
+import logo from "../../Assets/tlogo.png";
+import style from "./Login.module.css";
 
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem("isLoggedIn") === "true") {
-      navigate("/estimations"); // Redirect to estimations if already logged in
+    if (localStorage.getItem("tenantName")) {
+      navigate("/estimations");
+    } else {
+      navigate("/");
     }
   }, [navigate]);
+
+  const userAPI = async (name) => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=FIRM_CONFIGURE`,
+        {
+          headers: {
+            tenantName: name,
+          },
+        }
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        const imageUrls = data[0]?.EPASS1.split(",");
+        localStorage.setItem("images", imageUrls);
+        localStorage.setItem("userName", data[0]?.FIRMNAME);
+        localStorage.setItem("city", data[0]?.CITY);
+        localStorage.setItem("singleImage", data[0]?.EPASS2);
+      }
+    } catch (error) {
+      console.error("Error fetching estimation count:", error);
+    }
+  };
 
   const onFinish = async (values) => {
     const { username, password } = values;
     try {
-      const response = await fetch(
-        `${CREATE_jwel}/api/Tenant/CheckValidTenantWithName?userName=${username}&password=${password}&clientName=MADHU`
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Tenant/CheckValidTenant?userName=${username}&password=${password}`
       );
-      const data = await response.json();
-      if (data?.tenantName) {
+
+      if (response?.data) {
         localStorage.setItem("isLoggedIn", "true"); // Store login status
-        onLogin();
+        localStorage.setItem("tenantName", response?.data);
+        onLogin(response?.data);
+        userAPI(response?.data);
         navigate("/estimations");
       } else {
         console.log("Invalid username or password");
@@ -38,85 +70,122 @@ const LoginPage = ({ onLogin }) => {
   };
 
   return (
-    <div className={styles.loginPageContainer}
-    style={{
-        backgroundImage: "url('https://img.freepik.com/free-vector/abstract-dark-blue-vector-futuristic-digital-grid-background_53876-110562.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-    }}
-    >
-      {" "}
-      <div className={styles.loginWrapper}>
-        {" "}
-        <div className={styles.welcomeSection}>
-          {" "}
-
-          <div className={styles.welcomeContent}>
-            {" "}
-    
-            <img src={logo} alt="Logo" className={styles.logo} />{" "}
-    
+    <div className={style.loginContainer}>
+      <div className={style.backgroundImageContainer}>
+        <img
+          src={mainLogo}
+          alt="Background"
+          className={style.backgroundImage}
+        />
+        <div
+          style={{
+            zIndex: "999",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <div className={style.logoSection}>
+            <img src={logo} alt="Logo" style={{ width: "35px" }} />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              <img
+                src={timeseraLogo}
+                alt="Text Logo"
+                style={{ width: "150px" }}
+              />
+              <h3
+                style={{
+                  color: "rgb(176, 152, 64)",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  margin: 0,
+                }}
+              >
+                Estimation APP
+              </h3>
+            </div>
           </div>
-        </div>
-        <div className={styles.loginSection}>
-          {" "}
-
-          <Card bordered={false} className={styles.loginCard}>
-            {" "}
-    
-            <h2 style={{ textAlign: "center", marginBottom: "5px", fontSize: "24px", fontWeight: "bold" }}>Login</h2>
-            <p style={{ textAlign: "center",fontSize: "16px", }}>Log in to your account to continue</p>
+          <h3
+            style={{
+              color: "#0C1E48",
+              fontSize: "14px",
+              fontWeight: 700,
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            Login to your account
+          </h3>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "80px",
+            }}
+          >
             <Form
-              name="login"
-              initialValues={{ remember: true }}
+              layout="vertical"
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
-              layout="vertical"
+              initialValues={{ remember: true }}
             >
               <Form.Item
-                label="Username"
                 name="username"
                 rules={[
-                  { required: true, message: "Please input your username!" },
+                  { required: true, message: "Please enter your username" },
                 ]}
               >
-                <Input size="large" placeholder="Username" />
+                <Input
+                  placeholder="Enter your username"
+                  className={style.inputField}
+                />
               </Form.Item>
+
               <Form.Item
-                label="Password"
                 name="password"
                 rules={[
-                  { required: true, message: "Please input your password!" },
+                  { required: true, message: "Please enter your password" },
                 ]}
               >
-                <Input.Password size="large" placeholder="Password" />
+                <Input.Password
+                  placeholder="Enter your password"
+                  className={style.inputField1}
+                />
               </Form.Item>
-              <Form.Item className={styles.rememberForgot}>
-                {" "}
-        
-                <Checkbox>Remember me</Checkbox>
-                <a href="/" className={styles.forgotPassword}>
-                  {" "}
-        
-                  Forgot password?
-                </a>
-              </Form.Item>
-              <Form.Item style={{ textAlign: "center" }}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className={styles.loginButton}
-                  size="large"
-                >
-                  Login
-                </Button>
-              </Form.Item>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    // className={style.submitBtn}
+                    style={{
+                      backgroundColor: " #50bb8f",
+                      color: "black",
+                      border: "none",
+                      borderRadius: "4px",
+                      padding: "10px 20px",
+                      fontSize: "16px",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      // border: "2px solid #0C1E48",
+                      height: "40px",
+                      width: "100px",
+                    }}
+                  >
+                    Submit
+                  </Button>
+                </Form.Item>
+              </div>
             </Form>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
