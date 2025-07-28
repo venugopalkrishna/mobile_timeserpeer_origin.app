@@ -904,7 +904,7 @@ const Estimation = () => {
       qrScanner.render(
         (decodedText) => {
           setTagNoValue(decodedText);
-          // qrScanner.clear(); // Stop the scanner once something is scanned
+          qrScanner.clear();
           // setQrOpen(false);
           stonesAPI();
           mainAPI();
@@ -918,11 +918,11 @@ const Estimation = () => {
       setScanner(qrScanner);
     }
 
-    // return () => {
-    //   if (qrScanner) {
-    //     qrScanner.clear().catch((err) => console.error("Clear failed:", err));
-    //   }
-    // };
+    return () => {
+      if (qrScanner) {
+        qrScanner.clear().catch((err) => console.error("Clear failed:", err));
+      }
+    };
   }, [qrOpen]);
 
   const handleStopScanner = () => {
@@ -1514,17 +1514,19 @@ const Estimation = () => {
             >
               Files
             </Button>
-            <div
-              onClick={handleToggleScan}
-              style={{ width: "20px", height: "20px" }}
-            >
-              <ScanOutlined
-                style={{
-                  fontSize: "25px",
-                  color: scanOpen === true ? "#162566" : "#eb14bcff",
-                }}
-              />
-            </div>
+            {selectedParty && touchValue && wastageValue && (
+              <div
+                onClick={handleToggleScan}
+                style={{ width: "20px", height: "20px" }}
+              >
+                <ScanOutlined
+                  style={{
+                    fontSize: "25px",
+                    color: scanOpen === true ? "#162566" : "#eb14bcff",
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
