@@ -896,7 +896,7 @@ const Estimation = () => {
         fps: 10,
         qrbox: { width: 250, height: 250 },
         rememberLastUsedCamera: true,
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA], // <- this fixes the error
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
       };
 
       qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
@@ -904,12 +904,14 @@ const Estimation = () => {
       qrScanner.render(
         (decodedText) => {
           setTagNoValue(decodedText);
+
+          // Call your APIs
           stonesAPI();
           mainAPI();
-          setTagNoValue("");
-          setQrOpen(false);
-          qrScanner.clear();
-          setQrOpen(false);
+
+          setTimeout(() => {
+            setTagNoValue("");
+          }, 500);
         },
         (errorMessage) => {
           console.warn("QR Scan Error:", errorMessage);
@@ -918,16 +920,13 @@ const Estimation = () => {
 
       setScanner(qrScanner);
     }
-     mainAPI();
-     stonesAPI();
-     setTagNoValue("");
 
     return () => {
       if (qrScanner) {
         qrScanner.clear().catch((err) => console.error("Clear failed:", err));
       }
     };
-  }, [qrOpen, tagNoValue]);
+  }, [qrOpen]);
 
   const handleStopScanner = () => {
     if (scanner) {
