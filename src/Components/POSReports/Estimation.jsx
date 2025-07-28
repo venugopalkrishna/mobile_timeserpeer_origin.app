@@ -919,11 +919,12 @@ const Estimation = () => {
     }
   };
 
-  useEffect(() => {
-  let qrScanner;
-  let isProcessing = false;
+ const hasScannedRef = useRef(false); // Track if scanned once
 
-  if (qrOpen) {
+useEffect(() => {
+  let qrScanner;
+
+  if (qrOpen && !hasScannedRef.current) {
     const config = {
       fps: 10,
       qrbox: { width: 250, height: 250 },
@@ -934,35 +935,25 @@ const Estimation = () => {
     qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
 
     qrScanner.render(
-      async (decodedText, decodedResult) => {
-        if (isProcessing) return; // prevent multiple scans at once
-        isProcessing = true;
+      (decodedText) => {
+        if (!hasScannedRef.current) {
+          hasScannedRef.current = true;
 
-        try {
-          await stonesAPI(decodedText);
-          await mainAPI(decodedText);
-        } catch (err) {
-          console.error("API error:", err);
+          // Call your APIs once
+          stonesAPI(decodedText);
+          mainAPI(decodedText);
         }
-
-        // Wait 2 seconds before allowing next scan
-        setTimeout(() => {
-          isProcessing = false;
-        }, 2000);
       },
       (errorMessage) => {
+        // Optional: show scanning errors
         console.warn("QR Scan Error:", errorMessage);
       }
     );
 
-    setScanner(qrScanner);
+    setScanner(qrScanner); // Optional if you're storing it
   }
 
-  return () => {
-    if (qrScanner) {
-      qrScanner.clear().catch((err) => console.error("Clear failed:", err));
-    }
-  };
+  // No need to clear scanner here unless you close it manually
 }, [qrOpen]);
 
   const handleStopScanner = () => {
