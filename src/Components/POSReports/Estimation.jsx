@@ -62,7 +62,7 @@ const Estimation = () => {
   const [qrOpen, setQrOpen] = useState(false);
   const [scanner, setScanner] = useState(null);
   const [scanOpen, setScanOpen] = useState(false);
-  const [code, setCode] = useState()
+  const [code, setCode] = useState();
   console.log(stoneMainData, "stoneMainData");
   console.log(tableData, "tableData");
   console.log(stoneRate, "stoneRate");
@@ -169,7 +169,7 @@ const Estimation = () => {
       if (Array.isArray(newData) && newData.length > 0) {
         setStoneMainData((prevData) => {
           const existingTag = prevData.some(
-            (item) => item.TAGNO === tagNoValue
+            (item) => item.TAGNO === tagNoValue ? tagNoValue : tagNo
           );
 
           if (existingTag) {
@@ -268,7 +268,9 @@ const Estimation = () => {
     // setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${tagNoValue ? tagNoValue : tagNO}`,
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${
+          tagNoValue ? tagNoValue : tagNO
+        }`,
         {
           headers: {
             tenantName: tenantName,
@@ -284,7 +286,7 @@ const Estimation = () => {
       }
 
       setTableData((prevData) => {
-        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue);
+        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue ? tagNoValue : tagNO);
 
         if (existingTag) {
           message.warning("Already Existed This Tag No");
@@ -380,9 +382,37 @@ const Estimation = () => {
     }
   }, [selectEstimationNo]);
 
-  const handleDelete = (tagNo) => {
+  // const handleDelete = (tagNo) => {
+  //   setTableData((prevData) => {
+  //     const updatedData = prevData.filter((item) => item.TAGNO !== tagNo);
+
+  //     setStonesData([]);
+  //     setStoneMainData([]);
+
+  //     updatedData.forEach((item) => {
+  //       stonesAPI(item.TAGNO);
+  //     });
+
+  //     return updatedData;
+  //   });
+
+  //   const deletedItem = tableData.find((item) => item.TAGNO === tagNo);
+  //   if (deletedItem) {
+  //     setTotalPieces((prev) => prev - (deletedItem.PIECES || 0));
+  //     setTotalGrossWeight((prev) => prev - (deletedItem.GROSSWEIGHT || 0));
+  //     setTotalStoneWeight((prev) => prev - (deletedItem.STONEWT || 0));
+  //     setTotalNetWeight((prev) => prev - (deletedItem.NETWT || 0));
+  //     setTotalFineGold((prev) => prev - (deletedItem.FINALGOLD || 0));
+  //   }
+  // };
+
+  const handleDelete = (indexToDelete) => {
     setTableData((prevData) => {
-      const updatedData = prevData.filter((item) => item.TAGNO !== tagNo);
+      const deletedItem = prevData[indexToDelete]; // Get item before deleting
+
+      const updatedData = prevData.filter(
+        (_, index) => index !== indexToDelete
+      );
 
       setStonesData([]);
       setStoneMainData([]);
@@ -391,17 +421,17 @@ const Estimation = () => {
         stonesAPI(item.TAGNO);
       });
 
+      // Update totals only if item existed
+      if (deletedItem) {
+        setTotalPieces((prev) => prev - (deletedItem.PIECES || 0));
+        setTotalGrossWeight((prev) => prev - (deletedItem.GROSSWEIGHT || 0));
+        setTotalStoneWeight((prev) => prev - (deletedItem.STONEWT || 0));
+        setTotalNetWeight((prev) => prev - (deletedItem.NETWT || 0));
+        setTotalFineGold((prev) => prev - (deletedItem.FINALGOLD || 0));
+      }
+
       return updatedData;
     });
-
-    const deletedItem = tableData.find((item) => item.TAGNO === tagNo);
-    if (deletedItem) {
-      setTotalPieces((prev) => prev - (deletedItem.PIECES || 0));
-      setTotalGrossWeight((prev) => prev - (deletedItem.GROSSWEIGHT || 0));
-      setTotalStoneWeight((prev) => prev - (deletedItem.STONEWT || 0));
-      setTotalNetWeight((prev) => prev - (deletedItem.NETWT || 0));
-      setTotalFineGold((prev) => prev - (deletedItem.FINALGOLD || 0));
-    }
   };
 
   const handleKeyDown = (e, nextRef) => {
@@ -904,11 +934,9 @@ const Estimation = () => {
 
       qrScanner.render(
         (decodedText) => {
-
           // Call your APIs
           stonesAPI(decodedText);
           mainAPI(decodedText);
-
         },
         (errorMessage) => {
           console.warn("QR Scan Error:", errorMessage);
@@ -1557,7 +1585,7 @@ const Estimation = () => {
               </p>
               <DeleteOutlined
                 style={{ color: "red", cursor: "pointer", fontSize: "20px" }}
-                onClick={() => handleDelete(item.TAGNO)}
+                onClick={() => handleDelete(index)}
               />
             </div>
             <hr className={styles.fullWidthLine} />
