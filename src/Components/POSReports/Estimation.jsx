@@ -904,11 +904,12 @@ const Estimation = () => {
       qrScanner.render(
         (decodedText) => {
           setTagNoValue(decodedText);
-          qrScanner.clear();
-          // setQrOpen(false);
           stonesAPI();
           mainAPI();
           setTagNoValue("");
+          setQrOpen(false);
+          qrScanner.clear();
+          setQrOpen(false);
         },
         (errorMessage) => {
           console.warn("QR Scan Error:", errorMessage);
@@ -917,13 +918,16 @@ const Estimation = () => {
 
       setScanner(qrScanner);
     }
+     mainAPI();
+     stonesAPI();
+     setTagNoValue("");
 
     return () => {
       if (qrScanner) {
         qrScanner.clear().catch((err) => console.error("Clear failed:", err));
       }
     };
-  }, [qrOpen]);
+  }, [qrOpen, tagNoValue]);
 
   const handleStopScanner = () => {
     if (scanner) {
