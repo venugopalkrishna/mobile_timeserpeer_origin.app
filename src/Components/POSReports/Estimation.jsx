@@ -168,8 +168,8 @@ const Estimation = () => {
 
       if (Array.isArray(newData) && newData.length > 0) {
         setStoneMainData((prevData) => {
-          const existingTag = prevData.some(
-            (item) => item.TAGNO === tagNoValue ? tagNoValue : tagNo
+          const existingTag = prevData.some((item) =>
+            item.TAGNO === tagNoValue ? tagNoValue : tagNo
           );
 
           if (existingTag) {
@@ -286,7 +286,9 @@ const Estimation = () => {
       }
 
       setTableData((prevData) => {
-        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue ? tagNoValue : tagNo);
+        const existingTag = prevData.some((item) =>
+          item.TAGNO === tagNoValue ? tagNoValue : tagNo
+        );
 
         if (existingTag) {
           // message.warning("Already Existed This Tag No");
@@ -919,12 +921,9 @@ const Estimation = () => {
     }
   };
 
- const hasScannedRef = useRef(false); // Track if scanned once
+  const initQrScanner = () => {
+    if (scanner || !qrOpen) return;
 
-useEffect(() => {
-  let qrScanner;
-
-  if (qrOpen && !hasScannedRef.current) {
     const config = {
       fps: 10,
       qrbox: { width: 250, height: 250 },
@@ -932,42 +931,44 @@ useEffect(() => {
       supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
     };
 
-    qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
+    const qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
 
     qrScanner.render(
       (decodedText) => {
-        if (!hasScannedRef.current) {
-          hasScannedRef.current = true;
-
-          // Call your APIs once
-          stonesAPI(decodedText);
-          mainAPI(decodedText);
-        }
+        stonesAPI(decodedText);
+        mainAPI(decodedText);
       },
       (errorMessage) => {
-        // Optional: show scanning errors
         console.warn("QR Scan Error:", errorMessage);
       }
     );
 
-    setScanner(qrScanner); // Optional if you're storing it
-  }
-
-  // No need to clear scanner here unless you close it manually
-}, [qrOpen]);
+    setScanner(qrScanner);
+  };
 
   const handleStopScanner = () => {
     if (scanner) {
       scanner
         .clear()
-        .catch((err) => console.error("Error stopping scanner:", err))
-        .finally(() => {
+        .then(() => {
+          setScanner(null);
+          setQrOpen(false);
+        })
+        .catch((err) => {
+          console.error("Error stopping scanner:", err);
           setScanner(null);
           setQrOpen(false);
         });
     } else {
       setQrOpen(false);
     }
+  };
+
+  const handleOpenScanner = () => {
+    setQrOpen(true);
+    setTimeout(() => {
+      initQrScanner(); // initialize after state updates DOM
+    }, 100); // slight delay ensures "qr-reader" div is in DOM
   };
 
   const handleToggleScan = () => {
@@ -1548,7 +1549,7 @@ useEffect(() => {
             {selectedParty && touchValue && wastageValue && (
               <div
                 onClick={handleToggleScan}
-                style={{ width: "20px", height: "20px", }}
+                style={{ width: "20px", height: "20px" }}
               >
                 <ScanOutlined
                   style={{
@@ -1688,30 +1689,32 @@ useEffect(() => {
           </div>
         ))}
       </div>
-      {scanOpen === true && (
-        <>
-          {!qrOpen && (
-            <div
-              className={styles.scanIconContainer}
-              onClick={() => setQrOpen(true)}
-            >
-              <QrCodeScannerIcon style={{ fontSize: 30, color: "white" }} />
-            </div>
-          )}
-        </>
-      )}
+      <>
+        {scanOpen === true && (
+          <>
+            {!qrOpen && (
+              <div
+                className={styles.scanIconContainer}
+                onClick={handleOpenScanner}
+              >
+                <QrCodeScannerIcon style={{ fontSize: 30, color: "white" }} />
+              </div>
+            )}
+          </>
+        )}
 
-      {/* QR Scanner Modal */}
-      {qrOpen && (
-        <div className={styles.qrScannerOverlay}>
-          <div className={styles.qrScannerContent}>
-            <div className={styles.closeIcon} onClick={handleStopScanner}>
-              <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
+        {/* QR Scanner Modal */}
+        {qrOpen && (
+          <div className={styles.qrScannerOverlay}>
+            <div className={styles.qrScannerContent}>
+              <div className={styles.closeIcon} onClick={handleStopScanner}>
+                <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
+              </div>
+              <div id="qr-reader" style={{ width: "50%" }}></div>
             </div>
-            <div id="qr-reader" style={{ width: "50%" }}></div>
           </div>
-        </div>
-      )}
+        )}
+      </>
       <EstimationFields
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
