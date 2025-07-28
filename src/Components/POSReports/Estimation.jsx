@@ -264,11 +264,11 @@ const Estimation = () => {
   };
 
   // Main API
-  const mainAPI = async () => {
+  const mainAPI = async (tagNO) => {
     // setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${tagNoValue ? tagNoValue : code}`,
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${tagNoValue ? tagNoValue : tagNO}`,
         {
           headers: {
             tenantName: tenantName,
@@ -904,11 +904,10 @@ const Estimation = () => {
 
       qrScanner.render(
         (decodedText) => {
-          setCode(decodedText);
 
           // Call your APIs
           stonesAPI(decodedText);
-          mainAPI();
+          mainAPI(decodedText);
 
         },
         (errorMessage) => {
