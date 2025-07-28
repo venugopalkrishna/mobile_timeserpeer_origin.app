@@ -9,7 +9,11 @@ import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import CloseIcon from "@mui/icons-material/Close";
-import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
+import {
+  Html5Qrcode,
+  Html5QrcodeScanner,
+  Html5QrcodeScanType,
+} from "html5-qrcode";
 import { CREATE_jwel } from "../../Config/Config";
 import Header from "../Header";
 import SidebarDrawer from "../SidebarDrawer";
@@ -145,7 +149,6 @@ const Estimation = () => {
 
   // Stones API
   const stonesAPI = async (tagNo) => {
-    // setLoading(true);
     try {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO%3D${
@@ -159,113 +162,100 @@ const Estimation = () => {
       );
 
       let newData = response.data;
-      console.log(newData, "newData");
 
       if (!Array.isArray(newData) || newData.length === 0) {
         message.warning("Tag Not existed");
-        return;
+        return null;
       }
 
-      if (Array.isArray(newData) && newData.length > 0) {
-        setStoneMainData((prevData) => {
-          const existingTag = prevData.some((item) =>
-            item.TAGNO === tagNoValue ? tagNoValue : tagNo
-          );
+      let finalData = [];
 
-          if (existingTag) {
-            // message.warning("Already Existed This Tag No");
-            return prevData;
+      setStoneMainData((prevData) => {
+        const existingTag = prevData.some(
+          (item) => item.TAGNO === (tagNoValue || tagNo)
+        );
+
+        if (existingTag) {
+          return prevData;
+        }
+
+        const validNewData = newData.filter(
+          (item) => item?.TAGNO && item?.MAINTYPE && item?.ACTGRAMS
+        );
+
+        const mergedMap = {};
+
+        prevData.forEach((item) => {
+          mergedMap[item.TAGNO] = { TAGNO: item.TAGNO, MAINTYPES: {} };
+
+          if (typeof item.ACTGRAMS === "string") {
+            item.ACTGRAMS.split(",").forEach((entry) => {
+              const match = entry.trim().match(/^(.+?)\(([\d.]+)\)$/);
+              if (match) {
+                const type = match[1].trim();
+                const grams = parseFloat(match[2]);
+                if (type && !isNaN(grams)) {
+                  mergedMap[item.TAGNO].MAINTYPES[type] = grams;
+                }
+              }
+            });
+          }
+        });
+
+        validNewData.forEach((item) => {
+          const tagNo = item.TAGNO;
+          const type = item.MAINTYPE;
+          const grams = Number(item.ACTGRAMS) || 0;
+
+          if (!mergedMap[tagNo]) {
+            mergedMap[tagNo] = { TAGNO: tagNo, MAINTYPES: {} };
           }
 
-          const validNewData = (Array.isArray(newData) ? newData : []).filter(
-            (item) => item?.TAGNO && item?.MAINTYPE && item?.ACTGRAMS
-          );
-
-          const mergedMap = {};
-
-          prevData.forEach((item) => {
-            mergedMap[item.TAGNO] = {
-              TAGNO: item.TAGNO,
-              MAINTYPES: {},
-            };
-
-            if (typeof item.ACTGRAMS === "string") {
-              item.ACTGRAMS.split(",").forEach((entry) => {
-                const match = entry.trim().match(/^(.+?)\(([\d.]+)\)$/);
-                if (match) {
-                  const type = match[0] && match[1].trim();
-                  const grams = parseFloat(match[2]);
-                  if (type && !isNaN(grams)) {
-                    mergedMap[item.TAGNO].MAINTYPES[type] = grams;
-                  }
-                }
-              });
-            }
-          });
-
-          validNewData.forEach((item) => {
-            const tagNo = item.TAGNO;
-            const type = item.MAINTYPE;
-            const grams = Number(item.ACTGRAMS) || 0;
-
-            if (!mergedMap[tagNo]) {
-              mergedMap[tagNo] = {
-                TAGNO: tagNo,
-                MAINTYPES: {},
-              };
-            }
-
-            if (mergedMap[tagNo].MAINTYPES[type]) {
-              mergedMap[tagNo].MAINTYPES[type] += grams;
-            } else {
-              mergedMap[tagNo].MAINTYPES[type] = grams;
-            }
-          });
-
-          const finalData = Object.values(mergedMap).map((item) => ({
-            TAGNO: item.TAGNO,
-            ACTGRAMS: Object.entries(item.MAINTYPES)
-              .map(
-                ([key, value]) => `${key}(${(Number(value) || 0).toFixed(3)})`
-              )
-              .join(", "),
-          }));
-
-          return finalData;
+          if (mergedMap[tagNo].MAINTYPES[type]) {
+            mergedMap[tagNo].MAINTYPES[type] += grams;
+          } else {
+            mergedMap[tagNo].MAINTYPES[type] = grams;
+          }
         });
 
-        // mainAPI(formattedData);
-        setStonesData((prevData) => {
-          const combinedData = [...prevData, ...newData];
+        finalData = Object.values(mergedMap).map((item) => ({
+          TAGNO: item.TAGNO,
+          ACTGRAMS: Object.entries(item.MAINTYPES)
+            .map(([key, value]) => `${key}(${(value || 0).toFixed(3)})`)
+            .join(", "),
+        }));
 
-          const mergedData = combinedData.reduce((acc, item) => {
-            const existingItem = acc.find(
-              (el) => el.MAINTYPE === item.MAINTYPE
-            );
-            if (existingItem) {
-              existingItem.PCS += item.PCS;
-              existingItem.ACTGRAMS += item.ACTGRAMS;
-              existingItem.CTS += item.CTS;
-            } else {
-              acc.push({ ...item });
-            }
-            return acc;
-          }, []);
+        return finalData;
+      });
 
-          return mergedData;
-        });
-      }
+      // Merge into setStonesData
+      setStonesData((prevData) => {
+        const combinedData = [...prevData, ...newData];
+
+        const mergedData = combinedData.reduce((acc, item) => {
+          const existingItem = acc.find((el) => el.MAINTYPE === item.MAINTYPE);
+          if (existingItem) {
+            existingItem.PCS += item.PCS;
+            existingItem.ACTGRAMS += item.ACTGRAMS;
+            existingItem.CTS += item.CTS;
+          } else {
+            acc.push({ ...item });
+          }
+          return acc;
+        }, []);
+
+        return mergedData;
+      });
+
+      return finalData; // ✅ return processed data
     } catch (error) {
-      console.error("Error fetching estimation count:", error);
+      console.error("Error fetching TAG_ITEMS:", error);
+      return null;
     }
-    // finally {
-    //   setLoading(false);
-    // }
   };
 
   // Main API
-  const mainAPI = async (tagNo) => {
-    // setLoading(true);
+  const mainAPI = async (tagNo, stoneData) => {
     try {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${
@@ -286,12 +276,11 @@ const Estimation = () => {
       }
 
       setTableData((prevData) => {
-        const existingTag = prevData.some((item) =>
-          item.TAGNO === tagNoValue ? tagNoValue : tagNo
+        const existingTag = prevData.some(
+          (item) => item.TAGNO === (tagNoValue || tagNo)
         );
 
         if (existingTag) {
-          // message.warning("Already Existed This Tag No");
           return prevData;
         }
 
@@ -299,8 +288,8 @@ const Estimation = () => {
           const totalTouch = Number(touchValue) + Number(wastageValue);
           const finalGold = (Number(obj?.NWT) * totalTouch) / 100;
           const actPer = (Number(finalGold) / Number(obj?.GWT)) * 100;
-          const actGrams = stoneMainData;
-          console.log(actGrams, "actGrams");
+
+          const stoneEntry = stoneData?.find((s) => s.TAGNO === obj.TAGNO);
 
           return {
             ...obj,
@@ -311,46 +300,40 @@ const Estimation = () => {
             GROSSWEIGHT: obj?.GWT?.toFixed(3) || 0,
             STONEWT: obj?.STONEWT?.toFixed(3) || 0,
             NETWT: obj?.NWT?.toFixed(3) || 0,
-            // ACTGRAMS: actGrams[0]?.ACTGRAMS, // Ensure actm is a valid string here
+            ACTGRAMS: stoneEntry?.ACTGRAMS || "", // ✅ use passed stone data
           };
         });
-        const updatedData = [...prevData, ...newObjects];
-        const total = updatedData.reduce(
-          (sum, item) => sum + Number(item.PIECES || 0),
-          0
-        );
-        const totalGross = updatedData.reduce(
-          (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
-          0
-        );
-        const totalStones = updatedData.reduce(
-          (sum, item) => sum + Number(item.STONEWT || 0),
-          0
-        );
-        const totalNetWt = updatedData.reduce(
-          (sum, item) => sum + Number(item.NETWT || 0),
-          0
-        );
-        const totalGold = updatedData.reduce(
-          (sum, item) => sum + Number(item.FINALGOLD || 0),
-          0
-        );
 
-        // Set totals
-        setTotalPieces(total);
-        setTotalGrossWeight(totalGross);
-        setTotalStoneWeight(totalStones);
-        setTotalNetWeight(totalNetWt);
-        setTotalFineGold(totalGold);
+        const updatedData = [...prevData, ...newObjects];
+
+        // Totals
+        setTotalPieces(
+          updatedData.reduce((sum, item) => sum + Number(item.PIECES || 0), 0)
+        );
+        setTotalGrossWeight(
+          updatedData.reduce(
+            (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
+            0
+          )
+        );
+        setTotalStoneWeight(
+          updatedData.reduce((sum, item) => sum + Number(item.STONEWT || 0), 0)
+        );
+        setTotalNetWeight(
+          updatedData.reduce((sum, item) => sum + Number(item.NETWT || 0), 0)
+        );
+        setTotalFineGold(
+          updatedData.reduce(
+            (sum, item) => sum + Number(item.FINALGOLD || 0),
+            0
+          )
+        );
 
         return updatedData;
       });
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching TAG_GENERATION:", error);
     }
-    // finally {
-    //   setLoading(false);
-    // }
   };
 
   useEffect(() => {
@@ -921,54 +904,73 @@ const Estimation = () => {
     }
   };
 
-  const initQrScanner = () => {
-    if (scanner || !qrOpen) return;
+  const html5QrCodeRef = useRef(null);
+  const scannedRef = useRef(false);
 
-    const config = {
-      fps: 10,
-      qrbox: { width: 250, height: 250 },
-      rememberLastUsedCamera: true,
-      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-    };
+  const SCAN_COOLDOWN_MS = 1000;
 
-    const qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
+  const startScanner = async () => {
+    try {
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        rememberLastUsedCamera: true,
+      };
 
-    qrScanner.render(
-      (decodedText) => {
-        stonesAPI(decodedText);
-        mainAPI(decodedText);
-      },
-      (errorMessage) => {
-        console.warn("QR Scan Error:", errorMessage);
-      }
-    );
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCodeRef.current = html5QrCode;
 
-    setScanner(qrScanner);
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        async (decodedText) => {
+          if (scannedRef.current) return;
+
+          scannedRef.current = true;
+
+          try {
+            const stoneData = await stonesAPI(decodedText);
+            if (stoneData && Array.isArray(stoneData)) {
+              await mainAPI(decodedText, stoneData);
+            }
+          } catch (err) {
+            console.error("Scan handling error:", err);
+          }
+
+          setTimeout(() => {
+            scannedRef.current = false;
+          }, SCAN_COOLDOWN_MS);
+        },
+        (error) => {
+          console.warn("QR Scan Error:", error);
+        }
+      );
+    } catch (error) {
+      console.error("Failed to start scanner:", error);
+    }
   };
 
-  const handleStopScanner = () => {
-    if (scanner) {
-      scanner
-        .clear()
-        .then(() => {
-          setScanner(null);
-          setQrOpen(false);
-        })
-        .catch((err) => {
-          console.error("Error stopping scanner:", err);
-          setScanner(null);
-          setQrOpen(false);
-        });
+  const stopScanner = async () => {
+    if (html5QrCodeRef.current) {
+      try {
+        await html5QrCodeRef.current.stop();
+        await html5QrCodeRef.current.clear();
+      } catch (err) {
+        console.error("Error stopping scanner:", err);
+      } finally {
+        html5QrCodeRef.current = null;
+        setQrOpen(false);
+        scannedRef.current = false;
+      }
     } else {
       setQrOpen(false);
+      scannedRef.current = false;
     }
   };
 
   const handleOpenScanner = () => {
     setQrOpen(true);
-    setTimeout(() => {
-      initQrScanner(); // initialize after state updates DOM
-    }, 100); // slight delay ensures "qr-reader" div is in DOM
+    setTimeout(() => startScanner(), 300); // give DOM time to mount
   };
 
   const handleToggleScan = () => {
@@ -1703,14 +1705,16 @@ const Estimation = () => {
           </>
         )}
 
-        {/* QR Scanner Modal */}
         {qrOpen && (
           <div className={styles.qrScannerOverlay}>
             <div className={styles.qrScannerContent}>
-              <div className={styles.closeIcon} onClick={handleStopScanner}>
+              <div className={styles.closeIcon} onClick={stopScanner}>
                 <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
               </div>
-              <div id="qr-reader" style={{ width: "50%" }}></div>
+              <div
+                id="qr-reader"
+                style={{ width: "300px", height: "300px" }}
+              ></div>
             </div>
           </div>
         )}
