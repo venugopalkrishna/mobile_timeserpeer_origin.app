@@ -920,47 +920,38 @@ const Estimation = () => {
   };
 
   useEffect(() => {
-  let qrScanner;
-  const processedCodes = new Set(); // Keeps track of already scanned codes
+    let qrScanner;
 
-  if (qrOpen) {
-    const config = {
-      fps: 10,
-      qrbox: { width: 150, height: 150 },
-      rememberLastUsedCamera: true,
-      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-    };
+    if (qrOpen) {
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        rememberLastUsedCamera: true,
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+      };
 
-    qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
+      qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
 
-    qrScanner.render(
-      (decodedText) => {
-        if (!processedCodes.has(decodedText)) {
-          processedCodes.add(decodedText);
-
+      qrScanner.render(
+        (decodedText) => {
           // Call your APIs
           stonesAPI(decodedText);
           mainAPI(decodedText);
-
-          setTimeout(() => {
-            processedCodes.delete(decodedText);
-          }, 1000);
+        },
+        (errorMessage) => {
+          console.warn("QR Scan Error:", errorMessage);
         }
-      },
-      (errorMessage) => {
-        console.warn("QR Scan Error:", errorMessage);
-      }
-    );
+      );
 
-    setScanner(qrScanner);
-  }
-
-  return () => {
-    if (qrScanner) {
-      qrScanner.clear().catch((err) => console.error("Clear failed:", err));
+      setScanner(qrScanner);
     }
-  };
-}, [qrOpen]);
+
+    return () => {
+      if (qrScanner) {
+        qrScanner.clear().catch((err) => console.error("Clear failed:", err));
+      }
+    };
+  }, [qrOpen]);
 
   const handleStopScanner = () => {
     if (scanner) {
@@ -1714,7 +1705,7 @@ const Estimation = () => {
             <div className={styles.closeIcon} onClick={handleStopScanner}>
               <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
             </div>
-            <div id="qr-reader" style={{ width: "100%" }}></div>
+            <div id="qr-reader" style={{ width: "50%" }}></div>
           </div>
         </div>
       )}
