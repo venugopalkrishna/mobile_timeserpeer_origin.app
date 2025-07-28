@@ -149,7 +149,7 @@ const Estimation = () => {
     try {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO%3D${
-          tagNoValue || tagNo
+          tagNoValue ? tagNoValue : tagNo
         }`,
         {
           headers: {
@@ -169,7 +169,7 @@ const Estimation = () => {
       if (Array.isArray(newData) && newData.length > 0) {
         setStoneMainData((prevData) => {
           const existingTag = prevData.some(
-            (item) => item.TAGNO === tagNoValue || tagNo
+            (item) => item.TAGNO === tagNoValue ? tagNoValue : tagNo
           );
 
           if (existingTag) {
@@ -269,7 +269,7 @@ const Estimation = () => {
     try {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${
-          tagNoValue || tagNo
+          tagNoValue ? tagNoValue : tagNo
         }`,
         {
           headers: {
@@ -286,7 +286,7 @@ const Estimation = () => {
       }
 
       setTableData((prevData) => {
-        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue || tagNo);
+        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue ? tagNoValue : tagNo);
 
         if (existingTag) {
           // message.warning("Already Existed This Tag No");
@@ -919,39 +919,51 @@ const Estimation = () => {
     }
   };
 
-  useEffect(async() => {
-    let qrScanner;
+  useEffect(() => {
+  let qrScanner;
+  let isProcessing = false;
 
-    if (qrOpen) {
-      const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true,
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-      };
-
-      qrScanner =  new Html5QrcodeScanner("qr-reader", config, false);
-
-      qrScanner.render(
-        (decodedText) => {
-          // Call your APIs
-          stonesAPI(decodedText);
-          mainAPI(decodedText);
-        },
-        (errorMessage) => {
-          console.warn("QR Scan Error:", errorMessage);
-        }
-      );
-
-      setScanner(qrScanner);
-    }
-
-    return () => {
-      if (qrScanner) {
-        qrScanner.clear().catch((err) => console.error("Clear failed:", err));
-      }
+  if (qrOpen) {
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      rememberLastUsedCamera: true,
+      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
     };
-  }, [qrOpen]);
+
+    qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
+
+    qrScanner.render(
+      async (decodedText, decodedResult) => {
+        if (isProcessing) return; // prevent multiple scans at once
+        isProcessing = true;
+
+        try {
+          await stonesAPI(decodedText);
+          await mainAPI(decodedText);
+        } catch (err) {
+          console.error("API error:", err);
+        }
+
+        // Wait 2 seconds before allowing next scan
+        setTimeout(() => {
+          isProcessing = false;
+        }, 2000);
+      },
+      (errorMessage) => {
+        console.warn("QR Scan Error:", errorMessage);
+      }
+    );
+
+    setScanner(qrScanner);
+  }
+
+  return () => {
+    if (qrScanner) {
+      qrScanner.clear().catch((err) => console.error("Clear failed:", err));
+    }
+  };
+}, [qrOpen]);
 
   const handleStopScanner = () => {
     if (scanner) {
