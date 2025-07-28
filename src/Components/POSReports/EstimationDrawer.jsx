@@ -202,6 +202,7 @@ const EstimationDrawer = ({
           style={{
             backgroundColor: "blue",
             borderColor: "blue",
+            width: "8rem"
           }}
             disabled={tableData.length === 0 && stonesData.length === 0}
             onClick={() => {
@@ -232,6 +233,7 @@ const EstimationDrawer = ({
           style={{
             backgroundColor: "Green",
             borderColor: "green",
+            width: "8rem"
           }}
             onClick={handlePrint}
             disabled={tableData.length === 0}
@@ -243,6 +245,7 @@ const EstimationDrawer = ({
           style={{
             backgroundColor: "red",
             borderColor: "red",
+            width: "8rem"
           }}
           onClick={onClose}
         >

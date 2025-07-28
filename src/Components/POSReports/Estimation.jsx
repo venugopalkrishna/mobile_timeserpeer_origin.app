@@ -149,7 +149,7 @@ const Estimation = () => {
     try {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO%3D${
-          tagNoValue ? tagNoValue : tagNo
+          tagNoValue || tagNo
         }`,
         {
           headers: {
@@ -169,7 +169,7 @@ const Estimation = () => {
       if (Array.isArray(newData) && newData.length > 0) {
         setStoneMainData((prevData) => {
           const existingTag = prevData.some(
-            (item) => item.TAGNO === tagNoValue ? tagNoValue : tagNo
+            (item) => item.TAGNO === tagNoValue || tagNo
           );
 
           if (existingTag) {
@@ -264,12 +264,12 @@ const Estimation = () => {
   };
 
   // Main API
-  const mainAPI = async (tagNO) => {
+  const mainAPI = async (tagNo) => {
     // setLoading(true);
     try {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${
-          tagNoValue ? tagNoValue : tagNO
+          tagNoValue || tagNo
         }`,
         {
           headers: {
@@ -286,7 +286,7 @@ const Estimation = () => {
       }
 
       setTableData((prevData) => {
-        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue ? tagNoValue : tagNO);
+        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue || tagNo);
 
         if (existingTag) {
           // message.warning("Already Existed This Tag No");
@@ -919,7 +919,7 @@ const Estimation = () => {
     }
   };
 
-  useEffect(() => {
+  useEffect(async() => {
     let qrScanner;
 
     if (qrOpen) {
@@ -930,7 +930,7 @@ const Estimation = () => {
         supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
       };
 
-      qrScanner = new Html5QrcodeScanner("qr-reader", config, false);
+      qrScanner =  new Html5QrcodeScanner("qr-reader", config, false);
 
       qrScanner.render(
         (decodedText) => {
@@ -1545,7 +1545,7 @@ const Estimation = () => {
             {selectedParty && touchValue && wastageValue && (
               <div
                 onClick={handleToggleScan}
-                style={{ width: "20px", height: "20px" }}
+                style={{ width: "20px", height: "20px", }}
               >
                 <ScanOutlined
                   style={{
