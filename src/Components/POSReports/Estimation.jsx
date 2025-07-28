@@ -168,8 +168,8 @@ const Estimation = () => {
 
       if (Array.isArray(newData) && newData.length > 0) {
         setStoneMainData((prevData) => {
-          const existingTag = prevData.some(
-            (item) => item.TAGNO === tagNoValue ? tagNoValue : tagNo
+          const existingTag = prevData.some((item) =>
+            item.TAGNO === tagNoValue ? tagNoValue : tagNo
           );
 
           if (existingTag) {
@@ -286,7 +286,9 @@ const Estimation = () => {
       }
 
       setTableData((prevData) => {
-        const existingTag = prevData.some((item) => item.TAGNO === tagNoValue ? tagNoValue : tagNO);
+        const existingTag = prevData.some((item) =>
+          item.TAGNO === tagNoValue ? tagNoValue : tagNO
+        );
 
         if (existingTag) {
           // message.warning("Already Existed This Tag No");
@@ -921,6 +923,7 @@ const Estimation = () => {
 
   useEffect(() => {
     let qrScanner;
+    let lastScanned = null;
 
     if (qrOpen) {
       const config = {
@@ -934,9 +937,11 @@ const Estimation = () => {
 
       qrScanner.render(
         (decodedText) => {
-          // Call your APIs
-          stonesAPI(decodedText);
-          mainAPI(decodedText);
+          if (decodedText !== lastScanned) {
+            lastScanned = decodedText;
+            stonesAPI(decodedText);
+            mainAPI(decodedText);
+          }
         },
         (errorMessage) => {
           console.warn("QR Scan Error:", errorMessage);
