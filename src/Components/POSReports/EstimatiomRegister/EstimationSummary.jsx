@@ -1,12 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Col,
-  DatePicker,
-  Row,
-  Select,
-  Typography
-} from "antd";
+import { Button, Col, DatePicker, Row, Select, Typography } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
@@ -154,7 +147,6 @@ const EstimationSummary = () => {
     }
   }, [fromDate, toDate, selectedParty]);
 
-
   const handleKeyDown = (e, nextRef) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -272,16 +264,36 @@ const EstimationSummary = () => {
             <div key={index} className={styles.infoBox}>
               <div className={styles.rowTag}>
                 <div className={styles.estimationRow}>
-                  <p style={{ fontSize: "16px" }}>
-                    <strong>Est NO:</strong> {item.ESTIMATIONNO}
+                  <p style={{ fontSize: "14px" }}>
+                    Est NO:{" "}
+                    <span
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: "bold",
+                        // color: "#52bd91",
+                      }}
+                    >
+                      {item.ESTIMATIONNO}
+                    </span>
                   </p>
-                  <p style={{ fontSize: "16px", marginLeft: "16px" }}>
-                    <strong>Est Date:</strong>{" "}
-                    {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                  <p style={{ fontSize: "12px", marginLeft: "16px" }}>
+                    {/* Est Date: {" "} */}
+                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                      {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                    </span>
                   </p>
                 </div>
                 <p style={{ fontSize: "12px", padding: "0px 8px 0px 8px" }}>
-                  <strong>Party:</strong> {item?.DESCRIPTION}
+                  Party:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "red",
+                    }}
+                  >
+                    {item?.DESCRIPTION || "-"}
+                  </span>
                 </p>
               </div>
               <hr className={styles.fullWidthLine} />
@@ -297,50 +309,119 @@ const EstimationSummary = () => {
             <hr className={styles.fullWidthLine} /> */}
 
               <div className={styles.row}>
-                <p style={{ fontSize: "14px" }}>
+                <p style={{ fontSize: "12px" }}>
                   Gross Wt:{" "}
-                  <span>
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "red",
+                    }}
+                  >
                     <strong>{Number(item.GWT)?.toFixed(3)}</strong>
                   </span>
                 </p>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
+                <p style={{ fontSize: "12px" }}>
+                  Less Wt:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "red",
+                    }}
+                  >
+                    {Number(item.STONEWT)?.toFixed(3)}
+                  </span>
                 </p>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Net Wt:</strong> {Number(item.NWT)?.toFixed(3)}
+                <p style={{ fontSize: "12px" }}>
+                  Net Wt:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "red",
+                    }}
+                  >
+                    {Number(item.NWT)?.toFixed(3)}
+                  </span>
                 </p>
               </div>
               <hr className={styles.fullWidthLine} />
 
               <div className={styles.row}>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Fine Gold:</strong>{" "}
-                  {Number(item.TOUCHPER)?.toFixed(3)}
+                <p style={{ fontSize: "12px" }}>
+                  Fine Gold:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {Number(item.TOUCHPER)?.toFixed(3)}
+                  </span>
                 </p>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Mc (%):</strong> {item.MCPER}
+                <p style={{ fontSize: "12px" }}>
+                  Mc (%):{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {item.MCPER}
+                  </span>
                 </p>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Mc Amt:</strong> {Number(item.MCAMT)?.toFixed(2)}
+                <p style={{ fontSize: "12px" }}>
+                  Mc Amt:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {Number(item.MCAMT)?.toFixed(2)}
+                  </span>
                 </p>
               </div>
               <hr className={styles.fullWidthLine} />
 
               <div className={styles.row}>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>R-Charges:</strong> {item.RCHARGES}
+                <p style={{ fontSize: "12px" }}>
+                  R-Charges:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {item.RCHARGES}
+                  </span>
                 </p>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Stone Amt:</strong>{" "}
-                  {Number(item.STCHARGES)?.toFixed(2)}
+                <p style={{ fontSize: "12px" }}>
+                  Stone Amt:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {Number(item.STCHARGES)?.toFixed(2)}
+                  </span>
                 </p>
               </div>
               <hr className={styles.fullWidthLine} />
 
               <div className={styles.fullWidthStone}>
-                <p style={{ fontSize: "14px", padding: "0px 8px 0px 8px" }}>
-                  <strong>Total Cash:</strong>{" "}
-                  {Number(item.TOTCASH)?.toFixed(2)}
+                <p style={{ fontSize: "12px", padding: "0px 8px 0px 8px" }}>
+                  Total Cash:{" "}
+                  <span
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {Number(item.TOTCASH)?.toFixed(2)}
+                  </span>
                 </p>
               </div>
             </div>

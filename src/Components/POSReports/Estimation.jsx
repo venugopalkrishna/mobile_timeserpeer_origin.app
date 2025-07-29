@@ -22,6 +22,7 @@ import EstimationDialog from "./EstimationDialog";
 import EstimationDrawer from "./EstimationDrawer";
 import EstimationFields from "./EstimationFields";
 import EstimationStonesDrawer from "./EstimationStonesDrawer";
+import { useLocation } from "react-router-dom";
 
 const { Option } = Select;
 const Estimation = () => {
@@ -31,6 +32,9 @@ const Estimation = () => {
   const wastRef = useRef(null);
   const tagNoRef = useRef(null);
   const submitRef = useRef(null);
+  const pathName = useLocation();
+  const path = pathName?.pathname;
+  console.log(path, "path");
 
   const [open, setOpen] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
@@ -53,6 +57,8 @@ const Estimation = () => {
   const [stoneRate, setStoneRate] = useState({});
   const [makingValue, setMakingValue] = useState();
   const [perGramValue, setPerGramValue] = useState();
+  const [stoneMakingValue, setStoneMakingValue] = useState();
+  const [stonePerGramValue, setStonePerGramValue] = useState();
   const [rodiumChargeValue, setRodiumChargeValue] = useState();
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [mastData, setMastData] = useState();
@@ -348,6 +354,9 @@ const Estimation = () => {
     if (selectEstimationNo?.MCAMT) {
       setPerGramValue(selectEstimationNo?.MCAMT);
     }
+    if (selectEstimationNo?.STCHARGES) {
+      setStonePerGramValue(selectEstimationNo?.STCHARGES);
+    }
     if (selectEstimationNo?.RCHARGES) {
       setRodiumChargeValue(selectEstimationNo?.RCHARGES);
     }
@@ -444,6 +453,7 @@ const Estimation = () => {
   const totalCash =
     (Number(totalStoneCost) || 0) +
     (Number(perGramValue) || 0) +
+    (Number(stonePerGramValue) || 0) +
     (Number(rodiumChargeValue) || 0);
   const getFormattedDate = () => {
     const date = new Date();
@@ -524,7 +534,7 @@ const Estimation = () => {
         wastage: Number(wastageValue) || 0,
         finegold: Number(stone.FINALGOLD) || 0,
         actper: Number(stone.ACTPER) || 0,
-        stdet: cleanedActGrams,
+        stdet: cleanedActGrams || "-",
         homekey: 0,
       };
     });
@@ -644,7 +654,7 @@ const Estimation = () => {
         purewt: Number(totalFineGold?.toFixed(3)),
         mcper: Number(makingValue),
         mcamt: Number(perGramValue.toFixed(3)),
-        stcharges: Number(totalStoneCost.toFixed(2)),
+        stcharges: totalStoneCost ? Number(totalStoneCost.toFixed(2)) : Number(stonePerGramValue).toFixed(2),
         totcash: Number(totalCash.toFixed(2)),
         stgmrate: "-",
         rcharges: Number(rodiumChargeValue),
@@ -929,9 +939,14 @@ const Estimation = () => {
           scannedRef.current = true;
 
           try {
-            const stoneData = await stonesAPI(decodedText);
-            if (stoneData && Array.isArray(stoneData)) {
-              await mainAPI(decodedText, stoneData);
+            
+            if (path === "/estimations-model2") {
+              await mainAPI(decodedText, []);
+            } else {
+              const stoneData = await stonesAPI(decodedText);
+              if (stoneData && Array.isArray(stoneData)) {
+                await mainAPI(decodedText, stoneData);
+              }
             }
           } catch (err) {
             console.error("Scan handling error:", err);
@@ -994,6 +1009,8 @@ const Estimation = () => {
     setStoneRate({});
     setMakingValue(0);
     setPerGramValue(0);
+    setStoneMakingValue(0);
+    setStonePerGramValue(0);
     setRodiumChargeValue(0);
     estimationCountAPI();
     setSelectEstimationNo(null);
@@ -1179,7 +1196,9 @@ const Estimation = () => {
         return str;
       };
       const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
       printWindow.document.write(`
+          <tr>
           <tr>
               <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
         index + 1
@@ -1223,155 +1242,162 @@ const Estimation = () => {
       </tbody>
     </table>
     `);
+    if (path === "/estimations-model1") {
+      generateEstimationPrint({
+        showStonesTable: true,
+        includeRodiumCharges: true,
+      });
+    } else if (path === "/estimations-model2") {
+      generateEstimationPrint({
+        showStonesTable: false,
+        includeRodiumCharges: false,
+      });
+    }
 
-    // Stone Details Table
-    printWindow.document.write(`
-      <style>
-          body {
-              font-family: Arial, sans-serif;
-              font-size: 12px;
-              margin: 20px;
-          }
-          .container {
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-start;
-              width: 100%;
-              margin-top: 10px;
-          }
-          .table-container {
-              width: 55%;
-          }
-          .summary-container {
-              width: 35%;
-          }
-          table {
-              width: 100%;
-              border-collapse: collapse;
-              border: 2px solid black;
-          }
-          th, td {
-              border: 1px solid black;
-              padding: 5px;
-              text-align: center;
-              vertical-align: middle;
-          }
-          th {
-              font-weight: bold;
-              background-color: #f0f0f0;
-          }
-          .total td {
-              font-weight: bold;
-              background-color: #dcdcdc;
-              text-align: right;
-          }
-          .summary-box {
-              padding: 5px;
-          }
-          .summary-box table {
-              width: 100%;
-              border-collapse: collapse;
-          }
-          .summary-box td {
-              padding: 5px;
-              border: 1px solid black;
-              text-align: left;
-          }
-          .summary-box td:nth-child(2) {
-              text-align: right;
-              font-weight: bold;
-          }
-          .footer {
-              margin-top: 10px;
-              font-size: 12px;
-              text-align: left;
-              padding-top: 5px;
-          }
-          .footer p {
-              margin: 3px 0;
-          }
-              .stone-name {
-              text-align: left;
-              }
-              .sub-right {
-              text-align: right;
-              }
-              .sub-final {
-              background-color:rgb(191, 186, 186);
-              }
-              .sub-text {
-              text-align: right;
-              }
-      </style>
-    
-      <div class="container">
-          <!-- Left Side: Stones Table -->
-          <div class="table-container">
-              <table>
-                  <thead>
-                      <tr>
-                          <th class="stone-name">STONE NAME</th><th>PIECES</th><th class="sub-right">WEIGHT</th><th class="sub-right">COST</th><th class="sub-right">AMOUNT</th>
-                      </tr>
-                  </thead>
-                  <tbody>
+    function generateEstimationPrint({
+      showStonesTable,
+      includeRodiumCharges,
+    }) {
+      printWindow.document.write(`
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        margin: 20px;
+      }
+      .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+        margin-top: 10px;
+      }
+      .table-container {
+        width: 55%;
+      }
+      .summary-container {
+        width: ${showStonesTable ? "35%" : "100%"};
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 2px solid black;
+      }
+      th, td {
+        border: 1px solid black;
+        padding: 5px;
+        text-align: center;
+        vertical-align: middle;
+      }
+      th {
+        font-weight: bold;
+        background-color: #f0f0f0;
+      }
+      .total td {
+        font-weight: bold;
+        background-color: #dcdcdc;
+        text-align: right;
+      }
+      .stone-name {
+        text-align: left;
+      }
+      .sub-right {
+        text-align: right;
+      }
+      .sub-final {
+        background-color: rgb(191, 186, 186);
+      }
+    </style>
+
+    <div class="container">
+  `);
+
+      if (showStonesTable) {
+        let totalStoneWeight = 0;
+        let totalAmount = 0;
+
+        printWindow.document.write(`
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="stone-name">STONE NAME</th>
+              <th>PIECES</th>
+              <th class="sub-right">WEIGHT</th>
+              <th class="sub-right">COST</th>
+              <th class="sub-right">AMOUNT</th>
+            </tr>
+          </thead>
+          <tbody>
     `);
 
-    let totalStoneWeight = 0;
-    let totalAmount = 0;
+        stonesData.forEach((stone, index) => {
+          const rate = stoneRate[index] || 0;
+          const amount = stone.ACTGRAMS * rate;
+          totalAmount += amount;
+          totalStoneWeight += stone.ACTGRAMS;
 
-    stonesData.forEach((stone, index) => {
-      const rate = stoneRate[index] || 0; // Get the rate for the row or default to 0
-      const amount = stone.ACTGRAMS * rate; // Calculate amount per row
-      totalAmount += amount;
-      printWindow.document.write(`
+          printWindow.document.write(`
         <tr>
           <td class="stone-name">${stone.MAINTYPE}</td>
           <td>${stone.PCS}</td>
           <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
-          <td class="sub-right">${
-            rate || "0.00"
-          }</td>  <!-- Get rate per row -->
-          <td class="sub-right">${amount?.toFixed(
-            2
-          )}</td>  <!-- Calculate amount -->
+          <td class="sub-right">${rate.toFixed(2)}</td>
+          <td class="sub-right">${amount.toFixed(2)}</td>
         </tr>
       `);
-      totalStoneWeight += stone.ACTGRAMS;
-    });
+        });
 
-    printWindow.document.write(`
-                  <tr class="total">
-                      <td colspan="2"></td>
-                      <td>${totalStoneWeight.toFixed(3)}</td>
-                      <td></td><td>${totalAmount.toFixed(2)}</td>
-                  </tr>
-              </tbody>
-          </table>
+        printWindow.document.write(`
+            <tr class="total">
+              <td colspan="2"></td>
+              <td>${totalStoneWeight.toFixed(3)}</td>
+              <td></td>
+              <td>${totalAmount.toFixed(2)}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    
-      <!-- Right Side: Summary Box -->
-      <div class="summary-container">
-              <table>
-                  <tr><td class="stone-name">Net Weight</td><td class="sub-right"> <strong />${totalNetWeight.toFixed(
-                    3
-                  )}</td></tr>
-                  <tr class="sub-final"><td class="stone-name"><strong />Fine Gold</td><td class="sub-right"><strong /> ${(
-                    totalFineGold * 0.94
-                  ).toFixed(3)}</td></tr>
-                  <tr><td class="stone-name">Making ${makingValue} /g</td><td class="sub-right"><strong />${Number(
-      perGramValue
-    ).toFixed(3)}</td></tr>
-                  <tr><td class="stone-name">Rodium Charges</td><td class="sub-right"><strong />${rodiumChargeValue}</td></tr>
-                  <tr><td class="stone-name">Stone Cost</td><td class="sub-right"> <strong />${totalStoneCost?.toFixed(
-                    2
-                  )}</td></tr>
-                  <tr class="sub-final"><td class="stone-name"><strong>Total Cash</strong></td><td class="sub-right"><strong>${totalCash.toFixed(
-                    2
-                  )}</strong></td></tr>
-              </table>
-      </div>
-    </div>
     `);
+      }
+
+      printWindow.document.write(`
+    <div class="summary-container">
+      <table>
+        <tr><td class="stone-name">Net Weight</td><td class="sub-right">${totalNetWeight.toFixed(
+          3
+        )}</td></tr>
+        <tr class="sub-final"><td class="stone-name">Fine Gold</td><td class="sub-right">${(
+          totalFineGold * 0.94
+        ).toFixed(3)}</td></tr>
+        <tr><td class="stone-name">Making ${
+          makingValue || 0
+        } /g</td><td class="sub-right">${
+        perGramValue ? Number(perGramValue).toFixed(3) : 0
+      }</td></tr>
+        ${
+          includeRodiumCharges
+            ? `<tr><td class="stone-name">Rodium Charges</td><td class="sub-right">${
+                rodiumChargeValue || 0
+              }</td></tr>
+           <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+             2
+           )}</td></tr>`
+            : `<tr><td class="stone-name">Stone Cost ${
+                stoneMakingValue || 0
+              } /g</td>
+             <td class="sub-right">${
+               stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+             }</td></tr>`
+        }
+        <tr class="sub-final"><td class="stone-name"><strong>Total Cash</strong></td><td class="sub-right"><strong>${totalCash.toFixed(
+          2
+        )}</strong></td></tr>
+      </table>
+    </div>
+  </div>
+  `);
+    }
 
     printWindow.document.write("</body></html>");
     printWindow.document.close();
@@ -1520,6 +1546,9 @@ const Estimation = () => {
               onClick={() => {
                 if (!tagNoValue) {
                   message.warning("Enter Tag No");
+                } else if (path === "/estimations-model2") {
+                  mainAPI();
+                  setTagNoValue("");
                 } else {
                   stonesAPI();
                   mainAPI();
@@ -1657,37 +1686,42 @@ const Estimation = () => {
                 </span>
               </p>
             </div>
-            <hr className={styles.fullWidthLine} />
+            {path === "/estimations-model1" ? (
+              <>
+                <hr className={styles.fullWidthLine} />
+                <div className={styles.fullWidthStone}>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      padding: "0px 8px 0px 8px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {(() => {
+                      const actGrams =
+                        stoneMainData.find(
+                          (stone) => stone.TAGNO === item.TAGNO
+                        )?.ACTGRAMS || "";
 
-            {/* Stones */}
-            <div className={styles.fullWidthStone}>
-              <p
-                style={{
-                  fontSize: "14px",
-                  padding: "0px 8px 0px 8px",
-                  fontWeight: "bold",
-                }}
-              >
-                {(() => {
-                  const actGrams =
-                    stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)
-                      ?.ACTGRAMS || "";
+                      const removeUndefinedWrapper = (str) => {
+                        let prevStr;
+                        do {
+                          prevStr = str;
+                          str = str
+                            .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
+                            .trim();
+                        } while (prevStr !== str);
+                        return str;
+                      };
 
-                  const removeUndefinedWrapper = (str) => {
-                    let prevStr;
-                    do {
-                      prevStr = str;
-                      str = str
-                        .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
-                        .trim();
-                    } while (prevStr !== str);
-                    return str;
-                  };
-
-                  return removeUndefinedWrapper(actGrams);
-                })()}
-              </p>
-            </div>
+                      return removeUndefinedWrapper(actGrams);
+                    })()}
+                  </p>
+                </div>
+              </>
+            ) : (
+              ""
+            )}
           </div>
         ))}
       </div>
@@ -1765,6 +1799,10 @@ const Estimation = () => {
         estimationDeleteMast={estimationDeleteMast}
         handleReset={handleReset}
         setSelectEstimationNo={setSelectEstimationNo}
+        setStoneMakingValue={setStoneMakingValue}
+        stoneMakingValue={stoneMakingValue}
+        setStonePerGramValue={setStonePerGramValue}
+        stonePerGramValue={stonePerGramValue}
       />
       <EstimationDialog
         setOpenDialog={setOpenDialog}

@@ -1,12 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Col,
-  DatePicker,
-  Row,
-  Select,
-  Typography
-} from "antd";
+import { Button, Col, DatePicker, Row, Select, Typography } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
@@ -273,251 +266,125 @@ const EstimationDetails = () => {
             />
           </div>
         </div>
-
-        {/* <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            flex: "0 1 220px",
-          }}
-        >
-          <div>Party:</div>
-          <Select
-            showSearch
-            placeholder="Select Party Name"
-            autoFocus={true}
-            style={{ width: "60%" }}
-            ref={partyRef}
-            value={selectedParty ? selectedParty : null}
-            onChange={(value) => {
-              setSelectedParty(value);
-              handlePartyChange();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const filteredOptions = partyNames.filter((party) =>
-                  party.DESCRIPTION.toLowerCase().includes(
-                    e.target.value.toLowerCase()
-                  )
-                );
-                if (filteredOptions.length > 0) {
-                  setSelectedParty(filteredOptions[0].DESCRIPTION);
-                }
-              }
-            }}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {partyNames.map((party, index) => (
-              <Option key={index} value={party.DESCRIPTION}>
-                {party.DESCRIPTION}
-              </Option>
-            ))}
-          </Select>
-        </div> */}
-
-        {/* <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            flex: "0 1 200px",
-            marginTop: "10px",
-          }}
-        >
-          <div>Item Name:</div>
-          <Select
-            showSearch
-            placeholder="Select Item Name"
-            autoFocus={true}
-            style={{ width: "60%" }}
-            ref={itemRef}
-            value={selectedItem ? selectedItem : null}
-            onChange={(value) => {
-              setSelectedItem(value);
-              handleItemChange();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const filteredOptions = itemNames.filter((party) =>
-                  party.PRODNAME.toLowerCase().includes(
-                    e.target.value.toLowerCase()
-                  )
-                );
-                if (filteredOptions.length > 0) {
-                  setSelectedItem(filteredOptions[0].PRODNAME);
-                }
-              }
-            }}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {itemNames.map((party, index) => (
-              <Option key={index} value={party.PRODNAME}>
-                {party.PRODNAME}
-              </Option>
-            ))}
-          </Select>
-        </div> */}
-
-        {/* Touch & Wast Inputs */}
-        {/* <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            flex: "0 1 150px",
-          }}
-        >
-          <div>Tag No:</div>
-          <Input
-            placeholder="Enter TagNo"
-            ref={tagNoRef}
-            style={{ width: "60%" }}
-            onKeyDown={(e) => handleKeyDown(e, estRef)}
-            value={searchTagNo}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 8) {
-                setSearchTagNo(value);
-              }
-            }}
-          />
-        </div> */}
-        {/* <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            flex: "0 1 150px",
-          }}
-        >
-          <div>Est No:</div>
-          <Input
-            placeholder="Enter EstNo"
-            ref={estRef}
-            style={{ width: "60%" }}
-            value={searchEstimationNo}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 8) {
-                setSearchEstimationNO(value);
-              }
-            }}
-          />
-        </div> */}
-        {/* </Col>
-        </Row> */}
-        {/* <Row gutter={[16, 16]} style={{ marginTop: "5px" }}>
-        <Col span={24}>
-          <div
-            style={{
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              backgroundColor: "#fff",
-              borderRadius: "8px",
-            }}
-          >
-            <TableHeaderStyles>
-              <Table
-                columns={columns}
-                dataSource={summaryData}
-                pagination={false}
-                size="small"
-                rowClassName={(record, index) =>
-                  index % 2 === 0 ? "table-row-light" : "table-row-dark"
-                }
-                scroll={{ y: 450 }} // Internal scroll inside table
-                summary={() => (
-                  <Table.Summary.Row
-                    style={{ backgroundColor: "#f5f5f5", fontWeight: "bold" }}
-                  >
-                    <Table.Summary.Cell index={0}>Total</Table.Summary.Cell>
-                    <Table.Summary.Cell index={1} />
-                    <Table.Summary.Cell index={2} />
-                    <Table.Summary.Cell index={3} />
-                    <Table.Summary.Cell index={4} />
-                    <Table.Summary.Cell index={5} align="center">
-                      {totalPcs}
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={6} align="right">
-                      {totalGwt?.toFixed(2)}
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={7} align="right">
-                      {totalSwt?.toFixed(2)}
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={8} align="right">
-                      {totalNwt?.toFixed(2)}
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={9} />
-                    <Table.Summary.Cell index={10} />
-                    <Table.Summary.Cell index={11} align="right">
-                      {totalFineGold?.toFixed(2)}
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={12} />
-                    <Table.Summary.Cell index={13} />
-                    <Table.Summary.Cell index={14} />
-                  </Table.Summary.Row>
-                )}
-              />
-            </TableHeaderStyles>
-          </div>
-        </Col>
-      </Row> */}
         <div className={styles.cardContainer}>
           {summaryData?.map((item, index) => (
             <div key={index} className={styles.infoBox}>
               <div className={styles.rowTag}>
                 <div className={styles.estimationRow}>
-                  <p style={{ fontSize: "16px" }}>
-                    <strong>Est NO:</strong> {item.ESTIMATIONNO}
+                  <p style={{ fontSize: "14px" }}>
+                    Est NO:{" "}
+                    <span
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: "bold",
+                        // color: "#52bd91",
+                      }}
+                    >
+                      {item.ESTIMATIONNO}
+                    </span>
                   </p>
-                  <p style={{ fontSize: "16px", marginLeft: "16px" }}>
-                    <strong>Est Date:</strong>{" "}
-                    {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                  <p style={{ fontSize: "12px", marginLeft: "16px" }}>
+                    {/* Est Date: {" "} */}
+                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                      {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                    </span>
                   </p>
                 </div>
                 <p style={{ fontSize: "12px", padding: "0px 8px 0px 8px" }}>
-                  <strong>Party:</strong> {item?.DESCRIPTION}
+                  Party:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "red",
+                    }}
+                  >
+                    {item?.DESCRIPTION || "-"}
+                  </span>
                 </p>
               </div>
               <hr className={styles.fullWidthLine} />
 
               <div className={styles.row}>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Tag No:</strong> {item.TAGNO}
-                </p>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Item:</strong> {item.PRODNAME}
-                </p>
-              </div>
-              <hr className={styles.fullWidthLine} />
-
-              <div className={styles.row}>
-                <p style={{ fontSize: "14px" }}>
-                  Gross Wt:{" "}
-                  <span>
-                    <strong>{Number(item.GWT)?.toFixed(3)}</strong>
+                <p style={{ fontSize: "12px" }}>
+                  Tag No:{" "}
+                  <span
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      color: "#52bd91",
+                    }}
+                  >
+                    {item.TAGNO}
                   </span>
                 </p>
                 <p style={{ fontSize: "14px" }}>
-                  <strong>Less Wt:</strong> {Number(item.STONEWT)?.toFixed(3)}
-                </p>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Net Wt:</strong> {Number(item.NWT)?.toFixed(3)}
+                  Item:{" "}
+                  <span
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      color: "#52bd91",
+                    }}
+                  >
+                    {item.PRODNAME}
+                  </span>
                 </p>
               </div>
               <hr className={styles.fullWidthLine} />
 
               <div className={styles.row}>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Touch:</strong> {item.TOUCH}
+                <p style={{ fontSize: "12px" }}>
+                  Gross Wt:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "red",
+                    }}
+                  >
+                    <strong>{Number(item.GWT)?.toFixed(3)}</strong>
+                  </span>
                 </p>
-                <p style={{ fontSize: "14px" }}>
-                  <strong>Fine Gold:</strong>{" "}
-                  {Number(item.FINEGOLD)?.toFixed(3)}
+                <p style={{ fontSize: "12px" }}>
+                  Less Wt:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "red",
+                    }}
+                  >
+                    {Number(item.STONEWT)?.toFixed(3)}
+                  </span>
+                </p>
+                <p style={{ fontSize: "12px" }}>
+                  Net Wt:{" "}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "red",
+                    }}
+                  >
+                    {Number(item.NWT)?.toFixed(3)}
+                  </span>
+                </p>
+              </div>
+              <hr className={styles.fullWidthLine} />
+
+              <div className={styles.row}>
+                <p style={{ fontSize: "12px" }}>
+                  Touch:{" "}
+                  <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                    {item.TOUCH}
+                  </span>
+                </p>
+                <p style={{ fontSize: "12px" }}>
+                  Fine Gold:{" "}
+                  <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                    {Number(item.FINEGOLD)?.toFixed(3)}
+                  </span>
                 </p>
               </div>
               <hr className={styles.fullWidthLine} />

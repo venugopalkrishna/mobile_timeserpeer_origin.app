@@ -33,7 +33,8 @@ const App = () => {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/estimations" element={<Estimation />} />
+                  <Route path="/estimations-model1" element={<Estimation />} />
+                  <Route path="/estimations-model2" element={<Estimation />} />
                   <Route path="/estimation-details" element={<EstimationDetails />} />
                   <Route path="/estimation-summary" element={<EstimationSummary />} />
                 </Routes>

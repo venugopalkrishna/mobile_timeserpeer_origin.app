@@ -13,7 +13,7 @@ const LoginPage = ({ onLogin }) => {
 
   useEffect(() => {
     if (localStorage.getItem("tenantName")) {
-      navigate("/estimations");
+      navigate("/estimations-model1");
     } else {
       navigate("/");
     }
@@ -56,7 +56,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("tenantName", response?.data);
         onLogin(response?.data);
         userAPI(response?.data);
-        navigate("/estimations");
+        navigate("/estimations-model1");
       } else {
         console.log("Invalid username or password");
       }

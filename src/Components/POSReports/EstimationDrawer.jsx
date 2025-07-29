@@ -1,4 +1,5 @@
 import { Button, Card, Drawer, Input, Table } from "antd";
+import { useLocation } from "react-router-dom";
 
 const EstimationDrawer = ({
   drawerOpen,
@@ -28,10 +29,17 @@ const EstimationDrawer = ({
   estimationDeleteMast,
   handleReset,
   setSelectEstimationNo,
+  setStoneMakingValue,
+  stoneMakingValue,
+  setStonePerGramValue,
+  stonePerGramValue,
 }) => {
   const onClose = () => {
     setDrawerOpen(false);
   };
+  const pathName = useLocation();
+  const path = pathName?.pathname;
+  console.log(path, "path");
   console.log(totalStoneCost, "totalStoneCost");
 
   return (
@@ -88,7 +96,9 @@ const EstimationDrawer = ({
               {item.label}
             </label>
             <span style={{ flex: 0.1 }}>:</span>
-            <div style={{ textAlign: "right", flex: 1, fontSize:"18px" }}>{item.value}</div>
+            <div style={{ textAlign: "right", flex: 1, fontSize: "18px" }}>
+              {item.value}
+            </div>
           </div>
         ))}
         <div
@@ -100,20 +110,27 @@ const EstimationDrawer = ({
         >
           <label style={{ width: "18%", textAlign: "left" }}>Making</label>
           <Input
-            style={{ width: "30%", fontSize:"15px" }}
+            style={{ width: "30%", fontSize: "15px" }}
             value={makingValue}
             onChange={(e) => {
               const value = e.target.value.replace(/\D/g, "");
               if (value.length <= 8) {
                 setMakingValue(value);
-                setPerGramValue(value ? value * totalNetWeight : 0);
+                setPerGramValue(
+                  value ? (value * totalNetWeight)?.toFixed(2) : 0
+                );
               }
             }}
           />
           <span style={{ color: "red", marginLeft: 5 }}>/G</span>
           <span style={{ flex: 0.1 }}>:</span>
           <Input
-            style={{ width: "40%", textAlign: "right", flex: 1, fontSize:"15px" }}
+            style={{
+              width: "40%",
+              textAlign: "right",
+              flex: 1,
+              fontSize: "15px",
+            }}
             placeholder="Per Gm."
             value={perGramValue}
             onChange={(e) => {
@@ -124,44 +141,101 @@ const EstimationDrawer = ({
             }}
           />
         </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: 5,
-          }}
-        >
-          <label style={{ width: "50%", textAlign: "left" }}>
-            Rodium Charges
-          </label>
-          <span style={{ flex: 0.1 }}>:</span>
-          <Input
-            style={{ width: "50%", textAlign: "right", flex: 1, fontSize:"15px" }}
-            placeholder="Rodium Charges"
-            value={rodiumChargeValue}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 8) {
-                setRodiumChargeValue(e.target.value);
-              }
+        {path === "/estimations-model1" ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 5,
             }}
-          />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: 5,
-          }}
-        >
-          <label style={{ width: "50%", textAlign: "left" }}>Stone Cost</label>
-          <span style={{ flex: 0.1 }}>:</span>
-          <div style={{ textAlign: "right", flex: 1, fontSize:"15px" }}>
-            {selectEstimationNo
-              ? selectEstimationNo?.STCHARGES
-              : totalStoneCost?.toFixed(2)}
+          >
+            <label style={{ width: "50%", textAlign: "left" }}>
+              Rodium Charges
+            </label>
+            <span style={{ flex: 0.1 }}>:</span>
+            <Input
+              style={{
+                width: "50%",
+                textAlign: "right",
+                flex: 1,
+                fontSize: "15px",
+              }}
+              placeholder="Rodium Charges"
+              value={rodiumChargeValue}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                if (value.length <= 8) {
+                  setRodiumChargeValue(e.target.value);
+                }
+              }}
+            />
           </div>
-        </div>
+        ) : (
+          ""
+        )}
+        <>
+          {path === "/estimations-model2" ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 5,
+              }}
+            >
+              <label style={{ width: "18%", textAlign: "left" }}>Stone</label>
+              <Input
+                style={{ width: "30%", fontSize: "15px" }}
+                value={stoneMakingValue}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  if (value.length <= 8) {
+                    setStoneMakingValue(value);
+                    setStonePerGramValue(
+                      value ? (value * totalStoneWeight)?.toFixed(2) : 0
+                    );
+                  }
+                }}
+              />
+              <span style={{ color: "red", marginLeft: 5 }}>/G</span>
+              <span style={{ flex: 0.1 }}>:</span>
+              <Input
+                style={{
+                  width: "40%",
+                  textAlign: "right",
+                  flex: 1,
+                  fontSize: "15px",
+                }}
+                placeholder="Per Gm."
+                value={stonePerGramValue}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  if (value.length <= 8) {
+                    setStonePerGramValue(e.target.value);
+                  }
+                }}
+              />
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 5,
+              }}
+            >
+              <label style={{ width: "50%", textAlign: "left" }}>
+                Stone Cost
+              </label>
+              <span style={{ flex: 0.1 }}>:</span>
+              <div style={{ textAlign: "right", flex: 1, fontSize: "15px" }}>
+                {selectEstimationNo
+                  ? selectEstimationNo?.STCHARGES
+                  : totalStoneCost?.toFixed(2)}
+              </div>
+            </div>
+          )}
+        </>
+
         <div style={{ display: "flex", alignItems: "center" }}>
           <label
             style={{
@@ -180,7 +254,7 @@ const EstimationDrawer = ({
               color: "white",
               fontWeight: "bold",
               flex: 1,
-              fontSize:"15px"
+              fontSize: "15px",
             }}
           >
             {selectEstimationNo
@@ -202,29 +276,36 @@ const EstimationDrawer = ({
           style={{
             backgroundColor: "blue",
             borderColor: "blue",
-            width: "8rem"
+            width: "8rem",
           }}
-            disabled={tableData.length === 0 && stonesData.length === 0}
-            onClick={() => {
-              if (selectEstimationNo?.ESTIMATIONNO) {
-                createEstimationMast();
-                createEstimationData();
+          disabled={tableData.length === 0 && stonesData.length === 0}
+          onClick={() => {
+            const isModel2 = path === "/estimations-model2";
+            if (selectEstimationNo?.ESTIMATIONNO) {
+              if (!isModel2) {
                 createEstimationItems();
-                setSelectEstimationNo(null);
-                estimationDeleteData();
-                estimationDeleteItems();
-                estimationDeleteMast();
-                handleReset();
-                onClose();
-              } else {
-                createEstimationMast();
-                createEstimationData();
-                createEstimationItems();
-                setSelectEstimationNo(null);
-                handleReset();
-                onClose();
               }
-            }}
+              if (!isModel2) {
+                estimationDeleteItems();
+              }
+              createEstimationMast();
+              createEstimationData();
+              setSelectEstimationNo(null);
+              estimationDeleteData();
+              estimationDeleteMast();
+              handleReset();
+              onClose();
+            } else {
+              if (!isModel2) {
+                createEstimationItems();
+              }
+              createEstimationMast();
+              createEstimationData();
+              setSelectEstimationNo(null);
+              handleReset();
+              onClose();
+            }
+          }}
         >
           Save
         </Button>
@@ -233,10 +314,10 @@ const EstimationDrawer = ({
           style={{
             backgroundColor: "Green",
             borderColor: "green",
-            width: "8rem"
+            width: "8rem",
           }}
-            onClick={handlePrint}
-            disabled={tableData.length === 0}
+          onClick={handlePrint}
+          disabled={tableData.length === 0}
         >
           Print
         </Button>
@@ -245,7 +326,7 @@ const EstimationDrawer = ({
           style={{
             backgroundColor: "red",
             borderColor: "red",
-            width: "8rem"
+            width: "8rem",
           }}
           onClick={onClose}
         >

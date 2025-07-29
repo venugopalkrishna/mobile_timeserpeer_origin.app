@@ -1,4 +1,8 @@
-import { AppstoreOutlined, FileDoneOutlined, HomeOutlined } from "@ant-design/icons";
+import {
+  AppstoreOutlined,
+  FileDoneOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import {
   Box,
@@ -12,7 +16,7 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const SidebarDrawer = ({
@@ -24,6 +28,7 @@ const SidebarDrawer = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [expandedMenu, setExpandedMenu] = useState(null);
 
   const logOut = () => {
     navigate("/");
@@ -37,19 +42,32 @@ const SidebarDrawer = ({
   };
 
   const menuItems = [
-    { text: "Estimation", icon: <HomeOutlined />, path: "/estimations" },
-    { text: "Estimation Details", icon: <AppstoreOutlined />, path: "/estimation-details" },
-    { text: "Estimation Summary", icon: <FileDoneOutlined />, path: "/estimation-summary" },
-    // { text: "Inventory", icon: <Inventory />, path: "/inventory" },
-    // { text: "Accounts", icon: <People />, path: "/accounts" },
-    // { text: "Saving Scheme", icon: <ShoppingCart />, path: "/purchase-plans" },
-    // { text: "CRM", icon: <Business />, path: "/crm" },
-    // { text: "Graphs", icon: <BarChart />, path: "/graphs" },
-    // {
-    //   text: "Tag Check",
-    //   icon: <QrCode2OutlinedIcon />,
-    //   path: "/bar-code-check",
-    // },
+    {
+      text: "Estimation",
+      icon: <HomeOutlined />,
+      children: [
+        {
+          text: "Model 1",
+          path: "/estimations-model1",
+          icon: <AppstoreOutlined />,
+        },
+        {
+          text: "Model 2",
+          path: "/estimations-model2",
+          icon: <FileDoneOutlined />,
+        },
+      ],
+    },
+    {
+      text: "Estimation Details",
+      icon: <AppstoreOutlined />,
+      path: "/estimation-details",
+    },
+    {
+      text: "Estimation Summary",
+      icon: <FileDoneOutlined />,
+      path: "/estimation-summary",
+    },
   ];
 
   return (
@@ -81,7 +99,7 @@ const SidebarDrawer = ({
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              border: "2px solid #52bd91"
+              border: "2px solid #52bd91",
             }}
           >
             <img
@@ -108,7 +126,7 @@ const SidebarDrawer = ({
         </Box>
       </Box>
 
-      <List>
+      {/* <List>
         {menuItems.map((item, index) => {
           const isActive = location.pathname === item.path;
 
@@ -136,6 +154,89 @@ const SidebarDrawer = ({
                   }}
                 />
               </ListItem>
+              <Divider
+                sx={{
+                  backgroundColor: "white",
+                  opacity: 0.9,
+                  marginLeft: "10px",
+                  marginRight: "10px",
+                }}
+              />
+            </React.Fragment>
+          );
+        })}
+      </List> */}
+
+      <List>
+        {menuItems.map((item, index) => {
+          const hasChildren = Array.isArray(item.children);
+          const isExpanded = expandedMenu === item.text;
+          const isParentActive = hasChildren
+            ? item.children.some((child) => location.pathname === child.path)
+            : location.pathname === item.path;
+
+          return (
+            <React.Fragment key={index}>
+              <ListItem
+                button
+                onClick={() => {
+                  if (hasChildren) {
+                    setExpandedMenu((prev) =>
+                      prev === item.text ? null : item.text
+                    );
+                  } else {
+                    navigate(item.path);
+                    toggleDrawer();
+                  }
+                }}
+              >
+                <ListItemIcon
+                  sx={{ color: isParentActive ? "#52bd91" : "white" }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
+                    fontWeight: "bold",
+                    color: isParentActive ? "#52bd91" : "white",
+                  }}
+                />
+              </ListItem>
+
+              {/* Render children if expanded */}
+              {hasChildren &&
+                isExpanded &&
+                item.children.map((subItem, subIndex) => {
+                  const isActive = location.pathname === subItem.path;
+                  return (
+                    <ListItem
+                      key={subIndex}
+                      button
+                      sx={{ pl: 4 }}
+                      onClick={() => {
+                        navigate(subItem.path);
+                        toggleDrawer();
+                        window.location.reload();
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{ color: isActive ? "#52bd91" : "white" }}
+                      >
+                        {subItem.icon}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={subItem.text}
+                        primaryTypographyProps={{
+                          fontWeight: "normal",
+                          fontSize: "14px",
+                          color: isActive ? "#52bd91" : "white",
+                        }}
+                      />
+                    </ListItem>
+                  );
+                })}
+
               <Divider
                 sx={{
                   backgroundColor: "white",
