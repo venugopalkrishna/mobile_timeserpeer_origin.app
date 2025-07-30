@@ -1428,24 +1428,66 @@ const Estimation = () => {
     container.style.fontFamily = "Arial";
     container.style.fontSize = "12px";
 
-    // Build HTML content
     container.innerHTML = `
     <style>
-      table {
+      .main-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 5px;
         font-size: 12px;
       }
-      th, td {
+        .main-table th {
+         border: 1px solid black;
+        padding: 5px;
+        text-align: center;
+        background-color: #52bd91;
+        }
+      .main-table td {
         border: 1px solid black;
         padding: 5px;
         text-align: center;
       }
+
+      .stone-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 12px;
+      }
+        .stone-table th {
+         border: 1px solid black;
+        padding: 5px;
+        text-align: center;
+        background-color: #52bd91;
+        }
+      .stone-table td {
+        border: 1px solid #333;
+        padding: 5px;
+        text-align: center;
+      }
+
+      .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin-top: 10px;
+        background: radial-gradient(circle at center, #ffffffff 50%, #f3f6fb 60%, #e0e7f1 80%);
+      }
+      .summary-table td {
+        padding: 5px;
+        border: 1px solid #aaa;
+        text-align: right;
+      }
+      .summary-table td:first-child {
+        text-align: left;
+      }
+
       .total td {
         font-weight: bold;
-        background-color: #ddd;
+        background-color: #162566;
+        color: white;
       }
+
       h2 {
         text-align: center;
         text-decoration: underline;
@@ -1453,48 +1495,59 @@ const Estimation = () => {
         margin: 0 0 18px 0;
         font-size: 16px;
       }
+
       .sub-header {
         display: flex;
         justify-content: space-between;
         font-weight: bold;
         margin-bottom: 10px;
       }
+        .sub-est {
+        font-weight : bold;
+        font-size: 18px;
+        color : red;
+      }
+ .sub-party {
+        font-weight : bold;
+        font-size: 14px;
+        color : #162566;
+      }
+
       .container {
         display: flex;
         justify-content: space-between;
         margin-top: 15px;
       }
+
       .table-container {
         width: 55%;
       }
+
       .summary-container {
         width: 35%;
         margin-left: ${path === "/estimations-model1" ? "0" : "auto"};
       }
-      .summary-container td {
-        text-align: right;
-      }
-      .summary-container td:first-child {
-        text-align: left;
-      }
+
       .highlight {
-        background-color: #bfbaba;
+        background-color: #f26d14ff;
         font-weight: bold;
       }
     </style>
 
     <h2>ESTIMATION</h2>
     <div class="sub-header">
-      <span>ESTIMATION NO.: ${estimationCount + 1}</span>
+      <span >ESTIMATION NO : <span class="sub-est">${
+        estimationCount + 1
+      }</span></span>
       <span>DATE: ${new Date().toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "short",
         year: "numeric",
       })}</span>
-      <span>PARTY NAME: ${selectedParty}</span>
+      <span>PARTY NAME: <span class="sub-party">${selectedParty}</span></span>
     </div>
 
-    <table>
+    <table class="main-table">
       <thead>
         <tr>
           <th>SNo</th>
@@ -1520,12 +1573,11 @@ const Estimation = () => {
               "$1"
             );
             const subRow = cleanedActGrams
-              ? `
-              <tr>
-                <td colspan="9" style="text-align:left;font-size:10px;padding-left:10px">
-                  ${cleanedActGrams}
-                </td>
-              </tr>`
+              ? `<tr>
+                  <td colspan="9" style="text-align:left;font-size:10px;padding-left:10px">
+                    ${cleanedActGrams}
+                  </td>
+                </tr>`
               : "";
 
             return `
@@ -1557,13 +1609,12 @@ const Estimation = () => {
     </table>
   `;
 
-    // Stone Table + Summary Section
     container.innerHTML += `
     <div class="container">
       ${
         path === "/estimations-model1"
           ? `<div class="table-container">
-              <table>
+              <table class="stone-table">
                 <thead>
                   <tr>
                     <th>STONE NAME</th>
@@ -1606,8 +1657,9 @@ const Estimation = () => {
             </div>`
           : ""
       }
+
       <div class="summary-container">
-        <table>
+        <table class="summary-table">
           <tr><td>Net Weight</td><td>${totalNetWeight.toFixed(3)}</td></tr>
           <tr class="highlight"><td>Fine Gold</td><td>${totalFineGold.toFixed(
             3
@@ -1635,7 +1687,7 @@ const Estimation = () => {
     </div>
   `;
 
-    // Convert to PDF
+    // Generate PDF
     html2pdf()
       .set({
         margin: 0,
