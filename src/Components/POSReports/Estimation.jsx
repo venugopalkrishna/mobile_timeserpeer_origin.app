@@ -43,7 +43,7 @@ const Estimation = () => {
   const [tableData, setTableData] = useState([]);
   const [stonesData, setStonesData] = useState([]);
   const [stoneMainData, setStoneMainData] = useState([]);
-  const [estimationCount, setEstimationCount] = useState({});
+  const [estimationCount, setEstimationCount] = useState(0);
   const [partyNames, setPartyNames] = useState([]);
   const [selectedParty, setSelectedParty] = useState(null);
   const [touchValue, setTouchValue] = useState();
