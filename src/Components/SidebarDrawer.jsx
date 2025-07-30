@@ -47,12 +47,12 @@ const SidebarDrawer = ({
       icon: <HomeOutlined />,
       children: [
         {
-          text: "Model 1",
+          text: "Estimation With Stones",
           path: "/estimations-model1",
           icon: <AppstoreOutlined />,
         },
         {
-          text: "Model 2",
+          text: "Estimation With Out Stones",
           path: "/estimations-model2",
           icon: <FileDoneOutlined />,
         },
@@ -76,7 +76,7 @@ const SidebarDrawer = ({
       open={open}
       sx={{
         "& .MuiDrawer-paper": {
-          width: 270,
+          width: 300,
           backgroundColor: "#203882",
           color: "white",
         },

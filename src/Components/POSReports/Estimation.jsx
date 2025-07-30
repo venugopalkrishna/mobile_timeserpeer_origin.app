@@ -14,6 +14,7 @@ import {
   Html5QrcodeScanner,
   Html5QrcodeScanType,
 } from "html5-qrcode";
+import html2pdf from "html2pdf.js";
 import { CREATE_jwel } from "../../Config/Config";
 import Header from "../Header";
 import SidebarDrawer from "../SidebarDrawer";
@@ -359,6 +360,7 @@ const Estimation = () => {
     }
     if (selectEstimationNo?.RCHARGES) {
       setRodiumChargeValue(selectEstimationNo?.RCHARGES);
+      setStoneMakingValue(selectEstimationNo?.RCHARGES);
     }
     if (selectEstimationNo?.TOUCHPER) {
       setTouchValue(selectEstimationNo?.TOUCHPER);
@@ -654,10 +656,14 @@ const Estimation = () => {
         purewt: Number(totalFineGold?.toFixed(3)),
         mcper: Number(makingValue),
         mcamt: Number(perGramValue.toFixed(3)),
-        stcharges: totalStoneCost ? Number(totalStoneCost.toFixed(2)) : Number(stonePerGramValue).toFixed(2),
+        stcharges: totalStoneCost
+          ? Number(totalStoneCost.toFixed(2))
+          : Number(stonePerGramValue).toFixed(2),
         totcash: Number(totalCash.toFixed(2)),
         stgmrate: "-",
-        rcharges: Number(rodiumChargeValue),
+        rcharges: rodiumChargeValue
+          ? Number(rodiumChargeValue)
+          : stoneMakingValue,
       },
     ];
     console.log(requestBody, "requestBody");
@@ -939,7 +945,6 @@ const Estimation = () => {
           scannedRef.current = true;
 
           try {
-            
             if (path === "/estimations-model2") {
               await mainAPI(decodedText, []);
             } else {
@@ -1040,12 +1045,15 @@ const Estimation = () => {
         }
         .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 18px;
         }
         .header h2 {
             margin: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
+            display: inline-block;
+    text-decoration: underline;
+    text-underline-offset: 4px;
         }
         .sub-header {
             display: flex;
@@ -1242,6 +1250,7 @@ const Estimation = () => {
       </tbody>
     </table>
     `);
+
     if (path === "/estimations-model1") {
       generateEstimationPrint({
         showStonesTable: true,
@@ -1266,18 +1275,19 @@ const Estimation = () => {
         margin: 20px;
       }
       .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        width: 100%;
-        margin-top: 10px;
-      }
-      .table-container {
-        width: 55%;
-      }
-      .summary-container {
-        width: ${showStonesTable ? "35%" : "100%"};
-      }
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 10px;
+  }
+  .table-container {
+    width: 55%;
+  }
+  .summary-container {
+    width: 35%;
+    margin-left: ${showStonesTable ? "0" : "auto"};
+  }
       table {
         width: 100%;
         border-collapse: collapse;
@@ -1306,6 +1316,14 @@ const Estimation = () => {
       }
       .sub-final {
         background-color: rgb(191, 186, 186);
+      }
+        .sub-right-bold {
+        text-align: right;
+        font-weight: bold;
+      }
+        .stone-name-bold {
+        text-align: left;
+        font-weight: bold;
       }
     </style>
 
@@ -1364,12 +1382,12 @@ const Estimation = () => {
       printWindow.document.write(`
     <div class="summary-container">
       <table>
-        <tr><td class="stone-name">Net Weight</td><td class="sub-right">${totalNetWeight.toFixed(
+        <tr><td class="stone-name-bold">Net Weight</td><td class="sub-right-bold">${totalNetWeight.toFixed(
           3
         )}</td></tr>
-        <tr class="sub-final"><td class="stone-name">Fine Gold</td><td class="sub-right">${(
-          totalFineGold * 0.94
-        ).toFixed(3)}</td></tr>
+        <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+          3
+        )}</td></tr>
         <tr><td class="stone-name">Making ${
           makingValue || 0
         } /g</td><td class="sub-right">${
@@ -1390,7 +1408,7 @@ const Estimation = () => {
                stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
              }</td></tr>`
         }
-        <tr class="sub-final"><td class="stone-name"><strong>Total Cash</strong></td><td class="sub-right"><strong>${totalCash.toFixed(
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Total Cash</strong></td><td class="sub-right-bold"><strong>${totalCash.toFixed(
           2
         )}</strong></td></tr>
       </table>
@@ -1402,6 +1420,236 @@ const Estimation = () => {
     printWindow.document.write("</body></html>");
     printWindow.document.close();
     printWindow.print();
+  };
+
+  const handleDownloadPDF = () => {
+    const container = document.createElement("div");
+    container.style.padding = "20px";
+    container.style.fontFamily = "Arial";
+    container.style.fontSize = "12px";
+
+    // Build HTML content
+    container.innerHTML = `
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 5px;
+        font-size: 12px;
+      }
+      th, td {
+        border: 1px solid black;
+        padding: 5px;
+        text-align: center;
+      }
+      .total td {
+        font-weight: bold;
+        background-color: #ddd;
+      }
+      h2 {
+        text-align: center;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+        margin: 0 0 18px 0;
+        font-size: 16px;
+      }
+      .sub-header {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+      }
+      .table-container {
+        width: 55%;
+      }
+      .summary-container {
+        width: 35%;
+        margin-left: ${path === "/estimations-model1" ? "0" : "auto"};
+      }
+      .summary-container td {
+        text-align: right;
+      }
+      .summary-container td:first-child {
+        text-align: left;
+      }
+      .highlight {
+        background-color: #bfbaba;
+        font-weight: bold;
+      }
+    </style>
+
+    <h2>ESTIMATION</h2>
+    <div class="sub-header">
+      <span>ESTIMATION NO.: ${estimationCount + 1}</span>
+      <span>DATE: ${new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })}</span>
+      <span>PARTY NAME: ${selectedParty}</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>SNo</th>
+          <th>TAG NO</th>
+          <th>PARTICULARS</th>
+          <th>Pieces</th>
+          <th>Gross.Wt</th>
+          <th>Less.Wt</th>
+          <th>Net.Wt</th>
+          <th>Touch</th>
+          <th>Fine Gold</th>
+          <th>Act Per</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableData
+          .map((item, index) => {
+            const actGrams =
+              stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)
+                ?.ACTGRAMS || "";
+            const cleanedActGrams = actGrams.replace(
+              /undefined\(\s*(.*?)\s*\)/g,
+              "$1"
+            );
+            const subRow = cleanedActGrams
+              ? `
+              <tr>
+                <td colspan="9" style="text-align:left;font-size:10px;padding-left:10px">
+                  ${cleanedActGrams}
+                </td>
+              </tr>`
+              : "";
+
+            return `
+              <tr>
+                <td rowspan="${cleanedActGrams ? 2 : 1}">${index + 1}</td>
+                <td rowspan="${cleanedActGrams ? 2 : 1}">${item.TAGNO}</td>
+                <td>${item.PRODNAME}</td>
+                <td>${item.PIECES}</td>
+                <td>${item.GWT?.toFixed(3)}</td>
+                <td>${item.STONEWT}</td>
+                <td>${item.NETWT}</td>
+                <td>${item.TOUCH}%</td>
+                <td>${item.FINALGOLD}</td>
+                <td>${item.ACTPER}%</td>
+              </tr>
+              ${subRow}
+            `;
+          })
+          .join("")}
+        <tr class="total">
+          <td colspan="3">Total</td>
+          <td>${tableData.reduce((sum, i) => sum + (i.PIECES || 0), 0)}</td>
+          <td>${tableData
+            .reduce((sum, i) => sum + (i.GWT || 0), 0)
+            .toFixed(3)}</td>
+          <td colspan="5"></td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+
+    // Stone Table + Summary Section
+    container.innerHTML += `
+    <div class="container">
+      ${
+        path === "/estimations-model1"
+          ? `<div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>STONE NAME</th>
+                    <th>PIECES</th>
+                    <th>WEIGHT</th>
+                    <th>COST</th>
+                    <th>AMOUNT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${stonesData
+                    .map((stone, index) => {
+                      const rate = stoneRate[index] || 0;
+                      const amount = stone.ACTGRAMS * rate;
+                      return `
+                        <tr>
+                          <td>${stone.MAINTYPE}</td>
+                          <td>${stone.PCS}</td>
+                          <td>${stone.ACTGRAMS.toFixed(3)}</td>
+                          <td>${rate.toFixed(2)}</td>
+                          <td>${amount.toFixed(2)}</td>
+                        </tr>`;
+                    })
+                    .join("")}
+                  <tr class="total">
+                    <td colspan="2"></td>
+                    <td>${stonesData
+                      .reduce((sum, s) => sum + s.ACTGRAMS, 0)
+                      .toFixed(3)}</td>
+                    <td></td>
+                    <td>${stonesData
+                      .reduce(
+                        (sum, s, i) => sum + s.ACTGRAMS * (stoneRate[i] || 0),
+                        0
+                      )
+                      .toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>`
+          : ""
+      }
+      <div class="summary-container">
+        <table>
+          <tr><td>Net Weight</td><td>${totalNetWeight.toFixed(3)}</td></tr>
+          <tr class="highlight"><td>Fine Gold</td><td>${totalFineGold.toFixed(
+            3
+          )}</td></tr>
+          <tr><td>Making ${makingValue || 0} /g</td><td>${
+      perGramValue ? Number(perGramValue).toFixed(3) : 0
+    }</td></tr>
+          ${
+            path === "/estimations-model1"
+              ? `<tr><td>Rodium Charges</td><td>${
+                  rodiumChargeValue || 0
+                }</td></tr>
+                 <tr><td>Stone Cost</td><td>${totalStoneCost?.toFixed(
+                   2
+                 )}</td></tr>`
+              : `<tr><td>Stone Cost ${stoneMakingValue || 0} /g</td><td>${
+                  stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+                }</td></tr>`
+          }
+          <tr class="highlight"><td>Total Cash</td><td><strong>${totalCash.toFixed(
+            2
+          )}</strong></td></tr>
+        </table>
+      </div>
+    </div>
+  `;
+
+    // Convert to PDF
+    html2pdf()
+      .set({
+        margin: 0,
+        filename: `Estimation-${
+          selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1
+        }.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      })
+      .from(container)
+      .save();
   };
 
   return (
@@ -1790,6 +2038,7 @@ const Estimation = () => {
         rodiumChargeValue={rodiumChargeValue}
         setRodiumChargeValue={setRodiumChargeValue}
         handlePrint={handlePrint}
+        handleDownloadPDF={handleDownloadPDF}
         tableData={tableData}
         createEstimationMast={createEstimationMast}
         createEstimationData={createEstimationData}

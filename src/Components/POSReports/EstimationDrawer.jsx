@@ -20,6 +20,7 @@ const EstimationDrawer = ({
   rodiumChargeValue,
   setRodiumChargeValue,
   handlePrint,
+  handleDownloadPDF,
   tableData,
   createEstimationMast,
   createEstimationData,
@@ -272,10 +273,10 @@ const EstimationDrawer = ({
         }}
       >
         <Button
-          type="default"
+          type="primary"
           style={{
-            backgroundColor: "blue",
-            borderColor: "blue",
+            background: "#52bd91",
+            borderColor: "#52bd91",
             width: "8rem",
           }}
           disabled={tableData.length === 0 && stonesData.length === 0}
@@ -312,14 +313,26 @@ const EstimationDrawer = ({
         <Button
           type="dashed"
           style={{
-            backgroundColor: "Green",
-            borderColor: "green",
+            background: "#FFDE63",
+            borderColor: "#FFDE63",
             width: "8rem",
           }}
           onClick={handlePrint}
           disabled={tableData.length === 0}
         >
           Print
+        </Button>
+        <Button
+          type="dashed"
+          onClick={handleDownloadPDF}
+          disabled={tableData.length === 0}
+          style={{
+            background: "#FF7A30",
+            borderColor: "#FF7A30",
+            width: "8rem",
+          }}
+        >
+          PDF
         </Button>
         <Button
           type="default"
