@@ -33,7 +33,6 @@ const EstimationSummary = () => {
   const [totalCash, setTotalCash] = useState(0);
   const [loading, setLoading] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  console.log(summaryData);
 
   const imageUrls = localStorage.getItem("images")?.split(",");
   const imagesData = imageUrls?.length > 0 ? imageUrls : [];

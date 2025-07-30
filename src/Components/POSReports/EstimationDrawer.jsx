@@ -40,8 +40,6 @@ const EstimationDrawer = ({
   };
   const pathName = useLocation();
   const path = pathName?.pathname;
-  console.log(path, "path");
-  console.log(totalStoneCost, "totalStoneCost");
 
   return (
     <Drawer

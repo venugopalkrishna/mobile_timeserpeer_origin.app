@@ -30,12 +30,9 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     if (isLoggedIn) {
       localStorage.setItem("isLoggedIn", isLoggedIn); // Restore "isLoggedIn"
     }
-
-    console.log("e", e);
   };
 
   const handleSubMenuOpenChange = (keys) => {
-    console.log("Submenu open keys:", keys);
     setOpenKeys(keys.length ? [keys[keys.length - 1]] : []); // Only keep the last opened submenu
   };
 

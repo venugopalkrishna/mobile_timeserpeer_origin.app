@@ -35,7 +35,6 @@ const Estimation = () => {
   const submitRef = useRef(null);
   const pathName = useLocation();
   const path = pathName?.pathname;
-  console.log(path, "path");
 
   const [open, setOpen] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
@@ -74,14 +73,6 @@ const Estimation = () => {
   const [scanner, setScanner] = useState(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [code, setCode] = useState();
-  console.log(stoneMainData, "stoneMainData");
-  console.log(tableData, "tableData");
-  console.log(stoneRate, "stoneRate");
-  console.log(stonesData, "stonesData");
-  console.log(selectedDate, "selectedDate");
-  console.log(itemData, "itemData");
-  console.log(selectEstimationNo, "selectEstimationNo");
-  console.log(makingValue, "makingValue");
 
   const formatDate = dayjs(selectEstimationNo?.ESTIMATIONDATE).format(
     "ddd, DD MMM YYYY HH:mm:ss [GMT]"
@@ -540,7 +531,6 @@ const Estimation = () => {
         homekey: 0,
       };
     });
-    console.log(requestBody, "requestBody");
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/InsertWholesalEstimationData`,
@@ -555,7 +545,6 @@ const Estimation = () => {
       let data = response?.data;
       setEstimationData(data[0].isInsert);
 
-      console.log("Response:", response.data);
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -577,7 +566,6 @@ const Estimation = () => {
       priority: 0,
       calcrate: "-",
     }));
-    console.log(requestBody, "requestBody");
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/InsertWholesalEstimationItems`,
@@ -592,7 +580,6 @@ const Estimation = () => {
       let data = response?.data;
       setItemData(data[0].isInsert);
 
-      console.log("Response:", response.data);
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -666,7 +653,6 @@ const Estimation = () => {
           : stoneMakingValue,
       },
     ];
-    console.log(requestBody, "requestBody");
 
     try {
       const response = await axios.post(
@@ -681,7 +667,6 @@ const Estimation = () => {
       );
       let data = response?.data;
       setMastData(data[0].isInsert);
-      console.log("Response:", response.data);
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -830,7 +815,6 @@ const Estimation = () => {
       );
 
       const data = response.data;
-      console.log("data", data);
 
       if (Array.isArray(data) && data.length > 0) {
         const updatedData = data.map((item, index) => ({
