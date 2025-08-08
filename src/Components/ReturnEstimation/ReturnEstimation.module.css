@@ -1,0 +1,289 @@
+.estimationContainer {
+    display: flex;
+    justify-content: space-between;
+    /* Align items properly */
+    align-items: center;
+    width: 100%;
+    padding: 10px 15px;
+    background: lightblue;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+    /* Prevents overflow on small screens */
+    position: sticky;
+    top: 0;
+    /* Ensures it sticks to the top */
+    z-index: 10;
+}
+
+/* Date on the right */
+.dateContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Party Name appears separately */
+.partyNameContainer {
+    width: 100%;
+    /* font-weight: bold; */
+    margin-top: 8px;
+}
+
+/* Touch & Wastage appear on the next line */
+.detailsContainer {
+    display: flex;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+    margin-top: 4px;
+    /* font-weight: bold; */
+}
+
+.filterIcon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Mobile & Tablet Responsive */
+@media (max-width: 768px) {
+    .estimationContainer {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .estimationContainer {
+        padding: 8px;
+        min-width: auto;
+    }
+
+    .detailsContainer {
+        flex-direction: row;
+        gap: 5px;
+    }
+}
+
+.estimationTagContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 15px;
+    background: lightblue;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+    position: sticky;
+    top: 50px;
+    z-index: 9;
+}
+
+.tagNoSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.tagLabel {
+    font-size: 18px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.tagInput {
+    width: 70%;
+    height: 40px;
+    font-size: 40px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.buttonSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.submitButton {
+    background-color: #0C1154 !important;
+    border-color: #0C1154 !important;
+    color: white;
+    /* padding: 6px 12px; */
+    font-size: medium;
+    width: "3rem"
+    /* height: 70%; */
+}
+
+.resetButton {
+    background-color: red !important;
+    border-color: red !important;
+    color: white;
+    /* padding: 6px 12px; */
+    width: "5rem"
+    /* height: 70%; */
+}
+
+.filesButton {
+    background-color: green !important;
+    border-color: green !important;
+    color: white;
+    /* padding: 6px 12px; */
+    width: "5rem"
+    /* height: 70%; */
+}
+
+.stoneButton {
+    background-color: gray !important;
+    border-color: gray !important;
+    color: white;
+    padding: 6px 12px;
+    /* height: 70%; */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .estimationTagContainer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tagNoSection {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .buttonSection {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+.cardContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+    max-height: 500px;
+    overflow-y: auto;
+    width: auto;
+    padding: 0px 5px 0px 5px;
+}
+
+.infoBox {
+    width: 100%;
+    height: auto;
+    background: radial-gradient(circle at center, #ffffff 50%, #f3f6fb 60%, #e0e7f1 80%);
+    padding: 0px 5px 0px 5px;
+    border-radius: 5px;
+    border: 1px solid rgb(83, 81, 81);
+    text-align: left;
+    font-size: 12px;
+    /* font-weight: bold; */
+    /* background: rgb(248, 249, 250); */
+    line-height: 1.2;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 0px 4px 0px 4px;
+}
+
+.rowTag {
+    display: flex;
+    background-color: #52a4bd;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 5px 8px 2px 8px;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.fullWidthStone {
+    width: 100%;
+    background-color: #52bd91;
+    padding: 1px;
+    border-radius: 0 0 5px 5px;
+}
+
+.weightDetails {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+}
+
+.fullWidthLine {
+    width: 100%;
+    border: 1px solid gray;
+    margin: 2px 0;
+}
+
+.scanIconContainer {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgb(58, 106, 184);
+    border-radius: 50%;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+}
+
+.qrScannerOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.qrScannerContent {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.closeIcon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+@media (max-width: 768px) {
+    .infoBox {
+        padding: 4px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .infoBox {
+        padding: 0px 2px 0px 2px;
+        font-size: 12px;
+        line-height: 0.1;
+    }
+
+    .row,
+    .weightDetails {
+        font-size: 9px;
+    }
+}

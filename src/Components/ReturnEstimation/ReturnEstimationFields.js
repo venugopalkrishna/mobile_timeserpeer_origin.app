@@ -1,7 +1,7 @@
 import { Button, Input, Modal, Select } from "antd";
 
 const { Option } = Select;
-const EstimationFields = ({
+const ReturnEstimationFields = ({
   filterOpen,
   setFilterOpen,
   handleOk,
@@ -169,4 +169,4 @@ const EstimationFields = ({
   );
 };
 
-export default EstimationFields;
+export default ReturnEstimationFields;

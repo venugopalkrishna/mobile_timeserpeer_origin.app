@@ -10,9 +10,9 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { CREATE_jwel } from "../../Config/Config";
-import styles from "./Estimation.module.css";
+import styles from "./ReturnEstimation.module.css";
 
-const EstimationDialog = ({
+const ReturnEstimationDialog = ({
   setOpenDialog,
   openDialog,
   estimationNoDataAPI,
@@ -39,7 +39,7 @@ const EstimationDialog = ({
         )}' and ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
       }
       let params = {
-        tableName: "ESTIMATION_MAST",
+        tableName: "RETURN_ESTIMATION_MAST",
         where: whereCondition,
         order: "ESTIMATIONNO",
       };
@@ -242,4 +242,4 @@ const EstimationDialog = ({
     </Spin>
   );
 };
-export default EstimationDialog;
+export default ReturnEstimationDialog;

@@ -2,6 +2,8 @@ import {
   AppstoreOutlined,
   FileDoneOutlined,
   HomeOutlined,
+  LeftSquareOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import {
@@ -16,6 +18,12 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
+import LabelIcon from '@mui/icons-material/Label';
+import LabelOffIcon from '@mui/icons-material/LabelOff';
+import DetailsIcon from '@mui/icons-material/Details';
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import SellIcon from '@mui/icons-material/Sell';
+import StyleIcon from '@mui/icons-material/Style';
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -44,29 +52,81 @@ const SidebarDrawer = ({
   const menuItems = [
     {
       text: "Estimation",
-      icon: <HomeOutlined />,
+      icon: <ShopOutlined />,
       children: [
         {
           text: "Estimation With Stones",
           path: "/estimations-model1",
-          icon: <AppstoreOutlined />,
+          icon: <LabelIcon sx={{width: "1rem"}}/>,
         },
         {
           text: "Estimation With Out Stones",
           path: "/estimations-model2",
-          icon: <FileDoneOutlined />,
+          icon: <LabelOffIcon sx={{width: "1rem"}}/>,
+        },
+        {
+          text: "Estimation Details",
+          icon: <DetailsIcon sx={{width: "1rem"}}/>,
+          path: "/estimation-details",
+        },
+        {
+          text: "Estimation Summary",
+          icon: <SummarizeIcon sx={{width: "1rem"}}/>,
+          path: "/estimation-summary",
         },
       ],
     },
     {
-      text: "Estimation Details",
-      icon: <AppstoreOutlined />,
-      path: "/estimation-details",
+      text: "Return Estimation",
+      icon: <LeftSquareOutlined />,
+      children: [
+        {
+          text: "Return Estimation With Stones",
+          path: "/return-estimations-model1",
+          icon: <LabelIcon sx={{width: "1rem"}}/>,
+        },
+        {
+          text: "Return Estimation With Out Stones",
+          path: "/return-estimations-model2",
+          icon: <LabelOffIcon sx={{width: "1rem"}}/>,
+        },
+        {
+          text: "Return Estimation Details",
+          icon: <DetailsIcon sx={{width: "1rem"}}/>,
+          path: "/return-estimation-details",
+        },
+        {
+          text: "Return Estimation Summary",
+          icon: <SummarizeIcon sx={{width: "1rem"}}/>,
+          path: "/return-estimation-summary",
+        },
+      ],
     },
     {
-      text: "Estimation Summary",
+      text: "Inventory",
       icon: <FileDoneOutlined />,
-      path: "/estimation-summary",
+      children: [
+        {
+          text: "Tag Details",
+          path: "/tag-details",
+          icon: <SellIcon sx={{width: "1rem"}}/>,
+        },
+        {
+          text: "Tag Stock Summary",
+          path: "/tag-stock-summary",
+          icon: <StyleIcon sx={{width: "1rem"}}/>,
+        },
+        {
+          text: "Slip Summary",
+          icon: <SummarizeIcon sx={{width: "1rem"}}/>,
+          path: "/slip-summary",
+        },
+        // {
+        //   text: "Return Estimation Summary",
+        //   icon: <SummarizeIcon sx={{width: "1rem"}}/>,
+        //   path: "/return-estimation-summary",
+        // },
+      ],
     },
   ];
 
@@ -191,7 +251,7 @@ const SidebarDrawer = ({
                 }}
               >
                 <ListItemIcon
-                  sx={{ color: isParentActive ? "#52bd91" : "white" }}
+                  sx={{ color: isParentActive ? "#52bd91" : "white", fontSize: "22px" }}
                 >
                   {item.icon}
                 </ListItemIcon>
@@ -221,7 +281,7 @@ const SidebarDrawer = ({
                       }}
                     >
                       <ListItemIcon
-                        sx={{ color: isActive ? "#52bd91" : "white" }}
+                        sx={{ color: isActive ? "#52bd91" : "white", width: "0.7rem" }}
                       >
                         {subItem.icon}
                       </ListItemIcon>

@@ -8,6 +8,12 @@ import Estimation from "./Components/POSReports/Estimation";
 import EstimationDetails from "./Components/POSReports/EstimatiomRegister/EstimationDetails";
 import EstimationSummary from "./Components/POSReports/EstimatiomRegister/EstimationSummary";
 import LoginPage from "./Components/Masters/Logins/LoginPage";
+import ReturnEstimation from "./Components/ReturnEstimation/ReturnEstimation";
+import ReturnEstimationDetails from "./Components/ReturnEstimation/ReturnEstimationDetails";
+import ReturnEstimationSummary from "./Components/ReturnEstimation/ReturnEstimationSummary";
+import TagDetails from "./Components/Inventory/TagDetails";
+import SlipSummary from "./Components/Inventory/SlipSummary";
+import TagStockSummary from "./Components/Inventory/TagStockSummary";
 const App = () => {
    const tenantName = localStorage.getItem("tenantName");
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -37,6 +43,13 @@ const App = () => {
                   <Route path="/estimations-model2" element={<Estimation />} />
                   <Route path="/estimation-details" element={<EstimationDetails />} />
                   <Route path="/estimation-summary" element={<EstimationSummary />} />
+                  <Route path="/return-estimations-model1" element={<ReturnEstimation />} />
+                  <Route path="/return-estimations-model2" element={<ReturnEstimation />} />
+                  <Route path="/return-estimation-details" element={<ReturnEstimationDetails />} />
+                  <Route path="/return-estimation-summary" element={<ReturnEstimationSummary />} />
+                  <Route path="/tag-details" element={<TagDetails />} />
+                  <Route path="/slip-summary" element={<SlipSummary />} />
+                  <Route path="/tag-stock-summary" element={<TagStockSummary />} />
                 </Routes>
             ) : (
               <Navigate to="/" />

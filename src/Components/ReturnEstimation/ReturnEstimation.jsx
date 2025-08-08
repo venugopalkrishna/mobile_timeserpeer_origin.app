@@ -3,30 +3,34 @@ import {
   FilterOutlined,
   ScanOutlined,
 } from "@ant-design/icons";
-import { Button, DatePicker, Form, Input, message, Select, Typography } from "antd";
+import CloseIcon from "@mui/icons-material/Close";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Select,
+  Typography,
+} from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
-import { useEffect, useRef, useState } from "react";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import CloseIcon from "@mui/icons-material/Close";
-import {
-  Html5Qrcode,
-  Html5QrcodeScanner,
-  Html5QrcodeScanType,
-} from "html5-qrcode";
 import html2pdf from "html2pdf.js";
+import { Html5Qrcode } from "html5-qrcode";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import styles from "./ReturnEstimation.module.css";
+import ReturnEstimationDialog from "./ReturnEstimationDialog";
+import ReturnEstimationDrawer from "./ReturnEstimationDrawer";
+import ReturnEstimationFields from "./ReturnEstimationFields";
+import ReturnEstimationStonesDrawer from "./ReturnEstimationStonesDrawer";
 import { CREATE_jwel } from "../../Config/Config";
 import Header from "../Header";
 import SidebarDrawer from "../SidebarDrawer";
-import styles from "./Estimation.module.css";
-import EstimationDialog from "./EstimationDialog";
-import EstimationDrawer from "./EstimationDrawer";
-import EstimationFields from "./EstimationFields";
-import EstimationStonesDrawer from "./EstimationStonesDrawer";
-import { useLocation } from "react-router-dom";
 
 const { Option } = Select;
-const Estimation = () => {
+const ReturnEstimation = () => {
   const [form] = Form.useForm();
   const partyRef = useRef(null);
   const touchRef = useRef(null);
@@ -101,7 +105,7 @@ const Estimation = () => {
     // setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTable?tableName=ESTIMATION_MAST&column=ESTIMATIONNO`,
+        `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTable?tableName=RETURN_ESTIMATION_MAST&column=ESTIMATIONNO`,
         {
           headers: {
             tenantName: tenantName,
@@ -541,7 +545,7 @@ const Estimation = () => {
     });
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/InsertWholesalEstimationData`,
+        `${CREATE_jwel}/api/Wholesal/InsertWholesalReturnEstimationData`,
         requestBody,
         {
           headers: {
@@ -576,7 +580,7 @@ const Estimation = () => {
     }));
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/InsertWholesalEstimationItems`,
+        `${CREATE_jwel}/api/Wholesal/InsertWholesalReturnEstimationItems`,
         requestBody,
         {
           headers: {
@@ -663,7 +667,7 @@ const Estimation = () => {
 
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/InsertWholesalEstimationMast`,
+        `${CREATE_jwel}/api/Wholesal/InsertWholesalReturnEstimationMast`,
         requestBody,
         {
           headers: {
@@ -686,7 +690,7 @@ const Estimation = () => {
         whereCondition = `ESTIMATIONNO=${estNo}`;
       }
       let params = {
-        tableName: "ESTIMATION_DATA",
+        tableName: "RETURN_ESTIMATION_DATA",
         where: whereCondition,
         order: "SNO",
       };
@@ -806,7 +810,7 @@ const Estimation = () => {
         whereCondition = `ESTIMATIONNO=${estNo}`;
       }
       let params = {
-        tableName: "ESTIMATION_MAST",
+        tableName: "RETURN_ESTIMATION_MAST",
         where: whereCondition,
       };
 
@@ -844,7 +848,7 @@ const Estimation = () => {
         whereCondition = `ESTIMATIONNO=${estNo}`;
       }
       let params = {
-        tableName: "ESTIMATION_ITEMS",
+        tableName: "RETURN_ESTIMATION_ITEMS",
         where: whereCondition,
         order: "SNO",
       };
@@ -907,7 +911,7 @@ const Estimation = () => {
   const estimationDeleteData = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_DATA&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=RETURN_ESTIMATION_DATA&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
         {},
         {
           headers: {
@@ -923,7 +927,7 @@ const Estimation = () => {
   const estimationDeleteMast = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=RETURN_ESTIMATION_MAST&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
         {},
         {
           headers: {
@@ -939,7 +943,7 @@ const Estimation = () => {
   const estimationDeleteItems = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_ITEMS&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=RETURN_ESTIMATION_ITEMS&where=ESTIMATIONNO=${selectEstimationNo?.ESTIMATIONNO}`,
         {},
         {
           headers: {
@@ -977,7 +981,7 @@ const Estimation = () => {
           scannedRef.current = true;
 
           try {
-            if (path === "/estimations-model2") {
+            if (path === "/return-estimations-model2") {
               await mainAPI(decodedText, []);
             } else {
               const stoneData = await stonesAPI(decodedText);
@@ -1087,7 +1091,7 @@ const Estimation = () => {
     //   selectEstimationNo ? selectEstimationNo.STCHARGES :
     //   totalStoneCost?.toFixed(2) ||
     //   stonePerGramValue;
-    if (path === "/estimations-model1") {
+    if (path === "/return-estimations-model1") {
       const totalCashValue =
         Number(amountValue || 0) +
         Number(perGramValue || 0) +
@@ -1120,7 +1124,7 @@ const Estimation = () => {
     const printWindow = window.open("", "", "height=700,width=900");
 
     printWindow.document.write(
-      "<html><head><title>Estimation Report</title><style>"
+      "<html><head><title>Return Estimation Report</title><style>"
     );
 
     // Custom Print Styles
@@ -1200,7 +1204,7 @@ const Estimation = () => {
     // Header Section
     printWindow.document.write(`
         <div class="header">
-            <h2>ESTIMATION</h2>
+            <h2>RETURN ESTIMATION</h2>
         </div>
         <div class="sub-header">
             <span>ESTIMATION NO. : ${estimationCount + 1}</span>
@@ -1348,13 +1352,13 @@ const Estimation = () => {
     </table>
     `);
 
-    if (path === "/estimations-model1") {
+    if (path === "/return-estimations-model1") {
       generateEstimationPrint({
         showStonesTable: true,
         includeRodiumCharges: true,
         rateCutChange: true,
       });
-    } else if (path === "/estimations-model2") {
+    } else if (path === "/return-estimations-model2") {
       generateEstimationPrint({
         showStonesTable: false,
         includeRodiumCharges: false,
@@ -1637,7 +1641,7 @@ const Estimation = () => {
 
       .summary-container {
         width: 35%;
-        margin-left: ${path === "/estimations-model1" ? "0" : "auto"};
+        margin-left: ${path === "/return-estimations-model1" ? "0" : "auto"};
       }
 
       .highlight {
@@ -1734,7 +1738,7 @@ const Estimation = () => {
     container.innerHTML += `
     <div class="container">
       ${
-        path === "/estimations-model1"
+        path === "/return-estimations-model1"
           ? `<div class="table-container">
               <table class="stone-table">
                 <thead>
@@ -1801,7 +1805,7 @@ const Estimation = () => {
       perGramValue ? Number(perGramValue).toFixed(2) : 0
     }</td></tr>
           ${
-            path === "/estimations-model1"
+            path === "/return-estimations-model1"
               ? `<tr><td>Rodium Charges</td><td>${
                   rodiumChargeValue || 0
                 }</td></tr>
@@ -1827,7 +1831,7 @@ const Estimation = () => {
     html2pdf()
       .set({
         margin: 0,
-        filename: `Estimation-${
+        filename: `Return-Estimation-${
           selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1
@@ -1862,8 +1866,8 @@ const Estimation = () => {
             }}
           >
             {pathModel2
-              ? "Estimation With Out Stones"
-              : "Estimation With Stones"}
+              ? "Return Estimation With Out Stones"
+              : "Return Estimation With Stones"}
           </Typography>
         </div>
         <div className={styles.estimationContainer}>
@@ -2002,7 +2006,7 @@ const Estimation = () => {
               onClick={() => {
                 if (!tagNoValue) {
                   message.warning("Enter Tag No");
-                } else if (path === "/estimations-model2") {
+                } else if (path === "/return-estimations-model2") {
                   mainAPI();
                   setTagNoValue("");
                 } else {
@@ -2142,7 +2146,7 @@ const Estimation = () => {
                 </span>
               </p>
             </div>
-            {path === "/estimations-model1" ? (
+            {path === "/return-estimations-model1" ? (
               <>
                 <hr className={styles.fullWidthLine} />
                 <div className={styles.fullWidthStone}>
@@ -2209,7 +2213,7 @@ const Estimation = () => {
           </div>
         )}
       </>
-      <EstimationFields
+      <ReturnEstimationFields
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
         handleOk={handleOk}
@@ -2230,7 +2234,7 @@ const Estimation = () => {
         setTableData={setTableData}
         setTotalFineGold={setTotalFineGold}
       />
-      <EstimationDrawer
+      <ReturnEstimationDrawer
         drawerOpen={drawerOpen}
         setDrawerOpen={setDrawerOpen}
         stonesData={stonesData}
@@ -2274,7 +2278,7 @@ const Estimation = () => {
         metalBalanceValue={metalBalanceValue}
         cashBalanceValue={cashBalanceValue}
       />
-      <EstimationDialog
+      <ReturnEstimationDialog
         setOpenDialog={setOpenDialog}
         openDialog={openDialog}
         estimationNoDataAPI={estimationNoDataAPI}
@@ -2284,7 +2288,7 @@ const Estimation = () => {
         estimationNoItemsAPI={estimationNoItemsAPI}
         estimationNoMastAPI={estimationNoMastAPI}
       />
-      <EstimationStonesDrawer
+      <ReturnEstimationStonesDrawer
         stonesDrawerOpen={stonesDrawerOpen}
         setStonesDrawerOpen={setStonesDrawerOpen}
         stonesData={stonesData}
@@ -2301,4 +2305,4 @@ const Estimation = () => {
     </div>
   );
 };
-export default Estimation;
+export default ReturnEstimation;

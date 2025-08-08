@@ -1,7 +1,7 @@
 import { Button, Card, Checkbox, Drawer, Input, Table } from "antd";
 import { useLocation } from "react-router-dom";
 
-const EstimationDrawer = ({
+const ReturnEstimationDrawer = ({
   drawerOpen,
   setDrawerOpen,
   stonesData,
@@ -289,7 +289,7 @@ const EstimationDrawer = ({
             }}
           />
         </div>
-        {path === "/estimations-model1" ? (
+        {path === "/return-estimations-model1" ? (
           <div
             style={{
               display: "flex",
@@ -323,7 +323,7 @@ const EstimationDrawer = ({
           ""
         )}
         <>
-          {path === "/estimations-model2" ? (
+          {path === "/return-estimations-model2" ? (
             <div
               style={{
                 display: "flex",
@@ -473,7 +473,7 @@ const EstimationDrawer = ({
           }}
           disabled={tableData.length === 0 && stonesData.length === 0}
           onClick={() => {
-            const isModel2 = path === "/estimations-model2";
+            const isModel2 = path === "/return-estimations-model2";
             if (tableData.length > 0) {
                     if (selectEstimationNo?.ESTIMATIONNO) {
                       estimationDeleteItems();
@@ -552,4 +552,4 @@ const EstimationDrawer = ({
   );
 };
 
-export default EstimationDrawer;
+export default ReturnEstimationDrawer;
