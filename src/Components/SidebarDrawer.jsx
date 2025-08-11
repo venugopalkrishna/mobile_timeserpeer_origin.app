@@ -121,6 +121,11 @@ const SidebarDrawer = ({
           icon: <SummarizeIcon sx={{width: "1rem"}}/>,
           path: "/slip-summary",
         },
+        {
+          text: "Tag Check",
+          path: "/tag-check",
+          icon: <StyleIcon sx={{width: "1rem"}}/>,
+        },
         // {
         //   text: "Return Estimation Summary",
         //   icon: <SummarizeIcon sx={{width: "1rem"}}/>,

@@ -14,6 +14,7 @@ import ReturnEstimationSummary from "./Components/ReturnEstimation/ReturnEstimat
 import TagDetails from "./Components/Inventory/TagDetails";
 import SlipSummary from "./Components/Inventory/SlipSummary";
 import TagStockSummary from "./Components/Inventory/TagStockSummary";
+import CameraCapture from "./Components/Inventory/TagCheck";
 const App = () => {
    const tenantName = localStorage.getItem("tenantName");
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -50,6 +51,7 @@ const App = () => {
                   <Route path="/tag-details" element={<TagDetails />} />
                   <Route path="/slip-summary" element={<SlipSummary />} />
                   <Route path="/tag-stock-summary" element={<TagStockSummary />} />
+                  <Route path="/tag-check" element={<CameraCapture />} />
                 </Routes>
             ) : (
               <Navigate to="/" />
