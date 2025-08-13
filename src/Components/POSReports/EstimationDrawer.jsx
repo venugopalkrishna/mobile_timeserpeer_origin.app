@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Drawer, Input, Table } from "antd";
+import { Button, Card, Checkbox, Drawer, Dropdown, Input, Table } from "antd";
 import { useLocation } from "react-router-dom";
 
 const EstimationDrawer = ({
@@ -44,6 +44,8 @@ const EstimationDrawer = ({
   setAmountValue,
   metalBalanceValue,
   cashBalanceValue,
+  printMenu,
+  pdfMenu,
 }) => {
   const onClose = () => {
     setDrawerOpen(false);
@@ -512,6 +514,7 @@ const EstimationDrawer = ({
         >
           Save
         </Button>
+        <Dropdown menu={printMenu} placement="topCenter">
         <Button
           type="dashed"
           style={{
@@ -519,14 +522,16 @@ const EstimationDrawer = ({
             borderColor: "#FFDE63",
             width: "8rem",
           }}
-          onClick={handlePrint}
+          // onClick={handlePrint}
           disabled={tableData.length === 0}
         >
           Print
         </Button>
+        </Dropdown>
+        <Dropdown menu={pdfMenu} placement="topCenter">
         <Button
           type="dashed"
-          onClick={handleDownloadPDF}
+          // onClick={handleDownloadPDF}
           disabled={tableData.length === 0}
           style={{
             background: "#FF7A30",
@@ -536,6 +541,7 @@ const EstimationDrawer = ({
         >
           PDF
         </Button>
+        </Dropdown>
         <Button
           type="default"
           style={{

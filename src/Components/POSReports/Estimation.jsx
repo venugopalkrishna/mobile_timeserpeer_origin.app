@@ -1,29 +1,42 @@
 import {
   DeleteOutlined,
+  FilePdfOutlined,
   FilterOutlined,
+  PrinterOutlined,
   ScanOutlined,
 } from "@ant-design/icons";
-import { Button, DatePicker, Form, Input, message, Select, Typography } from "antd";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CloseIcon from "@mui/icons-material/Close";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import UpgradeIcon from "@mui/icons-material/Upgrade";
+import { Box } from "@mui/material";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Select,
+  Typography,
+} from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
-import { useEffect, useRef, useState } from "react";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import CloseIcon from "@mui/icons-material/Close";
-import {
-  Html5Qrcode,
-  Html5QrcodeScanner,
-  Html5QrcodeScanType,
-} from "html5-qrcode";
 import html2pdf from "html2pdf.js";
+import { Html5Qrcode } from "html5-qrcode";
+import { useEffect, useRef, useState } from "react";
+import Camera from "react-html5-camera-photo";
+import "react-html5-camera-photo/build/css/index.css";
+import { useLocation } from "react-router-dom";
 import { CREATE_jwel } from "../../Config/Config";
 import Header from "../Header";
+import ImageDialog from "../Inventory/ImageDialog";
 import SidebarDrawer from "../SidebarDrawer";
 import styles from "./Estimation.module.css";
 import EstimationDialog from "./EstimationDialog";
 import EstimationDrawer from "./EstimationDrawer";
 import EstimationFields from "./EstimationFields";
 import EstimationStonesDrawer from "./EstimationStonesDrawer";
-import { useLocation } from "react-router-dom";
 
 const { Option } = Select;
 const Estimation = () => {
@@ -80,6 +93,12 @@ const Estimation = () => {
   const [scanOpen, setScanOpen] = useState(false);
   const [code, setCode] = useState();
   const [rateCut, setRateCut] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [tagNo, setTagNo] = useState();
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
 
   const formatDate = dayjs(selectEstimationNo?.ESTIMATIONDATE).format(
     "ddd, DD MMM YYYY HH:mm:ss [GMT]"
@@ -952,6 +971,63 @@ const Estimation = () => {
     }
   };
 
+  const createImagePathAPI = async (imgUrl) => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Wholesal/UpdateTagGenerationImagePath?tagNo=${tagNo}&path=${
+          imgUrl ? imgUrl : imageUrl
+        }`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getBase64Data = (dataUri) => {
+    return dataUri.replace(/^data:image\/\w+;base64,/, "");
+  };
+
+  const generateFileName = (tagNo) => {
+    const timestamp = Date.now();
+    return `${tagNo}.jpg`;
+  };
+
+  const imageUploadAPI = async () => {
+    const base64Str = getBase64Data(photo);
+    const renamedFileName = generateFileName(tagNo);
+
+    try {
+      const response = await axios.post(
+        `${CREATE_jwel}/api/Utilities/SaveClientImages`,
+        {
+          fileName: renamedFileName,
+          fileBase: base64Str,
+          clientName: "WHOLESALE",
+          dbId: "",
+        },
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const imgUrl = `https://image.timeserasoftware.in/WHOLESALE/${renamedFileName}`;
+        createImagePathAPI(imgUrl);
+        alert("Image uploaded successfully!");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Image upload failed!");
+    }
+  };
+
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
 
@@ -1057,6 +1133,12 @@ const Estimation = () => {
     setRateCut(false);
     estimationCountAPI();
     setSelectEstimationNo(null);
+    setTagNo();
+    setPhoto(null);
+    setImageUrl(null);
+    setCameraOpen(false);
+    setImageOpen(false);
+    setIsSupported(false);
   };
 
   const handleOk = () => {
@@ -1115,6 +1197,485 @@ const Estimation = () => {
     stonePerGramValue,
     rateCut,
   ]);
+
+  // useEffect(() => {
+  //   if (
+  //     navigator.mediaDevices &&
+  //     typeof navigator.mediaDevices.getUserMedia === "function"
+  //   ) {
+  //     setIsSupported(true);
+  //   } else {
+  //     alert(
+  //       "Camera not supported on this device/browser. Please use Chrome or Safari over HTTPS."
+  //     );
+  //   }
+  // }, []);
+
+  const handleImageOk = (image) => {
+    setImageOpen(true);
+    setPhoto(image);
+  };
+
+  const handleImageCancel = () => {
+    setImageOpen(false);
+  };
+
+  const handleTakePhoto = (dataUri) => {
+    setPhoto(dataUri);
+  };
+
+  const handleCameraOk = () => {
+    setCameraOpen(true);
+  };
+
+  const handleCameraCancel = () => {
+    setCameraOpen(false);
+  };
+
+  const handleLandScapePrint = () => {
+    const printWindow = window.open("", "", "height=700,width=900");
+
+    printWindow.document.write(
+      "<html><head><title>Estimation Report</title><style>"
+    );
+
+    // Force landscape orientation
+    printWindow.document.write(`
+    @page {
+        size: landscape;
+        margin: 10mm;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        font-size: 12px;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 18px;
+    }
+    .header h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: bold;
+        display: inline-block;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+    }
+    .sub-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    th, td {
+        border: 1px solid black;
+        padding: 5px;
+        text-align: center;
+    }
+    th {
+        background-color: #e0e0e0;
+        font-weight: bold;
+    }
+    .total {
+        font-weight: bold;
+        background-color: #ddd;
+    }
+    .summary {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+    }
+    .summary-box {
+        width: 48%;
+        border: 1px solid black;
+        padding: 10px;
+        font-size: 12px;
+    }
+    .summary-box table {
+        width: 100%;
+        border: none;
+    }
+    .summary-box td {
+        border: none;
+        text-align: left;
+        padding: 3px 0;
+    }
+    .footer {
+        margin-top: 15px;
+        font-size: 12px;
+    }
+  `);
+
+    printWindow.document.write("</style></head><body>");
+
+    // Header Section
+    printWindow.document.write(`
+    <div class="header">
+        <h2>ESTIMATION</h2>
+    </div>
+    <div class="sub-header">
+        <span>ESTIMATION NO. : ${
+          selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1
+        }</span>
+        <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}</span>
+        <span>PARTY NAME : ${selectedParty}</span>
+    </div>
+  `);
+
+    // Main Table
+    printWindow.document.write(`
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid black;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        td strong {
+            font-size: 12px;
+        }
+        td span {
+            font-size: 10px;
+        }
+        .total td {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        td div.sub-text {
+            text-align: left;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        td div.sub-value {
+            text-align: left;
+            font-size: 10px;
+        }
+        tr.sub-row td {
+            border-top: none;
+            text-align: left;
+        }
+        .sub {
+            text-align: left;
+            width: 600;
+        }
+            .sub-tag {
+            text-align: center;
+            width: 100;
+        }
+            .sub-image {
+            text-align: center;
+        }
+            .sub-img {
+            display: flex;
+            text-align: center;
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+        }
+        .sub-right {
+            text-align: right;
+            width: 80;
+        }
+            .sub-gold {
+            text-align: right;
+            width: 130;
+        }
+    </style>
+    <table>
+        <thead>
+            <tr>
+                <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
+                <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th><th class="sub-right">Act Per</th>
+            </tr>
+        </thead>
+        <tbody>
+  `);
+
+    let totalPCS = 0;
+    let totalGWT = 0;
+    let totalStone = 0;
+    let totalNWT = 0;
+    let totalGold = 0;
+
+    tableData.forEach((item, index) => {
+      const actGrams =
+        stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+        "";
+      const removeUndefinedWrapper = (str) => {
+        let prevStr;
+        do {
+          prevStr = str;
+          str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+        } while (prevStr !== str);
+        return str;
+      };
+      const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+      printWindow.document.write(`
+        <tr>
+            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+        index + 1
+      }</strong></td>
+            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+        item.TAGNO
+      }</strong></td>
+      <td rowspan="${cleanedActGrams ? 2 : 1}">
+      
+${
+  item.IMGPATH
+    ? `<img src="${item.IMGPATH}" 
+             alt="Item Image" 
+             style="max-width:80px; max-height:80px; object-fit:contain;" />`
+    : ""
+}
+</td>
+            <td class="sub"><strong>${item.PRODNAME}</strong></td>
+            <td class="sub-right"><strong>${item.PIECES}</strong></td>
+            <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+            <td class="sub-right">${item.STONEWT}</td>
+            <td class="sub-right">${item.NETWT}</td>
+            <td class="sub-right">${item.TOUCH}%</td>
+            <td class="sub-gold">${item.FINALGOLD}</td>
+            <td class="sub-right">${item.ACTPER}%</td>
+        </tr>
+    `);
+
+      if (cleanedActGrams) {
+        printWindow.document.write(`
+        <tr class="sub-row">
+            <td colspan="10" class="sub-text">${cleanedActGrams}</td>
+        </tr>
+      `);
+      }
+
+      totalPCS += item.PIECES;
+      totalGWT += item.GWT;
+      totalStone += Number(item.STONEWT);
+      totalNWT += Number(item.NETWT);
+      totalGold += Number(item?.FINALGOLD);
+    });
+
+    printWindow.document.write(`
+        <tr class="total">
+            <td colspan="4">Total</td>
+            <td>${totalPCS}</td>
+            <td>${totalGWT.toFixed(3)}</td>
+            <td>${Number(totalStone)?.toFixed(3)}</td>
+            <td>${Number(totalNWT)?.toFixed(3)}</td>
+            <td></td>
+            <td>${Number(totalGold)?.toFixed(3)}</td>
+            <td></td>
+        </tr>
+    </tbody>
+  </table>
+  `);
+
+    if (path === "/estimations-model1") {
+      generateEstimationPrint({
+        showStonesTable: true,
+        includeRodiumCharges: true,
+        rateCutChange: true,
+      });
+    } else if (path === "/estimations-model2") {
+      generateEstimationPrint({
+        showStonesTable: false,
+        includeRodiumCharges: false,
+        rateCutChange: true,
+      });
+    }
+
+    function generateEstimationPrint({
+      showStonesTable,
+      includeRodiumCharges,
+    }) {
+      printWindow.document.write(`
+      <style>
+        .container {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          width: 100%;
+          margin-top: 10px;
+        }
+        .table-container {
+          width: 55%;
+        }
+        .summary-container {
+          width: 35%;
+          margin-left: ${showStonesTable ? "0" : "auto"};
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          border: 2px solid black;
+        }
+        th, td {
+          border: 1px solid black;
+          padding: 5px;
+          text-align: center;
+          vertical-align: middle;
+        }
+        th {
+          font-weight: bold;
+          background-color: #f0f0f0;
+        }
+        .total td {
+          font-weight: bold;
+          background-color: #dcdcdc;
+          text-align: right;
+        }
+        .stone-name {
+          text-align: left;
+        }
+        .sub-right {
+          text-align: right;
+        }
+        .sub-final {
+          background-color: rgb(191, 186, 186);
+        }
+        .sub-right-bold {
+          text-align: right;
+          font-weight: bold;
+        }
+        .stone-name-bold {
+          text-align: left;
+          font-weight: bold;
+        }
+      </style>
+
+      <div class="container">
+    `);
+
+      if (showStonesTable) {
+        let totalStoneWeight = 0;
+        let totalAmount = 0;
+
+        printWindow.document.write(`
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="stone-name">STONE NAME</th>
+                <th>PIECES</th>
+                <th class="sub-right">WEIGHT</th>
+                <th class="sub-right">COST</th>
+                <th class="sub-right">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+      `);
+
+        stonesData.forEach((stone, index) => {
+          const rate = stoneRate[index] || 0;
+          const amount = stone.ACTGRAMS * Number(rate);
+          totalAmount += amount;
+          totalStoneWeight += stone.ACTGRAMS;
+
+          printWindow.document.write(`
+          <tr>
+            <td class="stone-name">${stone.MAINTYPE}</td>
+            <td>${stone.PCS}</td>
+            <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
+            <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
+            <td class="sub-right">${amount.toFixed(2)}</td>
+          </tr>
+        `);
+        });
+
+        printWindow.document.write(`
+              <tr class="total">
+                <td colspan="2"></td>
+                <td>${totalStoneWeight.toFixed(3)}</td>
+                <td></td>
+                <td>${totalAmount.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `);
+      }
+
+      printWindow.document.write(`
+      <div class="summary-container">
+        <table>
+          <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+            3
+          )}</td></tr>
+          ${
+            rateCut === true
+              ? `<tr>
+                  <td class="stone-name">
+                    Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-
+                  </td>
+                  <td class="sub-right">
+                    ${amountValue ? Number(amountValue).toFixed(2) : 0}
+                  </td>
+                </tr>`
+              : ""
+          }
+          <tr><td class="stone-name">Making ${
+            makingValue || 0
+          } /g</td><td class="sub-right">${
+        perGramValue ? Number(perGramValue).toFixed(2) : 0
+      }</td></tr>
+          ${
+            includeRodiumCharges
+              ? `<tr><td class="stone-name">Rodium Charges</td><td class="sub-right">${
+                  rodiumChargeValue || 0
+                }</td></tr>
+                 <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+                   2
+                 )}</td></tr>`
+              : `<tr><td class="stone-name">Stone Cost ${
+                  stoneMakingValue || 0
+                } /g</td>
+                 <td class="sub-right">${
+                   stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+                 }</td></tr>`
+          }
+          <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+            3
+          )}</strong></td></tr>
+          <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balnace</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+            2
+          )}</strong></td></tr>
+        </table>
+      </div>
+    </div>
+    `);
+    }
+
+    printWindow.document.write("</body></html>");
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   const handlePrint = () => {
     const printWindow = window.open("", "", "height=700,width=900");
@@ -1203,7 +1764,11 @@ const Estimation = () => {
             <h2>ESTIMATION</h2>
         </div>
         <div class="sub-header">
-            <span>ESTIMATION NO. : ${estimationCount + 1}</span>
+            <span>ESTIMATION NO. : ${
+              selectEstimationNo
+                ? selectEstimationNo?.ESTIMATIONNO
+                : estimationCount + 1
+            }</span>
             <span>DATE : ${new Date().toLocaleDateString("en-GB", {
               day: "2-digit",
               month: "short",
@@ -1259,17 +1824,27 @@ const Estimation = () => {
               text-align: left;
           }
               .sub {
-              text-align: left;
-              }
+            text-align: left;
+            width: 600;
+        }
+            .sub-tag {
+            text-align: center;
+            width: 150;
+        }
               .sub-right {
-              text-align: right;
-              }
+            text-align: right;
+            width: 80;
+        }
+            .sub-gold {
+            text-align: right;
+            width: 170;
+        }
       </style>
       <table>
           <thead>
               <tr>
-                  <th>SNo</th><th>TAG NO</th><th class="sub">PARTICULARS</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
-                  <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-right">Fine Gold</th><th class="sub-right">Act Per</th>
+                  <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub">PARTICULARS</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
+                  <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th><th class="sub-right">Act Per</th>
               </tr>
           </thead>
           <tbody>
@@ -1301,7 +1876,7 @@ const Estimation = () => {
               <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
         index + 1
       }</strong></td>
-              <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+              <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
         item.TAGNO
       }</strong></td>
               <td class="sub"><strong>${item.PRODNAME}</strong></td>
@@ -1312,7 +1887,7 @@ const Estimation = () => {
               <td class="sub-right"><strong />${item.STONEWT}</td>
               <td class="sub-right"> <strong />${item.NETWT}</td>
               <td class="sub-right"><strong />${item.TOUCH}%</td>
-              <td class="sub-right"><strong />${item.FINALGOLD}</td>
+              <td class="sub-gold"><strong />${item.FINALGOLD}</td>
               <td class="sub-right"><strong />${item.ACTPER}%</td>
           </tr>
       `);
@@ -1559,6 +2134,56 @@ const Estimation = () => {
         padding: 5px;
         text-align: center;
       }
+         .main-table td:nth-child(1),
+.main-table th:nth-child(1) {
+  width: auto;
+  text-align: center;
+}
+  .main-table td:nth-child(2),
+.main-table th:nth-child(2) {
+  width: 200;
+  text-align: center;
+}
+    .main-table td:nth-child(3),
+.main-table th:nth-child(3) {
+  width: 100%;
+  text-align: left;
+}
+  .main-table td:nth-child(4),
+.main-table th:nth-child(4) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(5),
+.main-table th:nth-child(5) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(6),
+.main-table th:nth-child(6) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(7),
+.main-table th:nth-child(7) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(8),
+.main-table th:nth-child(8) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(9),
+.main-table th:nth-child(9) {
+  width: 200;
+  text-align: right;
+}
+  .main-table td:nth-child(10),
+.main-table th:nth-child(10) {
+  width: auto;
+  text-align: right;
+}
 
       .stone-table {
         width: 100%;
@@ -1649,7 +2274,9 @@ const Estimation = () => {
     <h2>ESTIMATION</h2>
     <div class="sub-header">
       <span >ESTIMATION NO : <span class="sub-est">${
-        estimationCount + 1
+        selectEstimationNo
+          ? selectEstimationNo?.ESTIMATIONNO
+          : estimationCount + 1
       }</span></span>
       <span>DATE: ${new Date().toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -1715,16 +2342,10 @@ const Estimation = () => {
           <td>${tableData
             .reduce((sum, i) => sum + (i.GWT || 0), 0)
             .toFixed(3)}</td>
-          <td>${Number(
-            tableData.reduce((sum, i) => sum + (i.STONEWT || 0), 0)
-          ).toFixed(3)}</td>
-            <td>${Number(
-              tableData.reduce((sum, i) => sum + (i.NETWT || 0), 0)
-            ).toFixed(3)}</td>
+          <td>${totalStoneWeight?.toFixed(3)}</td>
+            <td>${totalNetWeight.toFixed(3)}</td>
             <td colspan="1"></td>
-             <td>${Number(
-               tableData.reduce((sum, i) => sum + (i.FINALGOLD || 0), 0)
-             ).toFixed(3)}</td>
+             <td>${totalFineGold.toFixed(3)}</td>
              <td colspan="1"></td>
         </tr>
       </tbody>
@@ -1840,464 +2461,1056 @@ const Estimation = () => {
       .save();
   };
 
+  const handleLandScapDownloadPDF = () => {
+    // Prepare your HTML content as a string (like your container.innerHTML)
+    const htmlContent = `
+  <html>
+    <head>
+      <title>Estimation_${ selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1}</title>
+      <style>
+        @media print {
+          @page {
+            size: A4 landscape !important;
+            margin: 10mm;
+          }
+          body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+        }
+
+        /* Force color printing for all elements */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        .main-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 5px;
+          font-size: 12px;
+        }
+        .main-table th {
+          border: 1px solid black;
+          padding: 5px;
+          text-align: center;
+          background-color: #52bd91;
+        }
+        .main-table td {
+          border: 1px solid black;
+          padding: 5px;
+          text-align: center;
+        }
+          .main-table td:nth-child(1),
+.main-table th:nth-child(1) {
+  width: auto;
+  text-align: center;
+}
+  .main-table td:nth-child(2),
+.main-table th:nth-child(2) {
+  width: auto;
+  text-align: center;
+}
+    .main-table td:nth-child(3),
+.main-table th:nth-child(3) {
+  width: auto;
+  text-align: center;
+}
+  .main-table td:nth-child(4),
+.main-table th:nth-child(4) {
+  width: 100%;
+  text-align: left;
+}
+  .main-table td:nth-child(5),
+.main-table th:nth-child(5) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(6),
+.main-table th:nth-child(6) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(7),
+.main-table th:nth-child(7) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(8),
+.main-table th:nth-child(8) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(9),
+.main-table th:nth-child(9) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(10),
+.main-table th:nth-child(10) {
+  width: auto;
+  text-align: right;
+}
+  .main-table td:nth-child(11),
+.main-table th:nth-child(11) {
+  width: auto;
+  text-align: right;
+}
+        .stone-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+          font-size: 12px;
+        }
+        .stone-table th {
+          border: 1px solid black;
+          padding: 5px;
+          text-align: center;
+          background-color: #52bd91;
+        }
+        .stone-table td {
+          border: 1px solid #333;
+          padding: 5px;
+          text-align: center;
+        }
+        .summary-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 12px;
+          margin-top: 10px;
+          background: radial-gradient(circle at center, #ffffffff 50%, #f3f6fb 60%, #e0e7f1 80%);
+        }
+        .summary-table td {
+          padding: 5px;
+          border: 1px solid #aaa;
+          text-align: right;
+        }
+        .summary-table td:first-child {
+          text-align: left;
+        }
+        .total td {
+          font-weight: bold;
+          background-color: #162566;
+          color: white;
+        }
+        h2 {
+          text-align: center;
+          text-decoration: underline;
+          text-underline-offset: 4px;
+          margin: 0 0 18px 0;
+          font-size: 16px;
+        }
+        .sub-header {
+          display: flex;
+          justify-content: space-between;
+          font-weight: bold;
+          margin-bottom: 10px;
+        }
+        .sub-est {
+          font-weight : bold;
+          font-size: 18px;
+          color : red;
+        }
+        .sub-party {
+          font-weight : bold;
+          font-size: 14px;
+          color : #162566;
+        }
+        .container {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 15px;
+        }
+        .table-container {
+          width: 55%;
+        }
+        .summary-container {
+          width: 35%;
+          margin-left: ${path === "/estimations-model1" ? "0" : "auto"};
+        }
+        .highlight {
+          background-color: #f26d14ff;
+          font-weight: bold;
+        }
+      </style>
+    </head>
+    <body>
+      <h2>ESTIMATION</h2>
+      <div class="sub-header">
+        <span>ESTIMATION NO : <span class="sub-est">${
+          selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1
+        }</span></span>
+        <span>DATE: ${new Date().toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}</span>
+        <span>PARTY NAME: <span class="sub-party">${selectedParty}</span></span>
+      </div>
+
+      <table class="main-table">
+        <thead>
+          <tr>
+            <th>SNo</th>
+            <th>TAG NO</th>
+            <th>Image</th>
+            <th>PARTICULARS</th>
+            <th>Pieces</th>
+            <th>Gross.Wt</th>
+            <th>Less.Wt</th>
+            <th>Net.Wt</th>
+            <th>Touch</th>
+            <th>Fine Gold</th>
+            <th>Act Per</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableData
+            .map((item, index) => {
+              const actGrams =
+                stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)
+                  ?.ACTGRAMS || "";
+              const cleanedActGrams = actGrams.replace(
+                /undefined\(\s*(.*?)\s*\)/g,
+                "$1"
+              );
+              const subRow = cleanedActGrams
+                ? `<tr>
+                    <td colspan="10" style="text-align:left;font-size:10px;padding-left:10px">
+                      ${cleanedActGrams}
+                    </td>
+                  </tr>`
+                : "";
+
+              const imgurl = item.IMGPATH
+                ? `<img src="${item.IMGPATH}" 
+                     alt="Product Image" 
+                     style="width:80px;height:80px;object-fit:contain;border-radius:6px;" />`
+                : "";
+
+              return `
+                <tr>
+                  <td rowspan="${cleanedActGrams ? 2 : 1}">${index + 1}</td>
+                  <td rowspan="${cleanedActGrams ? 2 : 1}">${item.TAGNO}</td>
+                  <td rowspan="${cleanedActGrams ? 2 : 1}">${imgurl}</td>
+                  <td>${item.PRODNAME}</td>
+                  <td>${item.PIECES}</td>
+                  <td>${item.GWT?.toFixed(3)}</td>
+                  <td>${item.STONEWT}</td>
+                  <td>${item.NETWT}</td>
+                  <td>${item.TOUCH}%</td>
+                  <td>${item.FINALGOLD}</td>
+                  <td>${item.ACTPER}%</td>
+                </tr>
+                ${subRow}
+              `;
+            })
+            .join("")}
+          <tr class="total">
+            <td colspan="4">Total</td>
+            <td>${tableData.reduce((sum, i) => sum + (i.PIECES || 0), 0)}</td>
+            <td>${tableData
+              .reduce((sum, i) => sum + (i.GWT || 0), 0)
+              .toFixed(3)}</td>
+            <td>${totalStoneWeight?.toFixed(3)}</td>
+            <td>${totalNetWeight.toFixed(3)}</td>
+            <td colspan="1"></td>
+            <td>${totalFineGold.toFixed(3)}</td>
+            <td colspan="1"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="container">
+        ${
+          path === "/estimations-model1"
+            ? `<div class="table-container">
+                <table class="stone-table">
+                  <thead>
+                    <tr>
+                      <th>STONE NAME</th>
+                      <th>PIECES</th>
+                      <th>WEIGHT</th>
+                      <th>COST</th>
+                      <th>AMOUNT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${stonesData
+                      .map((stone, index) => {
+                        const rate = stoneRate[index] || 0;
+                        const amount = stone.ACTGRAMS * Number(rate);
+                        return `
+                          <tr>
+                            <td>${stone.MAINTYPE}</td>
+                            <td>${stone.PCS}</td>
+                            <td>${stone.ACTGRAMS.toFixed(3)}</td>
+                            <td>${Number(rate).toFixed(2)}</td>
+                            <td>${amount.toFixed(2)}</td>
+                          </tr>`;
+                      })
+                      .join("")}
+                    <tr class="total">
+                      <td colspan="2"></td>
+                      <td>${stonesData
+                        .reduce((sum, s) => sum + s.ACTGRAMS, 0)
+                        .toFixed(3)}</td>
+                      <td></td>
+                      <td>${stonesData
+                        .reduce(
+                          (sum, s, i) => sum + s.ACTGRAMS * (stoneRate[i] || 0),
+                          0
+                        )
+                        .toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>`
+            : ""
+        }
+
+        <div class="summary-container">
+          <table class="summary-table">
+            <tr class="highlight"><td>Fine Gold</td><td>${totalFineGold.toFixed(
+              3
+            )}</td></tr>
+            ${
+              rateCut === true
+                ? `<tr>
+                    <td class="stone-name">
+                      Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-
+                    </td>
+                    <td class="sub-right">
+                      ${amountValue ? Number(amountValue).toFixed(2) : 0}
+                    </td>
+                  </tr>`
+                : ""
+            }
+            <tr><td>Making ${makingValue || 0} /g</td><td>${
+      perGramValue ? Number(perGramValue).toFixed(2) : 0
+    }</td></tr>
+            ${
+              path === "/estimations-model1"
+                ? `<tr><td>Rodium Charges</td><td>${
+                    rodiumChargeValue || 0
+                  }</td></tr>
+                   <tr><td>Stone Cost</td><td>${totalStoneCost?.toFixed(
+                     2
+                   )}</td></tr>`
+                : `<tr><td>Stone Cost ${stoneMakingValue || 0} /g</td><td>${
+                    stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+                  }</td></tr>`
+            }
+            <tr class="highlight"><td>Metal Balance</td><td><strong>${metalBalanceValue.toFixed(
+              3
+            )}</strong></td></tr>
+            <tr class="highlight"><td>Cash Balnace</td><td><strong>${cashBalanceValue.toFixed(
+              2
+            )}</strong></td></tr>
+          </table>
+        </div>
+      </div>
+    </body>
+  </html>
+  `;
+
+    // Open new window for print
+    const printWindow = window.open("", "_blank", "width=1200,height=900");
+
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    printWindow.focus();
+
+    // Delay print slightly to ensure styles load
+    setTimeout(() => {
+      printWindow.print();
+      // Optional: close window after print
+      // printWindow.close();
+    }, 500);
+
+    // Optional: close the print window automatically after printing
+    // printWindow.close();
+  };
+
+const handlePrintClick = ({ key }) => {
+    if (key === "1") {
+      handleLandScapePrint();
+    } else if (key === "2") {
+      handlePrint();
+    }
+  };
+
+  const printMenu = {
+    items: [
+      {
+        key: "1",
+        icon: <PrinterOutlined />,
+        label: "Print With Image",
+      },
+      {
+        key: "2",
+        icon: <PrinterOutlined />,
+        label: "Print With Out Image",
+      },
+    ],
+    onClick: handlePrintClick,
+  };
+
+  const handlePdfClick = ({ key }) => {
+    if (key === "1") {
+      handleLandScapDownloadPDF();
+    } else if (key === "2") {
+      handleDownloadPDF();
+    }
+  };
+
+  const pdfMenu = {
+    items: [
+      {
+        key: "1",
+        icon: <FilePdfOutlined />,
+        label: "PDF With Image",
+      },
+      {
+        key: "2",
+        icon: <FilePdfOutlined />,
+        label: "PDF With Out Image",
+      },
+    ],
+    onClick: handlePdfClick,
+  };
+
   return (
     <div>
       <Header setOpen={setOpen} />
-      <div className={styles.cardContainer}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography
-            style={{
-              fontSize: "14px",
-              fontWeight: "bold",
-              borderRadius: "8px",
-              padding: "5px",
-              background: "#51bd90",
-              color: "white",
-            }}
-          >
-            {pathModel2
-              ? "Estimation With Out Stones"
-              : "Estimation With Stones"}
-          </Typography>
-        </div>
-        <div className={styles.estimationContainer}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-              <span style={{ fontSize: "13px" }}>
-                Estimation:{" "}
-                <strong style={{ fontWeight: "bold", fontSize: "18px" }}>
-                  {selectEstimationNo
-                    ? selectEstimationNo?.ESTIMATIONNO
-                    : estimationCount + 1}
-                </strong>
-              </span>
-
-              <div
-                className={styles.dateContainer}
-                style={{ display: "flex", alignItems: "center", gap: "2px" }}
-              >
-                <span>Date:</span>
-                <DatePicker
-                  style={{ width: "130px" }}
-                  value={selectedDate ? dayjs(selectedDate) : null}
-                  onChange={(date) => setSelectedDate(date)}
-                  format="DD-MMM-YYYY"
-                />
-              </div>
-            </div>
-
-            <FilterOutlined
-              style={{ color: "green", fontSize: "25px", cursor: "pointer" }}
-              onClick={() => setFilterOpen(true)}
-            />
-          </div>
-          {selectedParty ? (
-            <div className={styles.partyNameContainer}>
-              <span>
-                Party Name:{" "}
-                <strong
-                  style={{ fontSize: "16px", fontWeight: "bold", color: "red" }}
-                >
-                  {selectedParty}
-                </strong>
-              </span>
-            </div>
-          ) : (
-            ""
-          )}
-          <div className={styles.detailsContainer}>
-            {touchValue ? (
-              <span>
-                Touch:{" "}
-                <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-                  {touchValue}
-                </span>
-              </span>
-            ) : (
-              ""
-            )}
-            {wastageValue ? (
-              <>
-                |{" "}
-                <span>
-                  Wastage:{" "}
-                  <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-                    {wastageValue}
-                  </span>
-                </span>
-              </>
-            ) : (
-              ""
-            )}
-            {tableData.length > 0 ? (
-              <Button
-                type="primary"
-                htmlType="submit"
-                className={styles.filesButton}
-                onClick={() => {
-                  setDrawerOpen(true);
-                }}
-              >
-                Total
-              </Button>
-            ) : (
-              ""
-            )}
-            {stonesData.length > 0 ? (
-              <Button
-                type="primary"
-                htmlType="submit"
-                className={styles.stoneButton}
-                onClick={() => {
-                  setStonesDrawerOpen(true);
-                }}
-              >
-                Stone
-              </Button>
-            ) : (
-              ""
-            )}
-          </div>
-        </div>
-      </div>
-      <div className={styles.cardContainer}>
-        <div className={styles.estimationTagContainer}>
-          <div className={styles.tagNoSection}>
-            <span className={styles.tagLabel}>Tag No:</span>
-            <Input
-              // placeholder="Enter Tag No"
-              ref={tagNoRef}
-              className={styles.tagInput}
-              onKeyDown={handleTagNoKeyDown}
-              disabled={selectedParty ? false : true}
-              value={tagNoValue}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                if (value.length <= 8) {
-                  setTagNoValue(value);
-                }
-              }}
-            />
-          </div>
-
-          <div className={styles.buttonSection}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className={styles.submitButton}
-              ref={submitRef}
-              onClick={() => {
-                if (!tagNoValue) {
-                  message.warning("Enter Tag No");
-                } else if (path === "/estimations-model2") {
-                  mainAPI();
-                  setTagNoValue("");
-                } else {
-                  stonesAPI();
-                  mainAPI();
-                  setTagNoValue("");
-                }
-              }}
-            >
-              Submit
-            </Button>
-
-            <Button
-              type="primary"
-              danger
-              className={styles.resetButton}
-              onClick={handleReset}
-            >
-              Reset
-            </Button>
-            <Button
-              type="dashed"
-              danger
-              className={styles.filesButton}
-              onClick={() => {
-                setOpenDialog(true);
-              }}
-            >
-              Files
-            </Button>
-            {selectedParty && touchValue && wastageValue && (
-              <div
-                onClick={handleToggleScan}
-                style={{ width: "20px", height: "20px" }}
-              >
-                <ScanOutlined
-                  style={{
-                    fontSize: "25px",
-                    color: scanOpen === true ? "#162566" : "#eb14bcff",
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.cardContainer}>
-        {tableData?.map((item, index) => (
-          <div key={index} className={styles.infoBox}>
-            {/* Tag No */}
-            <div className={styles.rowTag}>
-              <p>
-                <span
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    borderRadius: "50%",
-                    padding: "5px",
-                    background: "red",
-                    color: "white",
-                  }}
-                >
-                  #{index + 1}
-                </span>
-              </p>
-              <p>
-                <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-                  {item.TAGNO}
-                </span>
-              </p>
-              <DeleteOutlined
-                style={{ color: "red", cursor: "pointer", fontSize: "20px" }}
-                onClick={() => handleDelete(index)}
+      {cameraOpen === true ? (
+        <>
+          {!photo ? (
+            <>
+              <Camera
+                onTakePhoto={handleTakePhoto}
+                idealFacingMode="environment"
+                isImageMirror={false}
               />
-            </div>
-            <hr className={styles.fullWidthLine} />
-
-            {/* Item and Purity */}
-            <div className={styles.row}>
-              <p style={{ fontSize: "12px" }}>
-                Item:{" "}
-                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                  {item.PRODNAME}
-                </span>
-              </p>
-              <p style={{ fontSize: "12px" }}>
-                Purity:{" "}
-                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                  {item.PREFIX}
-                </span>
-              </p>
-            </div>
-            <hr className={styles.fullWidthLine} />
-
-            {/* Gross Wt, Less Wt, Net Wt */}
-            <div className={styles.row}>
-              <p style={{ fontSize: "12px" }}>
-                Gross Wt:{" "}
-                <span
-                  style={{ color: "red", fontSize: "14px", fontWeight: "bold" }}
+              <div
+                style={{
+                  display: "flex",
+                  alignContent: "center",
+                  justifyContent: "center",
+                  marginTop: "5px",
+                }}
+              >
+                <Button
+                  onClick={() => {
+                    handleCameraCancel();
+                  }}
+                  style={{
+                    background: "#EAA64D",
+                  }}
                 >
-                  {Number(item.GROSSWEIGHT)?.toFixed(3)}
-                </span>
-              </p>
-              <p style={{ fontSize: "12px" }}>
-                Less Wt:{" "}
-                <span
-                  style={{ color: "red", fontSize: "14px", fontWeight: "bold" }}
+                  <ArrowBackIcon />
+                  Back
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <img
+                src={photo}
+                alt="Captured"
+                style={{ width: "100%", maxWidth: 400, borderRadius: 8 }}
+              />
+              <br />
+              <div
+                style={{
+                  display: "flex",
+                  alignContent: "center",
+                  justifyContent: "center",
+                  marginTop: "5px",
+                  gap: "5px",
+                }}
+              >
+                <Button
+                  onClick={() => {
+                    setPhoto(null);
+                  }}
+                  style={{
+                    background: "#91C8E4",
+                  }}
                 >
-                  {Number(item.STONEWT)?.toFixed(3)}
-                </span>
-              </p>
-              <p style={{ fontSize: "12px" }}>
-                Net Wt:{" "}
-                <span
-                  style={{ color: "red", fontSize: "14px", fontWeight: "bold" }}
+                  Retake
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleCameraCancel();
+                    // setPhoto(null);
+                  }}
+                  style={{
+                    background: "#EAA64D",
+                  }}
                 >
-                  {Number(item.NETWT)?.toFixed(3)}
-                </span>
-              </p>
+                  <ArrowBackIcon />
+                  Back
+                </Button>
+              </div>
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <div className={styles.cardContainer}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Typography
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  borderRadius: "8px",
+                  padding: "5px",
+                  background: "#51bd90",
+                  color: "white",
+                }}
+              >
+                {pathModel2
+                  ? "Estimation With Out Stones"
+                  : "Estimation With Stones"}
+              </Typography>
             </div>
-            <hr className={styles.fullWidthLine} />
+            <div className={styles.estimationContainer}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "15px" }}
+                >
+                  <span style={{ fontSize: "13px" }}>
+                    Estimation:{" "}
+                    <strong style={{ fontWeight: "bold", fontSize: "18px" }}>
+                      {selectEstimationNo
+                        ? selectEstimationNo?.ESTIMATIONNO
+                        : estimationCount + 1}
+                    </strong>
+                  </span>
 
-            {/* Touch and Fine Gold */}
-            <div className={styles.row}>
-              <p style={{ fontSize: "12px" }}>
-                Touch:{" "}
-                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                  {item.TOUCH}
-                </span>
-              </p>
-              <p style={{ fontSize: "12px" }}>
-                Fine Gold:{" "}
-                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                  {Number(item.FINALGOLD)?.toFixed(3)}
-                </span>
-              </p>
-            </div>
-            {path === "/estimations-model1" ? (
-              <>
-                <hr className={styles.fullWidthLine} />
-                <div className={styles.fullWidthStone}>
-                  <p
+                  <div
+                    className={styles.dateContainer}
                     style={{
-                      fontSize: "14px",
-                      padding: "0px 8px 0px 8px",
-                      fontWeight: "bold",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "2px",
                     }}
                   >
-                    {(() => {
-                      const actGrams =
-                        stoneMainData.find(
-                          (stone) => stone.TAGNO === item.TAGNO
-                        )?.ACTGRAMS || "";
+                    <span>Date:</span>
+                    <DatePicker
+                      style={{ width: "130px" }}
+                      value={selectedDate ? dayjs(selectedDate) : null}
+                      onChange={(date) => setSelectedDate(date)}
+                      format="DD-MMM-YYYY"
+                    />
+                  </div>
+                </div>
 
-                      const removeUndefinedWrapper = (str) => {
-                        let prevStr;
-                        do {
-                          prevStr = str;
-                          str = str
-                            .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
-                            .trim();
-                        } while (prevStr !== str);
-                        return str;
-                      };
+                <FilterOutlined
+                  style={{
+                    color: "green",
+                    fontSize: "25px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setFilterOpen(true)}
+                />
+              </div>
+              {selectedParty ? (
+                <div className={styles.partyNameContainer}>
+                  <span>
+                    Party Name:{" "}
+                    <strong
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        color: "red",
+                      }}
+                    >
+                      {selectedParty}
+                    </strong>
+                  </span>
+                </div>
+              ) : (
+                ""
+              )}
+              <div className={styles.detailsContainer}>
+                {touchValue ? (
+                  <span>
+                    Touch:{" "}
+                    <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                      {touchValue}
+                    </span>
+                  </span>
+                ) : (
+                  ""
+                )}
+                {wastageValue ? (
+                  <>
+                    |{" "}
+                    <span>
+                      Wastage:{" "}
+                      <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                        {wastageValue}
+                      </span>
+                    </span>
+                  </>
+                ) : (
+                  ""
+                )}
+                {tableData.length > 0 ? (
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className={styles.filesButton}
+                    onClick={() => {
+                      setDrawerOpen(true);
+                    }}
+                  >
+                    Total
+                  </Button>
+                ) : (
+                  ""
+                )}
+                {stonesData.length > 0 ? (
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className={styles.stoneButton}
+                    onClick={() => {
+                      setStonesDrawerOpen(true);
+                    }}
+                  >
+                    Stone
+                  </Button>
+                ) : (
+                  ""
+                )}
+              </div>
+            </div>
+          </div>
+          <div className={styles.cardContainer}>
+            <div className={styles.estimationTagContainer}>
+              <div className={styles.tagNoSection}>
+                <span className={styles.tagLabel}>Tag No:</span>
+                <Input
+                  // placeholder="Enter Tag No"
+                  ref={tagNoRef}
+                  className={styles.tagInput}
+                  onKeyDown={handleTagNoKeyDown}
+                  disabled={selectedParty ? false : true}
+                  value={tagNoValue}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    if (value.length <= 8) {
+                      setTagNoValue(value);
+                    }
+                  }}
+                />
+              </div>
 
-                      return removeUndefinedWrapper(actGrams);
-                    })()}
+              <div className={styles.buttonSection}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className={styles.submitButton}
+                  ref={submitRef}
+                  onClick={() => {
+                    if (!tagNoValue) {
+                      message.warning("Enter Tag No");
+                    } else if (path === "/estimations-model2") {
+                      mainAPI();
+                      setTagNoValue("");
+                    } else {
+                      stonesAPI();
+                      mainAPI();
+                      setTagNoValue("");
+                    }
+                  }}
+                >
+                  Submit
+                </Button>
+
+                <Button
+                  type="primary"
+                  danger
+                  className={styles.resetButton}
+                  onClick={handleReset}
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="dashed"
+                  danger
+                  className={styles.filesButton}
+                  onClick={() => {
+                    setOpenDialog(true);
+                  }}
+                >
+                  Files
+                </Button>
+                {selectedParty && touchValue && wastageValue && (
+                  <div
+                    onClick={handleToggleScan}
+                    style={{ width: "20px", height: "20px" }}
+                  >
+                    <ScanOutlined
+                      style={{
+                        fontSize: "25px",
+                        color: scanOpen === true ? "#162566" : "#eb14bcff",
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.cardContainer}>
+            {tableData?.map((item, index) => (
+              <div key={index} className={styles.infoBox}>
+                {/* Tag No */}
+                <div className={styles.rowTag}>
+                  <p>
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        borderRadius: "50%",
+                        padding: "5px",
+                        background: "red",
+                        color: "white",
+                      }}
+                    >
+                      #{index + 1}
+                    </span>
+                  </p>
+                  <p>
+                    <span style={{ fontSize: "20px", fontWeight: "bold" }}>
+                      {item.TAGNO}
+                    </span>
+                  </p>
+                  <div>
+                    <Box
+                      sx={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: "50%",
+                        backgroundColor: "black",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        border: "2px solid #52bd91",
+                      }}
+                      onClick={() => {
+                        handleImageOk(item?.IMGPATH);
+                      }}
+                    >
+                      <img
+                        src={item?.IMGPATH}
+                        alt="img"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    </Box>
+                  </div>
+                  <PhotoCameraIcon
+                    style={{ color: "#000000" }}
+                    onClick={() => {
+                      handleCameraOk();
+                      setImageUrl(item?.IMGPATH);
+                      setPhoto(item?.IMGPATH);
+                      setTagNo(item?.TAGNO);
+                    }}
+                  />
+                  <DeleteOutlined
+                    style={{
+                      color: "red",
+                      cursor: "pointer",
+                      fontSize: "20px",
+                    }}
+                    onClick={() => handleDelete(index)}
+                  />
+                </div>
+                <hr className={styles.fullWidthLine} />
+
+                {/* Item and Purity */}
+                <div className={styles.row}>
+                  <p style={{ fontSize: "12px" }}>
+                    Item:{" "}
+                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                      {item.PRODNAME}
+                    </span>
+                  </p>
+                  <div
+                    style={{ cursor: "pointer" }}
+                    disabled={!photo}
+                    onClick={() => {
+                      if (photo && photo.startsWith("data:image")) {
+                        imageUploadAPI();
+                      } else {
+                        createImagePathAPI();
+                      }
+                    }}
+                  >
+                    <UpgradeIcon style={{ color: "#007d32", fontSize: "30px" }}/>
+                  </div>
+                  <p style={{ fontSize: "12px" }}>
+                    Purity:{" "}
+                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                      {item.PREFIX}
+                    </span>
                   </p>
                 </div>
-              </>
-            ) : (
-              ""
-            )}
+                <hr className={styles.fullWidthLine} />
+
+                {/* Gross Wt, Less Wt, Net Wt */}
+                <div className={styles.row}>
+                  <p style={{ fontSize: "12px" }}>
+                    Gross Wt:{" "}
+                    <span
+                      style={{
+                        color: "red",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {Number(item.GROSSWEIGHT)?.toFixed(3)}
+                    </span>
+                  </p>
+                  <p style={{ fontSize: "12px" }}>
+                    Less Wt:{" "}
+                    <span
+                      style={{
+                        color: "red",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {Number(item.STONEWT)?.toFixed(3)}
+                    </span>
+                  </p>
+                  <p style={{ fontSize: "12px" }}>
+                    Net Wt:{" "}
+                    <span
+                      style={{
+                        color: "red",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {Number(item.NETWT)?.toFixed(3)}
+                    </span>
+                  </p>
+                </div>
+                <hr className={styles.fullWidthLine} />
+
+                {/* Touch and Fine Gold */}
+                <div className={styles.row}>
+                  <p style={{ fontSize: "12px" }}>
+                    Touch:{" "}
+                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                      {item.TOUCH}
+                    </span>
+                  </p>
+                  <p style={{ fontSize: "12px" }}>
+                    Fine Gold:{" "}
+                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                      {Number(item.FINALGOLD)?.toFixed(3)}
+                    </span>
+                  </p>
+                </div>
+                {path === "/estimations-model1" ? (
+                  <>
+                    <hr className={styles.fullWidthLine} />
+                    <div className={styles.fullWidthStone}>
+                      <p
+                        style={{
+                          fontSize: "14px",
+                          padding: "0px 8px 0px 8px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {(() => {
+                          const actGrams =
+                            stoneMainData.find(
+                              (stone) => stone.TAGNO === item.TAGNO
+                            )?.ACTGRAMS || "";
+
+                          const removeUndefinedWrapper = (str) => {
+                            let prevStr;
+                            do {
+                              prevStr = str;
+                              str = str
+                                .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
+                                .trim();
+                            } while (prevStr !== str);
+                            return str;
+                          };
+
+                          return removeUndefinedWrapper(actGrams);
+                        })()}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  ""
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <>
-        {scanOpen === true && (
           <>
-            {!qrOpen && (
-              <div
-                className={styles.scanIconContainer}
-                onClick={handleOpenScanner}
-              >
-                <QrCodeScannerIcon style={{ fontSize: 30, color: "white" }} />
+            {scanOpen === true && (
+              <>
+                {!qrOpen && (
+                  <div
+                    className={styles.scanIconContainer}
+                    onClick={handleOpenScanner}
+                  >
+                    <QrCodeScannerIcon
+                      style={{ fontSize: 30, color: "white" }}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
+            {qrOpen && (
+              <div className={styles.qrScannerOverlay}>
+                <div className={styles.qrScannerContent}>
+                  <div className={styles.closeIcon} onClick={stopScanner}>
+                    <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
+                  </div>
+                  <div
+                    id="qr-reader"
+                    style={{ width: "300px", height: "300px" }}
+                  ></div>
+                </div>
               </div>
             )}
           </>
-        )}
-
-        {qrOpen && (
-          <div className={styles.qrScannerOverlay}>
-            <div className={styles.qrScannerContent}>
-              <div className={styles.closeIcon} onClick={stopScanner}>
-                <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
-              </div>
-              <div
-                id="qr-reader"
-                style={{ width: "300px", height: "300px" }}
-              ></div>
-            </div>
-          </div>
-        )}
-      </>
-      <EstimationFields
-        filterOpen={filterOpen}
-        setFilterOpen={setFilterOpen}
-        handleOk={handleOk}
-        handleCancel={handleCancel}
-        partyRef={partyRef}
-        selectedParty={selectedParty}
-        setSelectedParty={setSelectedParty}
-        handlePartyChange={handlePartyChange}
-        touchRef={touchRef}
-        handleKeyDown={handleKeyDown}
-        touchValue={touchValue}
-        setTouchValue={setTouchValue}
-        wastRef={wastRef}
-        wastageValue={wastageValue}
-        setWastageValue={setWastageValue}
-        partyNames={partyNames}
-        tableData={tableData}
-        setTableData={setTableData}
-        setTotalFineGold={setTotalFineGold}
-      />
-      <EstimationDrawer
-        drawerOpen={drawerOpen}
-        setDrawerOpen={setDrawerOpen}
-        stonesData={stonesData}
-        totalPieces={totalPieces}
-        totalGrossWeight={totalGrossWeight}
-        totalStoneWeight={totalStoneWeight}
-        totalNetWeight={totalNetWeight}
-        totalFineGold={totalFineGold}
-        totalStoneCost={totalStoneCost}
-        totalCash={totalCash}
-        selectEstimationNo={selectEstimationNo}
-        makingValue={makingValue}
-        setMakingValue={setMakingValue}
-        perGramValue={perGramValue}
-        setPerGramValue={setPerGramValue}
-        rodiumChargeValue={rodiumChargeValue}
-        setRodiumChargeValue={setRodiumChargeValue}
-        handlePrint={handlePrint}
-        handleDownloadPDF={handleDownloadPDF}
-        tableData={tableData}
-        createEstimationMast={createEstimationMast}
-        createEstimationData={createEstimationData}
-        createEstimationItems={createEstimationItems}
-        estimationDeleteData={estimationDeleteData}
-        estimationDeleteItems={estimationDeleteItems}
-        estimationDeleteMast={estimationDeleteMast}
-        handleReset={handleReset}
-        setSelectEstimationNo={setSelectEstimationNo}
-        setStoneMakingValue={setStoneMakingValue}
-        stoneMakingValue={stoneMakingValue}
-        setStonePerGramValue={setStonePerGramValue}
-        stonePerGramValue={stonePerGramValue}
-        rateCut={rateCut}
-        setRateCut={setRateCut}
-        fineGoldValue={fineGoldValue}
-        setFineGoldValue={setFineGoldValue}
-        rateValue={rateValue}
-        setRateValue={setRateValue}
-        amountValue={amountValue}
-        setAmountValue={setAmountValue}
-        metalBalanceValue={metalBalanceValue}
-        cashBalanceValue={cashBalanceValue}
-      />
-      <EstimationDialog
-        setOpenDialog={setOpenDialog}
-        openDialog={openDialog}
-        estimationNoDataAPI={estimationNoDataAPI}
-        setSelectedObject={setSelectedObject}
-        selectedObject={selectedObject}
-        setSelectEstimationNo={setSelectEstimationNo}
-        estimationNoItemsAPI={estimationNoItemsAPI}
-        estimationNoMastAPI={estimationNoMastAPI}
-      />
-      <EstimationStonesDrawer
-        stonesDrawerOpen={stonesDrawerOpen}
-        setStonesDrawerOpen={setStonesDrawerOpen}
-        stonesData={stonesData}
-        setStoneRate={setStoneRate}
-        stoneRate={stoneRate}
-      />
-      <SidebarDrawer
-        open={open}
-        toggleDrawer={toggleDrawer}
-        singleImage={singleImage}
-        userArea={userArea}
-        userName={userName}
-      />
+          <ImageDialog
+            handleImageCancel={handleImageCancel}
+            imageOpen={imageOpen}
+            imageData={photo}
+          />
+          <EstimationFields
+            filterOpen={filterOpen}
+            setFilterOpen={setFilterOpen}
+            handleOk={handleOk}
+            handleCancel={handleCancel}
+            partyRef={partyRef}
+            selectedParty={selectedParty}
+            setSelectedParty={setSelectedParty}
+            handlePartyChange={handlePartyChange}
+            touchRef={touchRef}
+            handleKeyDown={handleKeyDown}
+            touchValue={touchValue}
+            setTouchValue={setTouchValue}
+            wastRef={wastRef}
+            wastageValue={wastageValue}
+            setWastageValue={setWastageValue}
+            partyNames={partyNames}
+            tableData={tableData}
+            setTableData={setTableData}
+            setTotalFineGold={setTotalFineGold}
+          />
+          <EstimationDrawer
+            drawerOpen={drawerOpen}
+            setDrawerOpen={setDrawerOpen}
+            stonesData={stonesData}
+            totalPieces={totalPieces}
+            totalGrossWeight={totalGrossWeight}
+            totalStoneWeight={totalStoneWeight}
+            totalNetWeight={totalNetWeight}
+            totalFineGold={totalFineGold}
+            totalStoneCost={totalStoneCost}
+            totalCash={totalCash}
+            selectEstimationNo={selectEstimationNo}
+            makingValue={makingValue}
+            setMakingValue={setMakingValue}
+            perGramValue={perGramValue}
+            setPerGramValue={setPerGramValue}
+            rodiumChargeValue={rodiumChargeValue}
+            setRodiumChargeValue={setRodiumChargeValue}
+            handlePrint={handlePrint}
+            handleDownloadPDF={handleDownloadPDF}
+            tableData={tableData}
+            createEstimationMast={createEstimationMast}
+            createEstimationData={createEstimationData}
+            createEstimationItems={createEstimationItems}
+            estimationDeleteData={estimationDeleteData}
+            estimationDeleteItems={estimationDeleteItems}
+            estimationDeleteMast={estimationDeleteMast}
+            handleReset={handleReset}
+            setSelectEstimationNo={setSelectEstimationNo}
+            setStoneMakingValue={setStoneMakingValue}
+            stoneMakingValue={stoneMakingValue}
+            setStonePerGramValue={setStonePerGramValue}
+            stonePerGramValue={stonePerGramValue}
+            rateCut={rateCut}
+            setRateCut={setRateCut}
+            fineGoldValue={fineGoldValue}
+            setFineGoldValue={setFineGoldValue}
+            rateValue={rateValue}
+            setRateValue={setRateValue}
+            amountValue={amountValue}
+            setAmountValue={setAmountValue}
+            metalBalanceValue={metalBalanceValue}
+            cashBalanceValue={cashBalanceValue}
+            printMenu={printMenu}
+            pdfMenu={pdfMenu}
+          />
+          <EstimationDialog
+            setOpenDialog={setOpenDialog}
+            openDialog={openDialog}
+            estimationNoDataAPI={estimationNoDataAPI}
+            setSelectedObject={setSelectedObject}
+            selectedObject={selectedObject}
+            setSelectEstimationNo={setSelectEstimationNo}
+            estimationNoItemsAPI={estimationNoItemsAPI}
+            estimationNoMastAPI={estimationNoMastAPI}
+          />
+          <EstimationStonesDrawer
+            stonesDrawerOpen={stonesDrawerOpen}
+            setStonesDrawerOpen={setStonesDrawerOpen}
+            stonesData={stonesData}
+            setStoneRate={setStoneRate}
+            stoneRate={stoneRate}
+          />
+          <SidebarDrawer
+            open={open}
+            toggleDrawer={toggleDrawer}
+            singleImage={singleImage}
+            userArea={userArea}
+            userName={userName}
+          />
+        </>
+      )}
     </div>
   );
 };

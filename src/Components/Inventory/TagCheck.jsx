@@ -159,18 +159,18 @@ const TagCheck = () => {
     setImageUrl(null);
   };
 
-  useEffect(() => {
-    if (
-      navigator.mediaDevices &&
-      typeof navigator.mediaDevices.getUserMedia === "function"
-    ) {
-      setIsSupported(true);
-    } else {
-      alert(
-        "Camera not supported on this device/browser. Please use Chrome or Safari over HTTPS."
-      );
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (
+  //     navigator.mediaDevices &&
+  //     typeof navigator.mediaDevices.getUserMedia === "function"
+  //   ) {
+  //     setIsSupported(true);
+  //   } else {
+  //     alert(
+  //       "Camera not supported on this device/browser. Please use Chrome or Safari over HTTPS."
+  //     );
+  //   }
+  // }, []);
 
   const handleTakePhoto = (dataUri) => {
     setPhoto(dataUri);
