@@ -311,7 +311,7 @@ const Estimation = () => {
         message.success({
           content: (
             <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-              Tag {response.data[0]?.TAGNO} Scan Successfully
+              Tag <span style={{color:"red"}}>{response.data[0]?.TAGNO}</span> Scan Successfully
             </span>
           ),
         });
