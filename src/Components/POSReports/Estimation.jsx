@@ -99,6 +99,9 @@ const Estimation = () => {
   const [tagNo, setTagNo] = useState();
   const [cameraOpen, setCameraOpen] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [photos, setPhotos] = useState({});
+  const [cameraOpenIndex, setCameraOpenIndex] = useState(null);
+  console.log(photos, "photos");
 
   const formatDate = dayjs(selectEstimationNo?.ESTIMATIONDATE).format(
     "ddd, DD MMM YYYY HH:mm:ss [GMT]"
@@ -293,6 +296,12 @@ const Estimation = () => {
       );
 
       const data = response.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        if (scanOpen === true) {
+          message.success(`Tag ${response.data[0]?.TAGNO} Scan Successfully`);
+        }
+      }
 
       if (!Array.isArray(data) || data.length === 0) {
         message.warning("Tag Not existed");
@@ -971,17 +980,13 @@ const Estimation = () => {
     }
   };
 
-  const createImagePathAPI = async (imgUrl) => {
+  const createImagePathAPI = async (imgUrl, tagNo) => {
     try {
-      const response = await axios.get(
+      await axios.get(
         `${CREATE_jwel}/api/Wholesal/UpdateTagGenerationImagePath?tagNo=${tagNo}&path=${
-          imgUrl ? imgUrl : imageUrl
+          imgUrl || ""
         }`,
-        {
-          headers: {
-            tenantName: tenantName,
-          },
-        }
+        { headers: { tenantName } }
       );
     } catch (error) {
       console.error(error);
@@ -997,7 +1002,10 @@ const Estimation = () => {
     return `${tagNo}.jpg`;
   };
 
-  const imageUploadAPI = async () => {
+  const imageUploadAPI = async (index, tagNo) => {
+    const photo = photos[index];
+    if (!photo) return;
+
     const base64Str = getBase64Data(photo);
     const renamedFileName = generateFileName(tagNo);
 
@@ -1011,15 +1019,13 @@ const Estimation = () => {
           dbId: "",
         },
         {
-          headers: {
-            tenantName: tenantName,
-          },
+          headers: { tenantName },
         }
       );
 
       if (response.status === 200) {
         const imgUrl = `https://image.timeserasoftware.in/WHOLESALE/${renamedFileName}`;
-        createImagePathAPI(imgUrl);
+        createImagePathAPI(imgUrl, tagNo);
         alert("Image uploaded successfully!");
       }
     } catch (error) {
@@ -1220,16 +1226,32 @@ const Estimation = () => {
     setImageOpen(false);
   };
 
-  const handleTakePhoto = (dataUri) => {
-    setPhoto(dataUri);
-  };
+  // const handleTakePhoto = (dataUri) => {
+  //   setPhoto(dataUri);
+  // };
 
-  const handleCameraOk = () => {
-    setCameraOpen(true);
+  // const handleCameraOk = () => {
+  //   setCameraOpen(true);
+  // };
+
+  // const handleCameraCancel = () => {
+  //   setCameraOpen(false);
+  // };
+  const handleCameraOk = (index, tagNo, imgPath) => {
+    setCameraOpenIndex(index);
+    setTagNo(tagNo);
+    setImageUrl(imgPath);
   };
 
   const handleCameraCancel = () => {
-    setCameraOpen(false);
+    setCameraOpenIndex(null);
+  };
+
+  const handleTakePhoto = (dataUri, index) => {
+    setPhotos((prev) => ({
+      ...prev,
+      [index]: dataUri,
+    }));
   };
 
   const handleLandScapePrint = () => {
@@ -1243,7 +1265,7 @@ const Estimation = () => {
     printWindow.document.write(`
     @page {
         size: landscape;
-        margin: 10mm;
+        margin: 2mm;
     }
     body {
         font-family: Arial, sans-serif;
@@ -1876,9 +1898,9 @@ ${
               <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
         index + 1
       }</strong></td>
-              <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-        item.TAGNO
-      }</strong></td>
+              <td class="sub-tag" rowspan="${
+                cleanedActGrams ? 2 : 1
+              }"><strong>${item.TAGNO}</strong></td>
               <td class="sub"><strong>${item.PRODNAME}</strong></td>
               <td class="sub-right"><strong>${item.PIECES}</strong></td>
               <td class="sub-right"><strong>${item.GWT?.toFixed(
@@ -2466,14 +2488,16 @@ ${
     const htmlContent = `
   <html>
     <head>
-      <title>Estimation_${ selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1}</title>
+      <title>Estimation_${
+        selectEstimationNo
+          ? selectEstimationNo?.ESTIMATIONNO
+          : estimationCount + 1
+      }</title>
       <style>
         @media print {
           @page {
             size: A4 landscape !important;
-            margin: 10mm;
+            margin: 2mm;
           }
           body {
             -webkit-print-color-adjust: exact !important;
@@ -2840,7 +2864,7 @@ ${
     // printWindow.close();
   };
 
-const handlePrintClick = ({ key }) => {
+  const handlePrintClick = ({ key }) => {
     if (key === "1") {
       handleLandScapePrint();
     } else if (key === "2") {
@@ -2891,626 +2915,703 @@ const handlePrintClick = ({ key }) => {
   return (
     <div>
       <Header setOpen={setOpen} />
-      {cameraOpen === true ? (
-        <>
-          {!photo ? (
-            <>
-              <Camera
-                onTakePhoto={handleTakePhoto}
-                idealFacingMode="environment"
-                isImageMirror={false}
-              />
+      {/* {cameraOpenIndex ? (
+          !photos[cameraOpenIndex] ? (
+                    <>
+                      <Camera
+                        onTakePhoto={(dataUri) =>
+                          handleTakePhoto(dataUri, cameraOpenIndex)
+                        }
+                        idealFacingMode="environment"
+                        isImageMirror={false}
+                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          alignContent: "center",
+                          justifyContent: "center",
+                          marginTop: "5px",
+                        }}
+                      >
+                        <Button
+                          onClick={handleCameraCancel}
+                          style={{
+                            background: "#EAA64D",
+                          }}
+                        >
+                          <ArrowBackIcon />
+                          Back
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <img
+                        src={photos[cameraOpenIndex]}
+                        alt="Captured"
+                        style={{
+                          width: "100%",
+                          maxWidth: 400,
+                          borderRadius: 8,
+                        }}
+                      />
+                      <br />
+                      <div
+                        style={{
+                          display: "flex",
+                          alignContent: "center",
+                          justifyContent: "center",
+                          marginTop: "5px",
+                          gap: "5px",
+                        }}
+                      >
+                        <Button
+                          style={{
+                            background: "#91C8E4",
+                          }}
+                          onClick={() =>
+                            setPhotos((prev) => ({ ...prev, [cameraOpenIndex]: null }))
+                          }
+                        >
+                          Retake
+                        </Button>
+                        <Button
+                          style={{
+                            background: "#EAA64D",
+                          }}
+                          onClick={handleCameraCancel}
+                        >
+                          <ArrowBackIcon />
+                          Back
+                        </Button>
+                      </div>
+                    </>
+                  )
+                ) : (
+        <>  */}
+      <div className={styles.cardContainer}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography
+            style={{
+              fontSize: "14px",
+              fontWeight: "bold",
+              borderRadius: "8px",
+              padding: "5px",
+              background: "#51bd90",
+              color: "white",
+            }}
+          >
+            {pathModel2
+              ? "Estimation With Out Stones"
+              : "Estimation With Stones"}
+          </Typography>
+        </div>
+        <div className={styles.estimationContainer}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+              <span style={{ fontSize: "13px" }}>
+                Estimation:{" "}
+                <strong style={{ fontWeight: "bold", fontSize: "18px" }}>
+                  {selectEstimationNo
+                    ? selectEstimationNo?.ESTIMATIONNO
+                    : estimationCount + 1}
+                </strong>
+              </span>
+
               <div
-                style={{
-                  display: "flex",
-                  alignContent: "center",
-                  justifyContent: "center",
-                  marginTop: "5px",
-                }}
-              >
-                <Button
-                  onClick={() => {
-                    handleCameraCancel();
-                  }}
-                  style={{
-                    background: "#EAA64D",
-                  }}
-                >
-                  <ArrowBackIcon />
-                  Back
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <img
-                src={photo}
-                alt="Captured"
-                style={{ width: "100%", maxWidth: 400, borderRadius: 8 }}
-              />
-              <br />
-              <div
-                style={{
-                  display: "flex",
-                  alignContent: "center",
-                  justifyContent: "center",
-                  marginTop: "5px",
-                  gap: "5px",
-                }}
-              >
-                <Button
-                  onClick={() => {
-                    setPhoto(null);
-                  }}
-                  style={{
-                    background: "#91C8E4",
-                  }}
-                >
-                  Retake
-                </Button>
-                <Button
-                  onClick={() => {
-                    handleCameraCancel();
-                    // setPhoto(null);
-                  }}
-                  style={{
-                    background: "#EAA64D",
-                  }}
-                >
-                  <ArrowBackIcon />
-                  Back
-                </Button>
-              </div>
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          <div className={styles.cardContainer}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Typography
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  borderRadius: "8px",
-                  padding: "5px",
-                  background: "#51bd90",
-                  color: "white",
-                }}
-              >
-                {pathModel2
-                  ? "Estimation With Out Stones"
-                  : "Estimation With Stones"}
-              </Typography>
-            </div>
-            <div className={styles.estimationContainer}>
-              <div
+                className={styles.dateContainer}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
+                  gap: "2px",
                 }}
               >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "15px" }}
-                >
-                  <span style={{ fontSize: "13px" }}>
-                    Estimation:{" "}
-                    <strong style={{ fontWeight: "bold", fontSize: "18px" }}>
-                      {selectEstimationNo
-                        ? selectEstimationNo?.ESTIMATIONNO
-                        : estimationCount + 1}
-                    </strong>
-                  </span>
+                <span>Date:</span>
+                <DatePicker
+                  style={{ width: "130px" }}
+                  value={selectedDate ? dayjs(selectedDate) : null}
+                  onChange={(date) => setSelectedDate(date)}
+                  format="DD-MMM-YYYY"
+                />
+              </div>
+            </div>
 
+            <FilterOutlined
+              style={{
+                color: "green",
+                fontSize: "25px",
+                cursor: "pointer",
+              }}
+              onClick={() => setFilterOpen(true)}
+            />
+          </div>
+          {selectedParty ? (
+            <div className={styles.partyNameContainer}>
+              <span>
+                Party Name:{" "}
+                <strong
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    color: "red",
+                  }}
+                >
+                  {selectedParty}
+                </strong>
+              </span>
+            </div>
+          ) : (
+            ""
+          )}
+          <div className={styles.detailsContainer}>
+            {touchValue ? (
+              <span>
+                Touch:{" "}
+                <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                  {touchValue}
+                </span>
+              </span>
+            ) : (
+              ""
+            )}
+            {wastageValue ? (
+              <>
+                |{" "}
+                <span>
+                  Wastage:{" "}
+                  <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                    {wastageValue}
+                  </span>
+                </span>
+              </>
+            ) : (
+              ""
+            )}
+            {tableData.length > 0 ? (
+              <Button
+                type="primary"
+                htmlType="submit"
+                className={styles.filesButton}
+                onClick={() => {
+                  setDrawerOpen(true);
+                }}
+              >
+                Total
+              </Button>
+            ) : (
+              ""
+            )}
+            {stonesData.length > 0 ? (
+              <Button
+                type="primary"
+                htmlType="submit"
+                className={styles.stoneButton}
+                onClick={() => {
+                  setStonesDrawerOpen(true);
+                }}
+              >
+                Stone
+              </Button>
+            ) : (
+              ""
+            )}
+          </div>
+        </div>
+      </div>
+      <div className={styles.cardContainer}>
+        <div className={styles.estimationTagContainer}>
+          <div className={styles.tagNoSection}>
+            <span className={styles.tagLabel}>Tag No:</span>
+            <Input
+              // placeholder="Enter Tag No"
+              ref={tagNoRef}
+              className={styles.tagInput}
+              onKeyDown={handleTagNoKeyDown}
+              disabled={selectedParty ? false : true}
+              value={tagNoValue}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                if (value.length <= 8) {
+                  setTagNoValue(value);
+                }
+              }}
+            />
+          </div>
+
+          <div className={styles.buttonSection}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className={styles.submitButton}
+              ref={submitRef}
+              onClick={() => {
+                if (!tagNoValue) {
+                  message.warning("Enter Tag No");
+                } else if (path === "/estimations-model2") {
+                  mainAPI();
+                  setTagNoValue("");
+                } else {
+                  stonesAPI();
+                  mainAPI();
+                  setTagNoValue("");
+                }
+              }}
+            >
+              Submit
+            </Button>
+
+            <Button
+              type="primary"
+              danger
+              className={styles.resetButton}
+              onClick={handleReset}
+            >
+              Reset
+            </Button>
+            <Button
+              type="dashed"
+              danger
+              className={styles.filesButton}
+              onClick={() => {
+                setOpenDialog(true);
+              }}
+            >
+              Files
+            </Button>
+            {selectedParty && touchValue && wastageValue && (
+              <div
+                onClick={handleToggleScan}
+                style={{ width: "20px", height: "20px" }}
+              >
+                <ScanOutlined
+                  style={{
+                    fontSize: "25px",
+                    color: scanOpen === true ? "#162566" : "#eb14bcff",
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.cardContainer}>
+        {tableData?.map((item, index) => (
+          <>
+            {cameraOpenIndex === index ? (
+              !photos[index] ? (
+                <>
+                  <Camera
+                    onTakePhoto={(dataUri) => handleTakePhoto(dataUri, index)}
+                    idealFacingMode="environment"
+                    isImageMirror={false}
+                  />
                   <div
-                    className={styles.dateContainer}
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      gap: "2px",
+                      alignContent: "center",
+                      justifyContent: "center",
+                      marginTop: "5px",
                     }}
                   >
-                    <span>Date:</span>
-                    <DatePicker
-                      style={{ width: "130px" }}
-                      value={selectedDate ? dayjs(selectedDate) : null}
-                      onChange={(date) => setSelectedDate(date)}
-                      format="DD-MMM-YYYY"
-                    />
-                  </div>
-                </div>
-
-                <FilterOutlined
-                  style={{
-                    color: "green",
-                    fontSize: "25px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => setFilterOpen(true)}
-                />
-              </div>
-              {selectedParty ? (
-                <div className={styles.partyNameContainer}>
-                  <span>
-                    Party Name:{" "}
-                    <strong
+                    <Button
+                      onClick={handleCameraCancel}
                       style={{
-                        fontSize: "16px",
-                        fontWeight: "bold",
-                        color: "red",
+                        background: "#EAA64D",
                       }}
                     >
-                      {selectedParty}
-                    </strong>
-                  </span>
-                </div>
+                      <ArrowBackIcon />
+                      Back
+                    </Button>
+                  </div>
+                </>
               ) : (
-                ""
-              )}
-              <div className={styles.detailsContainer}>
-                {touchValue ? (
-                  <span>
-                    Touch:{" "}
-                    <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-                      {touchValue}
-                    </span>
-                  </span>
-                ) : (
-                  ""
-                )}
-                {wastageValue ? (
-                  <>
-                    |{" "}
-                    <span>
-                      Wastage:{" "}
-                      <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-                        {wastageValue}
-                      </span>
-                    </span>
-                  </>
-                ) : (
-                  ""
-                )}
-                {tableData.length > 0 ? (
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    className={styles.filesButton}
-                    onClick={() => {
-                      setDrawerOpen(true);
+                <>
+                  <img
+                    src={photos[index]}
+                    alt="Captured"
+                    style={{
+                      width: "100%",
+                      maxWidth: 400,
+                      borderRadius: 8,
                     }}
-                  >
-                    Total
-                  </Button>
-                ) : (
-                  ""
-                )}
-                {stonesData.length > 0 ? (
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    className={styles.stoneButton}
-                    onClick={() => {
-                      setStonesDrawerOpen(true);
-                    }}
-                  >
-                    Stone
-                  </Button>
-                ) : (
-                  ""
-                )}
-              </div>
-            </div>
-          </div>
-          <div className={styles.cardContainer}>
-            <div className={styles.estimationTagContainer}>
-              <div className={styles.tagNoSection}>
-                <span className={styles.tagLabel}>Tag No:</span>
-                <Input
-                  // placeholder="Enter Tag No"
-                  ref={tagNoRef}
-                  className={styles.tagInput}
-                  onKeyDown={handleTagNoKeyDown}
-                  disabled={selectedParty ? false : true}
-                  value={tagNoValue}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    if (value.length <= 8) {
-                      setTagNoValue(value);
-                    }
-                  }}
-                />
-              </div>
-
-              <div className={styles.buttonSection}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className={styles.submitButton}
-                  ref={submitRef}
-                  onClick={() => {
-                    if (!tagNoValue) {
-                      message.warning("Enter Tag No");
-                    } else if (path === "/estimations-model2") {
-                      mainAPI();
-                      setTagNoValue("");
-                    } else {
-                      stonesAPI();
-                      mainAPI();
-                      setTagNoValue("");
-                    }
-                  }}
-                >
-                  Submit
-                </Button>
-
-                <Button
-                  type="primary"
-                  danger
-                  className={styles.resetButton}
-                  onClick={handleReset}
-                >
-                  Reset
-                </Button>
-                <Button
-                  type="dashed"
-                  danger
-                  className={styles.filesButton}
-                  onClick={() => {
-                    setOpenDialog(true);
-                  }}
-                >
-                  Files
-                </Button>
-                {selectedParty && touchValue && wastageValue && (
+                  />
+                  <br />
                   <div
-                    onClick={handleToggleScan}
-                    style={{ width: "20px", height: "20px" }}
+                    style={{
+                      display: "flex",
+                      alignContent: "center",
+                      justifyContent: "center",
+                      marginTop: "5px",
+                      gap: "5px",
+                    }}
                   >
-                    <ScanOutlined
+                    <Button
                       style={{
-                        fontSize: "25px",
-                        color: scanOpen === true ? "#162566" : "#eb14bcff",
+                        background: "#91C8E4",
                       }}
+                      onClick={() =>
+                        setPhotos((prev) => ({ ...prev, [index]: null }))
+                      }
+                    >
+                      Retake
+                    </Button>
+                    <Button
+                      style={{
+                        background: "#EAA64D",
+                      }}
+                      onClick={handleCameraCancel}
+                    >
+                      <ArrowBackIcon />
+                      Back
+                    </Button>
+                  </div>
+                </>
+              )
+            ) : (
+              <>
+                {/* Tag No */}
+                <div key={index} className={styles.infoBox}>
+                  <div className={styles.rowTag}>
+                    <p>
+                      <span
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                          borderRadius: "50%",
+                          padding: "5px",
+                          background: "red",
+                          color: "white",
+                        }}
+                      >
+                        #{index + 1}
+                      </span>
+                    </p>
+                    <p>
+                      <span style={{ fontSize: "20px", fontWeight: "bold" }}>
+                        {item.TAGNO}
+                      </span>
+                    </p>
+                    {item?.IMGPATH || photos[index] ? (
+                      <div>
+                        <Box
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: "50%",
+                            backgroundColor: "black",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            border: "2px solid #52bd91",
+                          }}
+                          onClick={() => {
+                            handleImageOk(photos[index] || item?.IMGPATH);
+                          }}
+                        >
+                          <img
+                            src={photos[index] || item?.IMGPATH}
+                            alt="img"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              borderRadius: "50%",
+                            }}
+                          />
+                        </Box>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                    <PhotoCameraIcon
+                      style={{ color: "#000000" }}
+                      onClick={() =>
+                        handleCameraOk(index, item.TAGNO, item?.IMGPATH)
+                      }
+                    />
+                    <DeleteOutlined
+                      style={{
+                        color: "red",
+                        cursor: "pointer",
+                        fontSize: "20px",
+                      }}
+                      onClick={() => handleDelete(index)}
                     />
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
+                  <hr className={styles.fullWidthLine} />
 
-          <div className={styles.cardContainer}>
-            {tableData?.map((item, index) => (
-              <div key={index} className={styles.infoBox}>
-                {/* Tag No */}
-                <div className={styles.rowTag}>
-                  <p>
-                    <span
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: "bold",
-                        borderRadius: "50%",
-                        padding: "5px",
-                        background: "red",
-                        color: "white",
-                      }}
-                    >
-                      #{index + 1}
-                    </span>
-                  </p>
-                  <p>
-                    <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-                      {item.TAGNO}
-                    </span>
-                  </p>
-                  <div>
-                    <Box
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: "50%",
-                        backgroundColor: "black",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        border: "2px solid #52bd91",
-                      }}
-                      onClick={() => {
-                        handleImageOk(item?.IMGPATH);
-                      }}
-                    >
-                      <img
-                        src={item?.IMGPATH}
-                        alt="img"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "50%",
+                  {/* Item and Purity */}
+                  <div className={styles.row}>
+                    <p style={{ fontSize: "12px" }}>
+                      Item:{" "}
+                      <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                        {item.PRODNAME}
+                      </span>
+                    </p>
+                    {item.IMGPATH || photos[index] ? (
+                      <div
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          if (photos[index]) {
+                            imageUploadAPI(index, item.TAGNO);
+                          } else {
+                            createImagePathAPI(item?.IMGPATH, item.TAGNO);
+                          }
                         }}
-                      />
-                    </Box>
+                      >
+                        <UpgradeIcon
+                          style={{ color: "#007d32", fontSize: "30px" }}
+                        />
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                    <p style={{ fontSize: "12px" }}>
+                      Purity:{" "}
+                      <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                        {item.PREFIX}
+                      </span>
+                    </p>
                   </div>
-                  <PhotoCameraIcon
-                    style={{ color: "#000000" }}
-                    onClick={() => {
-                      handleCameraOk();
-                      setImageUrl(item?.IMGPATH);
-                      setPhoto(item?.IMGPATH);
-                      setTagNo(item?.TAGNO);
-                    }}
-                  />
-                  <DeleteOutlined
-                    style={{
-                      color: "red",
-                      cursor: "pointer",
-                      fontSize: "20px",
-                    }}
-                    onClick={() => handleDelete(index)}
-                  />
-                </div>
-                <hr className={styles.fullWidthLine} />
+                  <hr className={styles.fullWidthLine} />
 
-                {/* Item and Purity */}
-                <div className={styles.row}>
-                  <p style={{ fontSize: "12px" }}>
-                    Item:{" "}
-                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                      {item.PRODNAME}
-                    </span>
-                  </p>
-                  <div
-                    style={{ cursor: "pointer" }}
-                    disabled={!photo}
-                    onClick={() => {
-                      if (photo && photo.startsWith("data:image")) {
-                        imageUploadAPI();
-                      } else {
-                        createImagePathAPI();
-                      }
-                    }}
-                  >
-                    <UpgradeIcon style={{ color: "#007d32", fontSize: "30px" }}/>
-                  </div>
-                  <p style={{ fontSize: "12px" }}>
-                    Purity:{" "}
-                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                      {item.PREFIX}
-                    </span>
-                  </p>
-                </div>
-                <hr className={styles.fullWidthLine} />
-
-                {/* Gross Wt, Less Wt, Net Wt */}
-                <div className={styles.row}>
-                  <p style={{ fontSize: "12px" }}>
-                    Gross Wt:{" "}
-                    <span
-                      style={{
-                        color: "red",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {Number(item.GROSSWEIGHT)?.toFixed(3)}
-                    </span>
-                  </p>
-                  <p style={{ fontSize: "12px" }}>
-                    Less Wt:{" "}
-                    <span
-                      style={{
-                        color: "red",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {Number(item.STONEWT)?.toFixed(3)}
-                    </span>
-                  </p>
-                  <p style={{ fontSize: "12px" }}>
-                    Net Wt:{" "}
-                    <span
-                      style={{
-                        color: "red",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {Number(item.NETWT)?.toFixed(3)}
-                    </span>
-                  </p>
-                </div>
-                <hr className={styles.fullWidthLine} />
-
-                {/* Touch and Fine Gold */}
-                <div className={styles.row}>
-                  <p style={{ fontSize: "12px" }}>
-                    Touch:{" "}
-                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                      {item.TOUCH}
-                    </span>
-                  </p>
-                  <p style={{ fontSize: "12px" }}>
-                    Fine Gold:{" "}
-                    <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                      {Number(item.FINALGOLD)?.toFixed(3)}
-                    </span>
-                  </p>
-                </div>
-                {path === "/estimations-model1" ? (
-                  <>
-                    <hr className={styles.fullWidthLine} />
-                    <div className={styles.fullWidthStone}>
-                      <p
+                  {/* Gross Wt, Less Wt, Net Wt */}
+                  <div className={styles.row}>
+                    <p style={{ fontSize: "12px" }}>
+                      Gross Wt:{" "}
+                      <span
                         style={{
+                          color: "red",
                           fontSize: "14px",
-                          padding: "0px 8px 0px 8px",
                           fontWeight: "bold",
                         }}
                       >
-                        {(() => {
-                          const actGrams =
-                            stoneMainData.find(
-                              (stone) => stone.TAGNO === item.TAGNO
-                            )?.ACTGRAMS || "";
-
-                          const removeUndefinedWrapper = (str) => {
-                            let prevStr;
-                            do {
-                              prevStr = str;
-                              str = str
-                                .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
-                                .trim();
-                            } while (prevStr !== str);
-                            return str;
-                          };
-
-                          return removeUndefinedWrapper(actGrams);
-                        })()}
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  ""
-                )}
-              </div>
-            ))}
-          </div>
-          <>
-            {scanOpen === true && (
-              <>
-                {!qrOpen && (
-                  <div
-                    className={styles.scanIconContainer}
-                    onClick={handleOpenScanner}
-                  >
-                    <QrCodeScannerIcon
-                      style={{ fontSize: 30, color: "white" }}
-                    />
+                        {Number(item.GROSSWEIGHT)?.toFixed(3)}
+                      </span>
+                    </p>
+                    <p style={{ fontSize: "12px" }}>
+                      Less Wt:{" "}
+                      <span
+                        style={{
+                          color: "red",
+                          fontSize: "14px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {Number(item.STONEWT)?.toFixed(3)}
+                      </span>
+                    </p>
+                    <p style={{ fontSize: "12px" }}>
+                      Net Wt:{" "}
+                      <span
+                        style={{
+                          color: "red",
+                          fontSize: "14px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {Number(item.NETWT)?.toFixed(3)}
+                      </span>
+                    </p>
                   </div>
-                )}
+                  <hr className={styles.fullWidthLine} />
+
+                  {/* Touch and Fine Gold */}
+                  <div className={styles.row}>
+                    <p style={{ fontSize: "12px" }}>
+                      Touch:{" "}
+                      <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                        {item.TOUCH}
+                      </span>
+                    </p>
+                    <p style={{ fontSize: "12px" }}>
+                      Fine Gold:{" "}
+                      <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                        {Number(item.FINALGOLD)?.toFixed(3)}
+                      </span>
+                    </p>
+                  </div>
+                  {path === "/estimations-model1" ? (
+                    <>
+                      <hr className={styles.fullWidthLine} />
+                      <div className={styles.fullWidthStone}>
+                        <p
+                          style={{
+                            fontSize: "14px",
+                            padding: "0px 8px 0px 8px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {(() => {
+                            const actGrams =
+                              stoneMainData.find(
+                                (stone) => stone.TAGNO === item.TAGNO
+                              )?.ACTGRAMS || "";
+
+                            const removeUndefinedWrapper = (str) => {
+                              let prevStr;
+                              do {
+                                prevStr = str;
+                                str = str
+                                  .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
+                                  .trim();
+                              } while (prevStr !== str);
+                              return str;
+                            };
+
+                            return removeUndefinedWrapper(actGrams);
+                          })()}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    ""
+                  )}
+                </div>
               </>
             )}
-
-            {qrOpen && (
-              <div className={styles.qrScannerOverlay}>
-                <div className={styles.qrScannerContent}>
-                  <div className={styles.closeIcon} onClick={stopScanner}>
-                    <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
-                  </div>
-                  <div
-                    id="qr-reader"
-                    style={{ width: "300px", height: "300px" }}
-                  ></div>
-                </div>
+          </>
+        ))}
+      </div>
+      <>
+        {scanOpen === true && (
+          <>
+            {!qrOpen && (
+              <div
+                className={styles.scanIconContainer}
+                onClick={handleOpenScanner}
+              >
+                <QrCodeScannerIcon style={{ fontSize: 30, color: "white" }} />
               </div>
             )}
           </>
-          <ImageDialog
-            handleImageCancel={handleImageCancel}
-            imageOpen={imageOpen}
-            imageData={photo}
-          />
-          <EstimationFields
-            filterOpen={filterOpen}
-            setFilterOpen={setFilterOpen}
-            handleOk={handleOk}
-            handleCancel={handleCancel}
-            partyRef={partyRef}
-            selectedParty={selectedParty}
-            setSelectedParty={setSelectedParty}
-            handlePartyChange={handlePartyChange}
-            touchRef={touchRef}
-            handleKeyDown={handleKeyDown}
-            touchValue={touchValue}
-            setTouchValue={setTouchValue}
-            wastRef={wastRef}
-            wastageValue={wastageValue}
-            setWastageValue={setWastageValue}
-            partyNames={partyNames}
-            tableData={tableData}
-            setTableData={setTableData}
-            setTotalFineGold={setTotalFineGold}
-          />
-          <EstimationDrawer
-            drawerOpen={drawerOpen}
-            setDrawerOpen={setDrawerOpen}
-            stonesData={stonesData}
-            totalPieces={totalPieces}
-            totalGrossWeight={totalGrossWeight}
-            totalStoneWeight={totalStoneWeight}
-            totalNetWeight={totalNetWeight}
-            totalFineGold={totalFineGold}
-            totalStoneCost={totalStoneCost}
-            totalCash={totalCash}
-            selectEstimationNo={selectEstimationNo}
-            makingValue={makingValue}
-            setMakingValue={setMakingValue}
-            perGramValue={perGramValue}
-            setPerGramValue={setPerGramValue}
-            rodiumChargeValue={rodiumChargeValue}
-            setRodiumChargeValue={setRodiumChargeValue}
-            handlePrint={handlePrint}
-            handleDownloadPDF={handleDownloadPDF}
-            tableData={tableData}
-            createEstimationMast={createEstimationMast}
-            createEstimationData={createEstimationData}
-            createEstimationItems={createEstimationItems}
-            estimationDeleteData={estimationDeleteData}
-            estimationDeleteItems={estimationDeleteItems}
-            estimationDeleteMast={estimationDeleteMast}
-            handleReset={handleReset}
-            setSelectEstimationNo={setSelectEstimationNo}
-            setStoneMakingValue={setStoneMakingValue}
-            stoneMakingValue={stoneMakingValue}
-            setStonePerGramValue={setStonePerGramValue}
-            stonePerGramValue={stonePerGramValue}
-            rateCut={rateCut}
-            setRateCut={setRateCut}
-            fineGoldValue={fineGoldValue}
-            setFineGoldValue={setFineGoldValue}
-            rateValue={rateValue}
-            setRateValue={setRateValue}
-            amountValue={amountValue}
-            setAmountValue={setAmountValue}
-            metalBalanceValue={metalBalanceValue}
-            cashBalanceValue={cashBalanceValue}
-            printMenu={printMenu}
-            pdfMenu={pdfMenu}
-          />
-          <EstimationDialog
-            setOpenDialog={setOpenDialog}
-            openDialog={openDialog}
-            estimationNoDataAPI={estimationNoDataAPI}
-            setSelectedObject={setSelectedObject}
-            selectedObject={selectedObject}
-            setSelectEstimationNo={setSelectEstimationNo}
-            estimationNoItemsAPI={estimationNoItemsAPI}
-            estimationNoMastAPI={estimationNoMastAPI}
-          />
-          <EstimationStonesDrawer
-            stonesDrawerOpen={stonesDrawerOpen}
-            setStonesDrawerOpen={setStonesDrawerOpen}
-            stonesData={stonesData}
-            setStoneRate={setStoneRate}
-            stoneRate={stoneRate}
-          />
-          <SidebarDrawer
-            open={open}
-            toggleDrawer={toggleDrawer}
-            singleImage={singleImage}
-            userArea={userArea}
-            userName={userName}
-          />
-        </>
-      )}
+        )}
+
+        {qrOpen && (
+          <div className={styles.qrScannerOverlay}>
+            <div className={styles.qrScannerContent}>
+              <div className={styles.closeIcon} onClick={stopScanner}>
+                <CloseIcon style={{ fontSize: 30, color: "#fff" }} />
+              </div>
+              <div
+                id="qr-reader"
+                style={{ width: "300px", height: "300px" }}
+              ></div>
+            </div>
+          </div>
+        )}
+      </>
+      <ImageDialog
+        handleImageCancel={handleImageCancel}
+        imageOpen={imageOpen}
+        imageData={photo}
+      />
+      <EstimationFields
+        filterOpen={filterOpen}
+        setFilterOpen={setFilterOpen}
+        handleOk={handleOk}
+        handleCancel={handleCancel}
+        partyRef={partyRef}
+        selectedParty={selectedParty}
+        setSelectedParty={setSelectedParty}
+        handlePartyChange={handlePartyChange}
+        touchRef={touchRef}
+        handleKeyDown={handleKeyDown}
+        touchValue={touchValue}
+        setTouchValue={setTouchValue}
+        wastRef={wastRef}
+        wastageValue={wastageValue}
+        setWastageValue={setWastageValue}
+        partyNames={partyNames}
+        tableData={tableData}
+        setTableData={setTableData}
+        setTotalFineGold={setTotalFineGold}
+      />
+      <EstimationDrawer
+        drawerOpen={drawerOpen}
+        setDrawerOpen={setDrawerOpen}
+        stonesData={stonesData}
+        totalPieces={totalPieces}
+        totalGrossWeight={totalGrossWeight}
+        totalStoneWeight={totalStoneWeight}
+        totalNetWeight={totalNetWeight}
+        totalFineGold={totalFineGold}
+        totalStoneCost={totalStoneCost}
+        totalCash={totalCash}
+        selectEstimationNo={selectEstimationNo}
+        makingValue={makingValue}
+        setMakingValue={setMakingValue}
+        perGramValue={perGramValue}
+        setPerGramValue={setPerGramValue}
+        rodiumChargeValue={rodiumChargeValue}
+        setRodiumChargeValue={setRodiumChargeValue}
+        handlePrint={handlePrint}
+        handleDownloadPDF={handleDownloadPDF}
+        tableData={tableData}
+        createEstimationMast={createEstimationMast}
+        createEstimationData={createEstimationData}
+        createEstimationItems={createEstimationItems}
+        estimationDeleteData={estimationDeleteData}
+        estimationDeleteItems={estimationDeleteItems}
+        estimationDeleteMast={estimationDeleteMast}
+        handleReset={handleReset}
+        setSelectEstimationNo={setSelectEstimationNo}
+        setStoneMakingValue={setStoneMakingValue}
+        stoneMakingValue={stoneMakingValue}
+        setStonePerGramValue={setStonePerGramValue}
+        stonePerGramValue={stonePerGramValue}
+        rateCut={rateCut}
+        setRateCut={setRateCut}
+        fineGoldValue={fineGoldValue}
+        setFineGoldValue={setFineGoldValue}
+        rateValue={rateValue}
+        setRateValue={setRateValue}
+        amountValue={amountValue}
+        setAmountValue={setAmountValue}
+        metalBalanceValue={metalBalanceValue}
+        cashBalanceValue={cashBalanceValue}
+        printMenu={printMenu}
+        pdfMenu={pdfMenu}
+      />
+      <EstimationDialog
+        setOpenDialog={setOpenDialog}
+        openDialog={openDialog}
+        estimationNoDataAPI={estimationNoDataAPI}
+        setSelectedObject={setSelectedObject}
+        selectedObject={selectedObject}
+        setSelectEstimationNo={setSelectEstimationNo}
+        estimationNoItemsAPI={estimationNoItemsAPI}
+        estimationNoMastAPI={estimationNoMastAPI}
+      />
+      <EstimationStonesDrawer
+        stonesDrawerOpen={stonesDrawerOpen}
+        setStonesDrawerOpen={setStonesDrawerOpen}
+        stonesData={stonesData}
+        setStoneRate={setStoneRate}
+        stoneRate={stoneRate}
+      />
+      <SidebarDrawer
+        open={open}
+        toggleDrawer={toggleDrawer}
+        singleImage={singleImage}
+        userArea={userArea}
+        userName={userName}
+      />
+      {/* </>
+      )} */}
     </div>
   );
 };

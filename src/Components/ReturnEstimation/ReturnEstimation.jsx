@@ -279,6 +279,12 @@ const ReturnEstimation = () => {
 
       const data = response.data;
 
+      if (Array.isArray(data) && data.length > 0) {
+        if (scanOpen === true) {
+          message.success(`Tag ${response.data[0]?.TAGNO} Scan Successfully`);
+        }
+      }
+
       if (!Array.isArray(data) || data.length === 0) {
         message.warning("Tag Not existed");
         return;
