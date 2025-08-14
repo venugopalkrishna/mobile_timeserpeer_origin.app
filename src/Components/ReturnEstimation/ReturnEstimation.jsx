@@ -279,10 +279,14 @@ const ReturnEstimation = () => {
 
       const data = response.data;
 
-      if (Array.isArray(data) && data.length > 0) {
-        if (scanOpen === true) {
-          message.success(`Tag ${response.data[0]?.TAGNO} Scan Successfully`);
-        }
+      if (scanOpen === true && tagNo) {
+        message.success({
+          content: (
+            <span style={{ fontSize: "20px", fontWeight: "bold" }}>
+              Tag {response.data[0]?.TAGNO} Scan Successfully
+            </span>
+          ),
+        });
       }
 
       if (!Array.isArray(data) || data.length === 0) {
