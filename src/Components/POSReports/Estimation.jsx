@@ -306,12 +306,14 @@ const Estimation = () => {
       //       </span>
       //     ),
       //   });
-      // } 
+      // }
       if (scanOpen === true && tagNo) {
         message.success({
           content: (
             <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-              Tag <span style={{color:"red"}}>{response.data[0]?.TAGNO}</span> Scan Successfully
+              Tag{" "}
+              <span style={{ color: "red" }}>{response.data[0]?.TAGNO}</span>{" "}
+              Scan Successfully
             </span>
           ),
         });
@@ -1159,6 +1161,8 @@ const Estimation = () => {
     setCameraOpen(false);
     setImageOpen(false);
     setIsSupported(false);
+    setPhotos({});
+    setCameraOpenIndex(null);
   };
 
   const handleOk = () => {
@@ -3157,7 +3161,7 @@ ${
               disabled={selectedParty ? false : true}
               value={tagNoValue}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
+                const value = e.target.value.replace(/[a-zA-Z]/g, "");
                 if (value.length <= 8) {
                   setTagNoValue(value);
                 }

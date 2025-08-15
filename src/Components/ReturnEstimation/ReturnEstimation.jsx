@@ -3040,7 +3040,7 @@ ${
               disabled={selectedParty ? false : true}
               value={tagNoValue}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
+                const value = e.target.value.replace(/[a-zA-Z]/g, "");
                 if (value.length <= 8) {
                   setTagNoValue(value);
                 }
