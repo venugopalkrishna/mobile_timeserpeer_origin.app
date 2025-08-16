@@ -1454,8 +1454,8 @@ const ReturnEstimation = () => {
       <td rowspan="${cleanedActGrams ? 2 : 1}">
       
 ${
-  item.IMGPATH
-    ? `<img src="${item.IMGPATH}" 
+  item.IMGPATH || photos[index]
+    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index] }" 
              alt="Item Image" 
              style="max-width:80px; max-height:80px; object-fit:contain;" />`
     : ""
@@ -2697,11 +2697,11 @@ ${
         <td rowspan="${cleanedActGrams ? 2 : 1}">
         
   ${
-    item.IMGPATH
-      ? `<img src="${item.IMGPATH}" 
-               alt="Item Image" 
-               style="max-width:80px; max-height:80px; object-fit:contain;" />`
-      : ""
+    item.IMGPATH || photos[index]
+    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index] }" 
+             alt="Item Image" 
+             style="max-width:80px; max-height:80px; object-fit:contain;" />`
+    : ""
   }
   </td>
               <td class="sub"><strong>${item.PRODNAME}</strong></td>
