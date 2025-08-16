@@ -41,7 +41,7 @@ const TagCheck = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO=${tagNoValue}`,
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO='${tagNoValue}'`,
         {
           headers: {
             tenantName: tenantName,
@@ -71,7 +71,7 @@ const TagCheck = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO=${tagNoValue}`,
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO='${tagNoValue}'`,
         {
           headers: {
             tenantName: tenantName,

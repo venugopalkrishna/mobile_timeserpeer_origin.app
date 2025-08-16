@@ -3688,7 +3688,7 @@ ${
         }
     body {
         font-family: Arial, sans-serif;
-        margin: 5px;
+        margin: 0px;
         font-size: 12px;
     }
     .header {
