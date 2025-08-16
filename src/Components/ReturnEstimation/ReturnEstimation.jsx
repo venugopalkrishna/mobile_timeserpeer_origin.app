@@ -2150,7 +2150,7 @@ ${
             <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
             item.TAGNO
           }</strong></td>
-            <td class="sub"><strong>${item.PRODNAME}</strong></td>
+            <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
             <td>${item.PREFIX}</td>
             <td class="sub-right"><strong>${item.PIECES}</strong></td>
             <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
@@ -2366,6 +2366,11 @@ ${
             .sub {
               text-align: left;
               width: 300px;
+          }
+              .sub-pro {
+              text-align: left;
+              width: 500;
+              background-color: #BCF2F6;
           }
               .sub-tag {
               text-align: center;
@@ -2632,6 +2637,11 @@ ${
               text-align: left;
               width: 500;
           }
+              .sub-pro {
+              text-align: left;
+              width: 500;
+              background-color: #BCF2F6;
+          }
               .sub-tag {
               text-align: center;
               width: 100;
@@ -2704,7 +2714,7 @@ ${
     : ""
   }
   </td>
-              <td class="sub"><strong>${item.PRODNAME}</strong></td>
+              <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
               <td>${item.PREFIX}</td>
               <td class="sub-right"><strong>${item.PIECES}</strong></td>
               <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
