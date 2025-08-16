@@ -302,7 +302,7 @@ const TagCheck = () => {
                     autoFocus={true}
                     onKeyDown={handleTagNoKeyDown}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "");
+                      const value = e.target.value.replace(/[a-zA-Z]/g, "");
                       if (value.length <= 10) {
                         setTagNoValue(value);
                       }
