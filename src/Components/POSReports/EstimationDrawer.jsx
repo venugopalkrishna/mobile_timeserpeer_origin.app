@@ -301,7 +301,7 @@ const EstimationDrawer = ({
             }}
           >
             <label style={{ width: "50%", textAlign: "left" }}>
-              Rodium Charges
+              Other Charges
             </label>
             <span style={{ flex: 0.1 }}>:</span>
             <Input
@@ -311,7 +311,7 @@ const EstimationDrawer = ({
                 flex: 1,
                 fontSize: "15px",
               }}
-              placeholder="Rodium Charges"
+              placeholder="Other Charges"
               value={rodiumChargeValue}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "");
