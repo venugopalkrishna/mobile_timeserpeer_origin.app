@@ -3671,7 +3671,7 @@ ${
     @media print {
           @page {
             size: A4 landscape !important;
-            margin: 2mm;
+            margin: 1mm;
           }
           body {
             -webkit-print-color-adjust: exact !important;
@@ -3688,7 +3688,7 @@ ${
         }
     body {
         font-family: Arial, sans-serif;
-        margin: 20px;
+        margin: 5px;
         font-size: 12px;
     }
     .header {
