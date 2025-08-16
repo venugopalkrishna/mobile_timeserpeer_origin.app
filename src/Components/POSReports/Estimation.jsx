@@ -178,9 +178,9 @@ const Estimation = () => {
   const stonesAPI = async (tagNo) => {
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO%3D${
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO='${
           tagNoValue ? tagNoValue : tagNo
-        }`,
+        }'`,
         {
           headers: {
             tenantName: tenantName,
@@ -285,9 +285,9 @@ const Estimation = () => {
   const mainAPI = async (tagNo, stoneData) => {
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO%3D${
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO='${
           tagNoValue ? tagNoValue : tagNo
-        }`,
+        }'`,
         {
           headers: {
             tenantName: tenantName,
