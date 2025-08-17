@@ -455,9 +455,28 @@ const EstimationDrawer = ({
                 placeholder="Per Gm."
                 value={stonePerGramValue}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  if (value.length <= 8) {
-                    setStonePerGramValue(e.target.value);
+                  let value = e.target.value;
+
+                  value = value.replace(/[^0-9.]/g, "");
+
+                  const parts = value.split(".");
+                  if (parts.length > 2) {
+                    value = parts[0] + "." + parts[1];
+                  }
+                  if (parts[0].length > 8) {
+                    parts[0] = parts[0].slice(0, 8);
+                  }
+                  if (parts[1]?.length > 2) {
+                    parts[1] = parts[1].slice(0, 2);
+                  }
+
+                  value = parts.join(".");
+
+                  setStonePerGramValue(value);
+                }}
+                onBlur={() => {
+                  if (rateValue) {
+                    setStonePerGramValue(parseFloat(rateValue).toFixed(2));
                   }
                 }}
               />

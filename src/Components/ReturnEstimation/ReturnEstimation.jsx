@@ -681,16 +681,16 @@ const ReturnEstimation = () => {
         touchper: Number(touchValue),
         touch: Number(totalTouch),
         purewt: Number(Number(totalFineGold)?.toFixed(3)),
-        mcper: Number(makingValue),
-        mcamt: Number(Number(perGramValue).toFixed(3)),
+        mcper: Number(Number(makingValue)) || 0,
+        mcamt: Number(Number(perGramValue).toFixed(3)) || 0,
         stcharges: totalStoneCost
           ? Number(Number(totalStoneCost).toFixed(2))
-          : Number(Number(stonePerGramValue).toFixed(2)),
+          : Number(Number(stonePerGramValue).toFixed(2)) || 0,
         totcash: Number(Number(cashBalanceValue).toFixed(2)),
         stgmrate: "-",
         rcharges: rodiumChargeValue
           ? Number(rodiumChargeValue)
-          : Number(stoneMakingValue),
+          : Number(stoneMakingValue) || 0,
       },
     ];
 
@@ -707,6 +707,8 @@ const ReturnEstimation = () => {
       );
       let data = response?.data;
       setMastData(data[0].isInsert);
+      handleReset();
+      window.location.reload();
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -791,12 +793,18 @@ const ReturnEstimation = () => {
           slipdate: "2025-03-04T00:00:00",
           workername: "HIRU - A4",
         }));
-        const stones = data.map((item, index) => ({
-          TAGNO: item.TAGNO,
-          ACTGRAMS: item.STDET,
-        }));
-        setStoneMainData(stones);
-        setTableData(updatedData);
+        // const stones = data.map((item, index) => ({
+        //   TAGNO: item.TAGNO,
+        //   ACTGRAMS: item.STDET,
+        // }));
+        // setStoneMainData(stones);
+        // setTableData(updatedData);
+        for (const item of updatedData) {
+          if (item.TAGNO) {
+            await mainAPI(item.TAGNO);
+            await stonesAPI(item.TAGNO);
+          }
+        }
         const total = updatedData.reduce(
           (sum, item) => sum + Number(item.PIECES || 0),
           0
@@ -1003,10 +1011,10 @@ const ReturnEstimation = () => {
   };
 
   const generateFileName = (tagNo) => {
-  const timestamp = Date.now();
-  const safeTagNo = tagNo.replace(/\//g, "_"); // replace all '/' with '_'
-  return `${safeTagNo}.jpg`;
-};
+    const timestamp = Date.now();
+    const safeTagNo = tagNo.replace(/\//g, "_"); // replace all '/' with '_'
+    return `${safeTagNo}.jpg`;
+  };
 
   const imageUploadAPI = async (index, tagNo) => {
     const photo = photos[index];
@@ -1456,7 +1464,7 @@ const ReturnEstimation = () => {
       
 ${
   item.IMGPATH || photos[index]
-    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index] }" 
+    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index]}" 
              alt="Item Image" 
              style="max-width:80px; max-height:80px; object-fit:contain;" />`
     : ""
@@ -2115,42 +2123,42 @@ ${
   };
 
   const handleDownloadPDF = () => {
-      let totalPCS = 0;
-      let totalGWT = 0;
-      let totalStone = 0;
-      let totalNWT = 0;
-      let totalGold = 0;
-  
-      // Build table rows
-      const tableRows = tableData
-        .map((item, index) => {
-          const actGrams =
-            stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
-            "";
-          const removeUndefinedWrapper = (str) => {
-            let prevStr;
-            do {
-              prevStr = str;
-              str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-            } while (prevStr !== str);
-            return str;
-          };
-          const cleanedActGrams = removeUndefinedWrapper(actGrams);
-  
-          totalPCS += item.PIECES;
-          totalGWT += item.GWT;
-          totalStone += Number(item.STONEWT);
-          totalNWT += Number(item.NETWT);
-          totalGold += Number(item?.FINALGOLD);
-  
-          return `
+    let totalPCS = 0;
+    let totalGWT = 0;
+    let totalStone = 0;
+    let totalNWT = 0;
+    let totalGold = 0;
+
+    // Build table rows
+    const tableRows = tableData
+      .map((item, index) => {
+        const actGrams =
+          stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+          "";
+        const removeUndefinedWrapper = (str) => {
+          let prevStr;
+          do {
+            prevStr = str;
+            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+          } while (prevStr !== str);
+          return str;
+        };
+        const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+        totalPCS += item.PIECES;
+        totalGWT += item.GWT;
+        totalStone += Number(item.STONEWT);
+        totalNWT += Number(item.NETWT);
+        totalGold += Number(item?.FINALGOLD);
+
+        return `
           <tr>
             <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-            index + 1
-          }</strong></td>
+          index + 1
+        }</strong></td>
             <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-            item.TAGNO
-          }</strong></td>
+          item.TAGNO
+        }</strong></td>
             <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
             <td>${item.PREFIX}</td>
             <td class="sub-right"><strong>${item.PIECES}</strong></td>
@@ -2166,11 +2174,11 @@ ${
               : ""
           }
         `;
-        })
-        .join("");
-  
-      // Totals row
-      const totalsRow = `
+      })
+      .join("");
+
+    // Totals row
+    const totalsRow = `
       <tr class="total">
         <td colspan="4">Total</td>
         <td>${totalPCS}</td>
@@ -2181,11 +2189,11 @@ ${
         <td>${Number(totalGold)?.toFixed(3)}</td>
       </tr>
     `;
-  
-      // Stones table if applicable
-      const stonesTable =
-        path === "/estimations-model1"
-          ? `
+
+    // Stones table if applicable
+    const stonesTable =
+      path === "/estimations-model1"
+        ? `
           <div class="table-container">
             <table>
               <thead>
@@ -2212,7 +2220,9 @@ ${
                         <tr>
                           <td class="stone-name">${stone.MAINTYPE}</td>
                           <td>${stone.PCS}</td>
-                          <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
+                          <td class="sub-right">${stone.ACTGRAMS.toFixed(
+                            3
+                          )}</td>
                           <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
                           <td class="sub-right">${amount.toFixed(2)}</td>
                         </tr>
@@ -2231,10 +2241,10 @@ ${
             </table>
           </div>
         `
-          : "";
-  
-      // Summary table
-      const summaryTable = `
+        : "";
+
+    // Summary table
+    const summaryTable = `
       <div class="summary-container">
         <table>
           <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
@@ -2242,9 +2252,9 @@ ${
           )}</td></tr>
           ${
             rateCut === true
-              ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
-                  rateValue || 0
-                )}/-</td>
+              ? `<tr><td class="stone-name">Fine ${
+                  fineGoldValue || 0
+                } @${Number(rateValue || 0)}/-</td>
                   <td class="sub-right">${
                     amountValue ? Number(amountValue).toFixed(2) : 0
                   }</td></tr>`
@@ -2253,8 +2263,8 @@ ${
           <tr><td class="stone-name">Making ${
             makingValue || 0
           } /g</td><td class="sub-right">${
-        perGramValue ? Number(perGramValue).toFixed(2) : 0
-      }</td></tr>
+      perGramValue ? Number(perGramValue).toFixed(2) : 0
+    }</td></tr>
           ${
             path === "/estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
@@ -2279,9 +2289,9 @@ ${
         </table>
       </div>
     `;
-  
-      // Build full HTML content
-      const htmlContent = `
+
+    // Build full HTML content
+    const htmlContent = `
       <html>
         <head>
           <style>
@@ -2431,44 +2441,44 @@ ${
         </body>
       </html>
     `;
-  
-      // Create container for html2pdf
-      const container = document.createElement("div");
-      container.innerHTML = htmlContent;
-      document.body.appendChild(container);
-  
-      html2pdf()
-        .set({
-          margin: [10, 5, 10, 5],
-          filename: `Estimation-${
-            selectEstimationNo
-              ? selectEstimationNo?.ESTIMATIONNO
-              : estimationCount + 1
-          }.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-        })
-        .from(container)
-        .save()
-        .then(() => {
-          document.body.removeChild(container);
-        });
-    };
-  
-    const handleLandScapDownloadPDF = () => {
-      const printWindow = window.open("", "", "height=700,width=900");
-  
-      printWindow.document.write(
-        `<html><head><title>Estimation_${
+
+    // Create container for html2pdf
+    const container = document.createElement("div");
+    container.innerHTML = htmlContent;
+    document.body.appendChild(container);
+
+    html2pdf()
+      .set({
+        margin: [10, 5, 10, 5],
+        filename: `Estimation-${
           selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1
-        }</title><style>`
-      );
-  
-      // Force landscape orientation
-      printWindow.document.write(`
+        }.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+      })
+      .from(container)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+      });
+  };
+
+  const handleLandScapDownloadPDF = () => {
+    const printWindow = window.open("", "", "height=700,width=900");
+
+    printWindow.document.write(
+      `<html><head><title>Estimation_${
+        selectEstimationNo
+          ? selectEstimationNo?.ESTIMATIONNO
+          : estimationCount + 1
+      }</title><style>`
+    );
+
+    // Force landscape orientation
+    printWindow.document.write(`
       @media print {
             @page {
               size: A4 landscape !important;
@@ -2567,11 +2577,11 @@ ${
           font-size: 12px;
       }
     `);
-  
-      printWindow.document.write("</style></head><body>");
-  
-      // Header Section
-      printWindow.document.write(`
+
+    printWindow.document.write("</style></head><body>");
+
+    // Header Section
+    printWindow.document.write(`
       <div class="header">
           <h2>ESTIMATION</h2>
       </div>
@@ -2589,9 +2599,9 @@ ${
           <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
       </div>
     `);
-  
-      // Main Table
-      printWindow.document.write(`
+
+    // Main Table
+    printWindow.document.write(`
       <style>
           table {
               width: 100%;
@@ -2676,72 +2686,74 @@ ${
           </thead>
           <tbody>
     `);
-  
-      let totalPCS = 0;
-      let totalGWT = 0;
-      let totalStone = 0;
-      let totalNWT = 0;
-      let totalGold = 0;
-  
-      tableData.forEach((item, index) => {
-        const actGrams =
-          stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
-          "";
-        const removeUndefinedWrapper = (str) => {
-          let prevStr;
-          do {
-            prevStr = str;
-            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-          } while (prevStr !== str);
-          return str;
-        };
-        const cleanedActGrams = removeUndefinedWrapper(actGrams);
-  
-        printWindow.document.write(`
+
+    let totalPCS = 0;
+    let totalGWT = 0;
+    let totalStone = 0;
+    let totalNWT = 0;
+    let totalGold = 0;
+
+    tableData.forEach((item, index) => {
+      const actGrams =
+        stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+        "";
+      const removeUndefinedWrapper = (str) => {
+        let prevStr;
+        do {
+          prevStr = str;
+          str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+        } while (prevStr !== str);
+        return str;
+      };
+      const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+      printWindow.document.write(`
           <tr>
               <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          index + 1
-        }</strong></td>
-              <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          item.TAGNO
-        }</strong></td>
+        index + 1
+      }</strong></td>
+              <td class="sub-tag" rowspan="${
+                cleanedActGrams ? 2 : 1
+              }"><strong>${item.TAGNO}</strong></td>
         <td rowspan="${cleanedActGrams ? 2 : 1}">
         
   ${
     item.IMGPATH || photos[index]
-    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index] }" 
+      ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index]}" 
              alt="Item Image" 
              style="max-width:80px; max-height:80px; object-fit:contain;" />`
-    : ""
+      : ""
   }
   </td>
               <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
               <td>${item.PREFIX}</td>
               <td class="sub-right"><strong>${item.PIECES}</strong></td>
-              <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+              <td class="sub-right"><strong>${item.GWT?.toFixed(
+                3
+              )}</strong></td>
               <td class="sub-right">${item.STONEWT}</td>
               <td class="sub-right">${item.NETWT}</td>
               <td class="sub-right">${item.TOUCH}%</td>
               <td class="sub-gold">${item.FINALGOLD}</td>
           </tr>
       `);
-  
-        if (cleanedActGrams) {
-          printWindow.document.write(`
+
+      if (cleanedActGrams) {
+        printWindow.document.write(`
           <tr class="sub-row">
               <td colspan="10" class="sub-text">${cleanedActGrams}</td>
           </tr>
         `);
-        }
-  
-        totalPCS += item.PIECES;
-        totalGWT += item.GWT;
-        totalStone += Number(item.STONEWT);
-        totalNWT += Number(item.NETWT);
-        totalGold += Number(item?.FINALGOLD);
-      });
-  
-      printWindow.document.write(`
+      }
+
+      totalPCS += item.PIECES;
+      totalGWT += item.GWT;
+      totalStone += Number(item.STONEWT);
+      totalNWT += Number(item.NETWT);
+      totalGold += Number(item?.FINALGOLD);
+    });
+
+    printWindow.document.write(`
           <tr class="total">
               <td colspan="5" class="sub-total">Total</td>
               <td>${totalPCS}</td>
@@ -2754,26 +2766,26 @@ ${
       </tbody>
     </table>
     `);
-  
-      if (path === "/estimations-model1") {
-        generateEstimationPrint({
-          showStonesTable: true,
-          includeRodiumCharges: true,
-          rateCutChange: true,
-        });
-      } else if (path === "/estimations-model2") {
-        generateEstimationPrint({
-          showStonesTable: false,
-          includeRodiumCharges: false,
-          rateCutChange: true,
-        });
-      }
-  
-      function generateEstimationPrint({
-        showStonesTable,
-        includeRodiumCharges,
-      }) {
-        printWindow.document.write(`
+
+    if (path === "/estimations-model1") {
+      generateEstimationPrint({
+        showStonesTable: true,
+        includeRodiumCharges: true,
+        rateCutChange: true,
+      });
+    } else if (path === "/estimations-model2") {
+      generateEstimationPrint({
+        showStonesTable: false,
+        includeRodiumCharges: false,
+        rateCutChange: true,
+      });
+    }
+
+    function generateEstimationPrint({
+      showStonesTable,
+      includeRodiumCharges,
+    }) {
+      printWindow.document.write(`
         <style>
           .container {
             display: flex;
@@ -2832,12 +2844,12 @@ ${
   
         <div class="container">
       `);
-  
-        if (showStonesTable) {
-          let totalStoneWeight = 0;
-          let totalAmount = 0;
-  
-          printWindow.document.write(`
+
+      if (showStonesTable) {
+        let totalStoneWeight = 0;
+        let totalAmount = 0;
+
+        printWindow.document.write(`
           <div class="table-container">
             <table>
               <thead>
@@ -2851,14 +2863,14 @@ ${
               </thead>
               <tbody>
         `);
-  
-          stonesData.forEach((stone, index) => {
-            const rate = stoneRate[index] || 0;
-            const amount = stone.ACTGRAMS * Number(rate);
-            totalAmount += amount;
-            totalStoneWeight += stone.ACTGRAMS;
-  
-            printWindow.document.write(`
+
+        stonesData.forEach((stone, index) => {
+          const rate = stoneRate[index] || 0;
+          const amount = stone.ACTGRAMS * Number(rate);
+          totalAmount += amount;
+          totalStoneWeight += stone.ACTGRAMS;
+
+          printWindow.document.write(`
             <tr>
               <td class="stone-name">${stone.MAINTYPE}</td>
               <td>${stone.PCS}</td>
@@ -2867,9 +2879,9 @@ ${
               <td class="sub-right">${amount.toFixed(2)}</td>
             </tr>
           `);
-          });
-  
-          printWindow.document.write(`
+        });
+
+        printWindow.document.write(`
                 <tr class="total">
                   <td colspan="2"></td>
                   <td>${totalStoneWeight.toFixed(3)}</td>
@@ -2880,9 +2892,9 @@ ${
             </table>
           </div>
         `);
-        }
-  
-        printWindow.document.write(`
+      }
+
+      printWindow.document.write(`
         <div class="summary-container">
           <table>
             <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
@@ -2903,8 +2915,8 @@ ${
             <tr><td class="stone-name">Making ${
               makingValue || 0
             } /g</td><td class="sub-right">${
-          perGramValue ? Number(perGramValue).toFixed(2) : 0
-        }</td></tr>
+        perGramValue ? Number(perGramValue).toFixed(2) : 0
+      }</td></tr>
             ${
               includeRodiumCharges
                 ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
@@ -2917,7 +2929,9 @@ ${
                     stoneMakingValue || 0
                   } /g</td>
                    <td class="sub-right">${
-                     stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+                     stonePerGramValue
+                       ? Number(stonePerGramValue).toFixed(2)
+                       : 0
                    }</td></tr>`
             }
             <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
@@ -2930,12 +2944,12 @@ ${
         </div>
       </div>
       `);
-      }
-  
-      printWindow.document.write("</body></html>");
-      printWindow.document.close();
-      printWindow.print();
-    };
+    }
+
+    printWindow.document.write("</body></html>");
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   const handlePrintClick = ({ key }) => {
     if (key === "1") {

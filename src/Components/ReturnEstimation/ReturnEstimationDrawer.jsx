@@ -154,7 +154,7 @@ const ReturnEstimationDrawer = ({
             padding: "8px",
             color: "white",
             background: "#0a1a53",
-            marginBottom: "5px"
+            marginBottom: "5px",
           }}
         >
           {" "}
@@ -182,7 +182,7 @@ const ReturnEstimationDrawer = ({
             style={{
               width: "25%",
               textAlign: "left",
-              whiteSpace: "nowrap", 
+              whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
             }}
@@ -197,15 +197,19 @@ const ReturnEstimationDrawer = ({
             onChange={(e) => {
               let value = e.target.value;
               value = value.replace(/[^0-9.]/g, "");
+
               const parts = value.split(".");
               if (parts.length > 2) {
                 value = parts[0] + "." + parts[1];
               }
               if (parts[0].length > 8) {
                 parts[0] = parts[0].slice(0, 8);
-                value = parts.join(".");
+              }
+              if (parts[1]?.length > 3) {
+                parts[1] = parts[1].slice(0, 3);
               }
 
+              value = parts.join(".");
               setFineGoldValue(value);
             }}
             onBlur={() => {
@@ -227,10 +231,33 @@ const ReturnEstimationDrawer = ({
             placeholder="Rate"
             disabled={rateCut === false}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 8) {
-                setRateValue(value);
-                setAmountValue(value ? (value * fineGoldValue)?.toFixed(2) : 0);
+              let value = e.target.value;
+
+              value = value.replace(/[^0-9.]/g, "");
+
+              const parts = value.split(".");
+              if (parts.length > 2) {
+                value = parts[0] + "." + parts[1];
+              }
+              if (parts[0].length > 8) {
+                parts[0] = parts[0].slice(0, 8);
+              }
+              if (parts[1]?.length > 2) {
+                parts[1] = parts[1].slice(0, 2);
+              }
+
+              value = parts.join(".");
+
+              setRateValue(value);
+              setAmountValue(
+                value && fineGoldValue
+                  ? (parseFloat(value) * fineGoldValue).toFixed(2)
+                  : 0
+              );
+            }}
+            onBlur={() => {
+              if (rateValue) {
+                setRateValue(parseFloat(rateValue).toFixed(2));
               }
             }}
           />
@@ -256,9 +283,26 @@ const ReturnEstimationDrawer = ({
             disabled={rateCut === false}
             value={amountValue}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 8) {
-                setAmountValue(e.target.value);
+              let value = e.target.value;
+              value = value.replace(/[^0-9.]/g, "");
+
+              const parts = value.split(".");
+              if (parts.length > 2) {
+                value = parts[0] + "." + parts[1];
+              }
+              if (parts[0].length > 8) {
+                parts[0] = parts[0].slice(0, 8);
+              }
+              if (parts[1]?.length > 2) {
+                parts[1] = parts[1].slice(0, 2);
+              }
+
+              value = parts.join(".");
+              setAmountValue(value);
+            }}
+            onBlur={() => {
+              if (amountValue) {
+                setAmountValue(parseFloat(amountValue).toFixed(2));
               }
             }}
           />
@@ -297,9 +341,28 @@ const ReturnEstimationDrawer = ({
             placeholder="Per Gm."
             value={perGramValue}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 8) {
-                setPerGramValue(e.target.value);
+              let value = e.target.value;
+
+              value = value.replace(/[^0-9.]/g, "");
+
+              const parts = value.split(".");
+              if (parts.length > 2) {
+                value = parts[0] + "." + parts[1];
+              }
+              if (parts[0].length > 8) {
+                parts[0] = parts[0].slice(0, 8);
+              }
+              if (parts[1]?.length > 2) {
+                parts[1] = parts[1].slice(0, 2);
+              }
+
+              value = parts.join(".");
+
+              setPerGramValue(value);
+            }}
+            onBlur={() => {
+              if (rateValue) {
+                setPerGramValue(parseFloat(rateValue).toFixed(2));
               }
             }}
           />
@@ -327,9 +390,28 @@ const ReturnEstimationDrawer = ({
               placeholder="Other Charges"
               value={rodiumChargeValue}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                if (value.length <= 8) {
-                  setRodiumChargeValue(e.target.value);
+                let value = e.target.value;
+
+                value = value.replace(/[^0-9.]/g, "");
+
+                const parts = value.split(".");
+                if (parts.length > 2) {
+                  value = parts[0] + "." + parts[1];
+                }
+                if (parts[0].length > 8) {
+                  parts[0] = parts[0].slice(0, 8);
+                }
+                if (parts[1]?.length > 2) {
+                  parts[1] = parts[1].slice(0, 2);
+                }
+
+                value = parts.join(".");
+
+                setRodiumChargeValue(value);
+              }}
+              onBlur={() => {
+                if (rateValue) {
+                  setRodiumChargeValue(parseFloat(rateValue).toFixed(2));
                 }
               }}
             />
@@ -373,9 +455,28 @@ const ReturnEstimationDrawer = ({
                 placeholder="Per Gm."
                 value={stonePerGramValue}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  if (value.length <= 8) {
-                    setStonePerGramValue(e.target.value);
+                  let value = e.target.value;
+
+                  value = value.replace(/[^0-9.]/g, "");
+
+                  const parts = value.split(".");
+                  if (parts.length > 2) {
+                    value = parts[0] + "." + parts[1];
+                  }
+                  if (parts[0].length > 8) {
+                    parts[0] = parts[0].slice(0, 8);
+                  }
+                  if (parts[1]?.length > 2) {
+                    parts[1] = parts[1].slice(0, 2);
+                  }
+
+                  value = parts.join(".");
+
+                  setStonePerGramValue(value);
+                }}
+                onBlur={() => {
+                  if (rateValue) {
+                    setStonePerGramValue(parseFloat(rateValue).toFixed(2));
                   }
                 }}
               />
@@ -490,20 +591,19 @@ const ReturnEstimationDrawer = ({
           onClick={() => {
             const isModel2 = path === "/return-estimations-model2";
             if (tableData.length > 0) {
-                    if (selectEstimationNo?.ESTIMATIONNO) {
-                      estimationDeleteItems();
-                      estimationDeleteData();
-                      estimationDeleteMast();
-                    }
-                    if (tableData.length > 0) {
-                      createEstimationMast();
-                      createEstimationItems();
-                      createEstimationData();
-                      setSelectEstimationNo(null);
-                      handleReset();
-                      onClose();
-                    }
-                  }
+              if (selectEstimationNo?.ESTIMATIONNO) {
+                estimationDeleteItems();
+                estimationDeleteData();
+                estimationDeleteMast();
+              }
+              if (tableData.length > 0) {
+                createEstimationMast();
+                createEstimationItems();
+                createEstimationData();
+                setSelectEstimationNo(null);
+                onClose();
+              }
+            }
             // if (selectEstimationNo?.ESTIMATIONNO) {
             //   createEstimationMast();
             //   createEstimationData();
@@ -528,32 +628,32 @@ const ReturnEstimationDrawer = ({
           Save
         </Button>
         <Dropdown menu={printMenu} placement="topCenter">
-        <Button
-          type="dashed"
-          style={{
-            background: "#FFDE63",
-            borderColor: "#FFDE63",
-            width: "8rem",
-          }}
-          // onClick={handlePrint}
-          disabled={tableData.length === 0}
-        >
-          Print
-        </Button>
+          <Button
+            type="dashed"
+            style={{
+              background: "#FFDE63",
+              borderColor: "#FFDE63",
+              width: "8rem",
+            }}
+            // onClick={handlePrint}
+            disabled={tableData.length === 0}
+          >
+            Print
+          </Button>
         </Dropdown>
         <Dropdown menu={pdfMenu} placement="topCenter">
-        <Button
-          type="dashed"
-          // onClick={handleDownloadPDF}
-          disabled={tableData.length === 0}
-          style={{
-            background: "#FF7A30",
-            borderColor: "#FF7A30",
-            width: "8rem",
-          }}
-        >
-          PDF
-        </Button>
+          <Button
+            type="dashed"
+            // onClick={handleDownloadPDF}
+            disabled={tableData.length === 0}
+            style={{
+              background: "#FF7A30",
+              borderColor: "#FF7A30",
+              width: "8rem",
+            }}
+          >
+            PDF
+          </Button>
         </Dropdown>
         <Button
           type="default"
