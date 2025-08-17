@@ -29,6 +29,9 @@ const TagCheck = () => {
   const [imageOpen, setImageOpen] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
 
+  console.log(stonesData, "stonesData");
+  
+
   const imageUrls = localStorage.getItem("images")?.split(",");
   const imagesData = imageUrls?.length > 0 ? imageUrls : [];
   const userArea = localStorage.getItem("city");
@@ -55,7 +58,6 @@ const TagCheck = () => {
       //   message.warning("Tag Not existed");
       //   return;
       // }
-      handleReset();
       setTagDetailsData(data);
       setTagNo(data[0]?.TAGNO);
       setImageUrl(data[0]?.IMGPATH);
