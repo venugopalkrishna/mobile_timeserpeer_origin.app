@@ -694,16 +694,16 @@ const Estimation = () => {
         touchper: Number(touchValue),
         touch: Number(totalTouch),
         purewt: Number(Number(totalFineGold)?.toFixed(3)),
-        mcper: Number(makingValue),
-        mcamt: Number(Number(perGramValue).toFixed(3)),
+        mcper: Number(Number(makingValue)) || 0,
+        mcamt: Number(Number(perGramValue).toFixed(3)) || 0,
         stcharges: totalStoneCost
           ? Number(Number(totalStoneCost).toFixed(2))
-          : Number(Number(stonePerGramValue).toFixed(2)),
+          : Number(Number(stonePerGramValue).toFixed(2)) || 0,
         totcash: Number(Number(cashBalanceValue).toFixed(2)),
         stgmrate: "-",
         rcharges: rodiumChargeValue
           ? Number(rodiumChargeValue)
-          : Number(stoneMakingValue),
+          : Number(stoneMakingValue) || 0,
       },
     ];
 
