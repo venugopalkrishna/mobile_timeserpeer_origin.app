@@ -207,11 +207,11 @@ const ReturnEstimationDialog = ({
                 {/* Item and Purity */}
                 <div className={styles.row}>
                   <p style={{ fontSize: "11px" }}>
-                    Est Date:{" "}
+                    
                     <span style={{ fontWeight: "bold", fontSize: "12px" }}>{dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}</span>
                   </p>
                   <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                    Party Name: <span style={{ fontWeight: "bold", fontSize: "12px", color: "#52bd91" }}>{item.DESCRIPTION}</span>
+                     <span style={{ fontWeight: "bold", fontSize: "12px", color: "#52bd91" }}>{item.DESCRIPTION}</span>
                   </p>
                 </div>
                 <hr className={styles.fullWidthLine} />

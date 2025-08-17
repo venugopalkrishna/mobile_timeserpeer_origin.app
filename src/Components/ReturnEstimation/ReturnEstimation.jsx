@@ -635,9 +635,9 @@ const ReturnEstimation = () => {
           : estimationCount + 1,
         estimationdate: formattedDate,
         description: selectedParty,
-        gwt: Number(totalGrossWeight).toFixed(3),
-        stonewt: Number(totalStoneWeight).toFixed(3),
-        nwt: Number(totalNetWeight).toFixed(3),
+        gwt: Number(Number(totalGrossWeight).toFixed(3)),
+        stonewt: Number(Number(totalStoneWeight).toFixed(3)),
+        nwt: Number(Number(totalNetWeight).toFixed(3)),
         mix: 0,
         rE_EM: 0,
         rb: 0,
@@ -665,14 +665,14 @@ const ReturnEstimation = () => {
         tray: false,
         branchcode: "-",
         branchname: "-",
-        totpcs: totalPieces,
+        totpcs: Number(totalPieces),
         ssp: 0,
         appno: 0,
         appdate: formattedDate,
-        rbrate: Number(fineGoldValue)?.toFixed(3),
-        czrate: Number(rateValue)?.toFixed(2),
-        ssprate: Number(amountValue)?.toFixed(2),
-        beadsrate: Number(metalBalanceValue)?.toFixed(3),
+        rbrate: Number(Number(fineGoldValue)?.toFixed(3)) || 0,
+        czrate: Number(Number(rateValue)?.toFixed(2)) || 0,
+        ssprate: Number(Number(amountValue)?.toFixed(2)),
+        beadsrate: Number(Number(metalBalanceValue)?.toFixed(3)),
         othersrate: 0,
         mixrate: 0,
         wastper: 0,
@@ -680,17 +680,17 @@ const ReturnEstimation = () => {
         wt: 0,
         touchper: Number(touchValue),
         touch: Number(totalTouch),
-        purewt: Number(totalFineGold)?.toFixed(3),
+        purewt: Number(Number(totalFineGold)?.toFixed(3)),
         mcper: Number(makingValue),
-        mcamt: Number(perGramValue).toFixed(3),
+        mcamt: Number(Number(perGramValue).toFixed(3)),
         stcharges: totalStoneCost
-          ? Number(totalStoneCost).toFixed(2)
-          : Number(stonePerGramValue).toFixed(2),
-        totcash: Number(cashBalanceValue.toFixed(2)),
+          ? Number(Number(totalStoneCost).toFixed(2))
+          : Number(Number(stonePerGramValue).toFixed(2)),
+        totcash: Number(Number(cashBalanceValue).toFixed(2)),
         stgmrate: "-",
         rcharges: rodiumChargeValue
           ? Number(rodiumChargeValue)
-          : stoneMakingValue,
+          : Number(stoneMakingValue),
       },
     ];
 
@@ -855,7 +855,7 @@ const ReturnEstimation = () => {
 
       const data = response.data;
       console.log(data);
-      setFineGoldValue(data[0]?.RBRATE);
+      setFineGoldValue(data[0]?.RBRATE?.toFixed(3));
       setRateValue(data[0]?.CZRATE);
       setAmountValue(data[0]?.SSPRATE);
       setCashBalanceValue(data[0]?.TOTCASH);
@@ -1003,9 +1003,10 @@ const ReturnEstimation = () => {
   };
 
   const generateFileName = (tagNo) => {
-    const timestamp = Date.now();
-    return `${tagNo}.jpg`;
-  };
+  const timestamp = Date.now();
+  const safeTagNo = tagNo.replace(/\//g, "_"); // replace all '/' with '_'
+  return `${safeTagNo}.jpg`;
+};
 
   const imageUploadAPI = async (index, tagNo) => {
     const photo = photos[index];
@@ -1020,7 +1021,7 @@ const ReturnEstimation = () => {
         {
           fileName: renamedFileName,
           fileBase: base64Str,
-          clientName: "WHOLESALE",
+          clientName: userName,
           dbId: "",
         },
         {
@@ -1029,7 +1030,7 @@ const ReturnEstimation = () => {
       );
 
       if (response.status === 200) {
-        const imgUrl = `https://image.timeserasoftware.in/WHOLESALE/${renamedFileName}`;
+        const imgUrl = `https://image.timeserasoftware.in/${userName}/${renamedFileName}`;
         createImagePathAPI(imgUrl, tagNo);
         alert("Image uploaded successfully!");
       }
@@ -1164,7 +1165,7 @@ const ReturnEstimation = () => {
 
   useEffect(() => {
     if (rateCut === true) {
-      setFineGoldValue(totalFineGold);
+      setFineGoldValue(totalFineGold?.toFixed(3));
     } else {
       setFineGoldValue();
       setRateValue();

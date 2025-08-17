@@ -113,7 +113,8 @@ const Estimation = () => {
   const userName = localStorage.getItem("userName");
   const singleImage = localStorage.getItem("singleImage");
   const tenantName = localStorage.getItem("tenantName");
-
+  console.log(userName, "userName");
+  
   const toggleDrawer = () => {
     setOpen(false);
   };
@@ -508,6 +509,7 @@ const Estimation = () => {
     return `${year}-${month}-${day}`;
   };
   const formattedDate = selectedDate ? selectedDate.format("YYYY-MM-DD") : null;
+  
 
   const createEstimationData = async () => {
     const requestBody = tableData.map((stone, index) => {
@@ -639,72 +641,71 @@ const Estimation = () => {
   const createEstimationMast = async () => {
     const totalTouch = Number(touchValue) + Number(wastageValue);
     const requestBody = [
-  {
-    estimationtype: "estimation",
-    estimationno: selectEstimationNo
-      ? selectEstimationNo?.ESTIMATIONNO
-      : estimationCount + 1,
-    estimationdate: formattedDate,
-    description: selectedParty,
-    gwt: Number(Number(totalGrossWeight).toFixed(3)),
-    stonewt: Number(Number(totalStoneWeight).toFixed(3)),
-    nwt: Number(Number(totalNetWeight).toFixed(3)),
-    mix: 0,
-    rE_EM: 0,
-    rb: 0,
-    others: 0,
-    cz: 0,
-    re: 0,
-    rr: 0,
-    ee: 0,
-    dp: 0,
-    ds: 0,
-    ch: 0,
-    ep: 0,
-    pf: 0,
-    st: 0,
-    gr: 0,
-    ge: 0,
-    dr: 0,
-    dc: 0,
-    bd: 0,
-    bb: 0,
-    etype: "-",
-    billno: 0,
-    billdate: formattedDate,
-    status: false,
-    tray: false,
-    branchcode: "-",
-    branchname: "-",
-    totpcs: Number(totalPieces),
-    ssp: 0,
-    appno: 0,
-    appdate: formattedDate,
-    rbrate: Number(Number(fineGoldValue)?.toFixed(3)),
-    czrate: Number(Number(rateValue)?.toFixed(2)),
-    ssprate: Number(Number(amountValue)?.toFixed(2)),
-    beadsrate: Number(Number(metalBalanceValue)?.toFixed(3)),
-    othersrate: 0,
-    mixrate: 0,
-    wastper: 0,
-    wastage: Number(wastageValue),
-    wt: 0,
-    touchper: Number(touchValue),
-    touch: Number(totalTouch),
-    purewt: Number(Number(totalFineGold)?.toFixed(3)),
-    mcper: Number(makingValue),
-    mcamt: Number(Number(perGramValue).toFixed(3)),
-    stcharges: totalStoneCost
-      ? Number(Number(totalStoneCost).toFixed(2))
-      : Number(Number(stonePerGramValue).toFixed(2)),
-    totcash: Number(Number(cashBalanceValue).toFixed(2)),
-    stgmrate: "-",
-    rcharges: rodiumChargeValue
-      ? Number(rodiumChargeValue)
-      : Number(stoneMakingValue),
-  },
-];
-
+      {
+        estimationtype: "estimation",
+        estimationno: selectEstimationNo
+          ? selectEstimationNo?.ESTIMATIONNO
+          : estimationCount + 1,
+        estimationdate: formattedDate,
+        description: selectedParty,
+        gwt: Number(Number(totalGrossWeight).toFixed(3)),
+        stonewt: Number(Number(totalStoneWeight).toFixed(3)),
+        nwt: Number(Number(totalNetWeight).toFixed(3)),
+        mix: 0,
+        rE_EM: 0,
+        rb: 0,
+        others: 0,
+        cz: 0,
+        re: 0,
+        rr: 0,
+        ee: 0,
+        dp: 0,
+        ds: 0,
+        ch: 0,
+        ep: 0,
+        pf: 0,
+        st: 0,
+        gr: 0,
+        ge: 0,
+        dr: 0,
+        dc: 0,
+        bd: 0,
+        bb: 0,
+        etype: "-",
+        billno: 0,
+        billdate: formattedDate,
+        status: false,
+        tray: false,
+        branchcode: "-",
+        branchname: "-",
+        totpcs: Number(totalPieces),
+        ssp: 0,
+        appno: 0,
+        appdate: formattedDate,
+        rbrate: Number(Number(fineGoldValue)?.toFixed(3)) || 0,
+        czrate: Number(Number(rateValue)?.toFixed(2)) || 0,
+        ssprate: Number(Number(amountValue)?.toFixed(2)),
+        beadsrate: Number(Number(metalBalanceValue)?.toFixed(3)),
+        othersrate: 0,
+        mixrate: 0,
+        wastper: 0,
+        wastage: Number(wastageValue),
+        wt: 0,
+        touchper: Number(touchValue),
+        touch: Number(totalTouch),
+        purewt: Number(Number(totalFineGold)?.toFixed(3)),
+        mcper: Number(makingValue),
+        mcamt: Number(Number(perGramValue).toFixed(3)),
+        stcharges: totalStoneCost
+          ? Number(Number(totalStoneCost).toFixed(2))
+          : Number(Number(stonePerGramValue).toFixed(2)),
+        totcash: Number(Number(cashBalanceValue).toFixed(2)),
+        stgmrate: "-",
+        rcharges: rodiumChargeValue
+          ? Number(rodiumChargeValue)
+          : Number(stoneMakingValue),
+      },
+    ];
 
     try {
       const response = await axios.post(
@@ -718,6 +719,7 @@ const Estimation = () => {
         }
       );
       let data = response?.data;
+      handleReset();
       setMastData(data[0].isInsert);
     } catch (error) {
       console.error("Error posting data:", error);
@@ -1015,9 +1017,10 @@ const Estimation = () => {
   };
 
   const generateFileName = (tagNo) => {
-    const timestamp = Date.now();
-    return `${tagNo}.jpg`;
-  };
+  const timestamp = Date.now();
+  const safeTagNo = tagNo.replace(/\//g, "_"); // replace all '/' with '_'
+  return `${safeTagNo}.jpg`;
+};
 
   const imageUploadAPI = async (index, tagNo) => {
     const photo = photos[index];
@@ -1032,7 +1035,7 @@ const Estimation = () => {
         {
           fileName: renamedFileName,
           fileBase: base64Str,
-          clientName: "WHOLESALE",
+          clientName: userName,
           dbId: "",
         },
         {
@@ -1041,7 +1044,7 @@ const Estimation = () => {
       );
 
       if (response.status === 200) {
-        const imgUrl = `https://image.timeserasoftware.in/WHOLESALE/${renamedFileName}`;
+        const imgUrl = `https://image.timeserasoftware.in/${userName}/${renamedFileName}`;
         createImagePathAPI(imgUrl, tagNo);
         alert("Image uploaded successfully!");
       }
@@ -1272,7 +1275,6 @@ const Estimation = () => {
       [index]: dataUri,
     }));
   };
-  
 
   const handleLandScapePrint = () => {
     const printWindow = window.open("", "", "height=700,width=900");
@@ -1492,7 +1494,7 @@ const Estimation = () => {
       
 ${
   item.IMGPATH || photos[index]
-    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index] }" 
+    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index]}" 
              alt="Item Image" 
              style="max-width:80px; max-height:80px; object-fit:contain;" />`
     : ""
@@ -2543,7 +2545,7 @@ ${
   //           </tr>`
   //           : ""
   //       }
-          
+
   //       <tr><td class="stone-name">Making ${
   //         makingValue || 0
   //       } /g</td><td class="sub-right">${
@@ -3909,7 +3911,7 @@ ${
       
 ${
   item.IMGPATH || photos[index]
-    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index] }" 
+    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index]}" 
              alt="Item Image" 
              style="max-width:80px; max-height:80px; object-fit:contain;" />`
     : ""

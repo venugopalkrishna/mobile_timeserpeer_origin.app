@@ -154,7 +154,7 @@ const EstimationDrawer = ({
             padding: "8px",
             color: "white",
             background: "#0a1a53",
-            marginBottom: "5px"
+            marginBottom: "5px",
           }}
         >
           {" "}
@@ -182,7 +182,7 @@ const EstimationDrawer = ({
             style={{
               width: "25%",
               textAlign: "left",
-              whiteSpace: "nowrap", 
+              whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
             }}
@@ -195,9 +195,22 @@ const EstimationDrawer = ({
             placeholder="Select Fine Gold"
             value={fineGoldValue}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 8) {
-                setFineGoldValue(e.target.value);
+              let value = e.target.value;
+              value = value.replace(/[^0-9.]/g, "");
+              const parts = value.split(".");
+              if (parts.length > 2) {
+                value = parts[0] + "." + parts[1];
+              }
+              if (parts[0].length > 8) {
+                parts[0] = parts[0].slice(0, 8);
+                value = parts.join(".");
+              }
+
+              setFineGoldValue(value);
+            }}
+            onBlur={() => {
+              if (fineGoldValue) {
+                setFineGoldValue(parseFloat(fineGoldValue).toFixed(3));
               }
             }}
           />
@@ -477,20 +490,20 @@ const EstimationDrawer = ({
           onClick={() => {
             const isModel2 = path === "/estimations-model2";
             if (tableData.length > 0) {
-                    if (selectEstimationNo?.ESTIMATIONNO) {
-                      estimationDeleteItems();
-                      estimationDeleteData();
-                      estimationDeleteMast();
-                    }
-                    if (tableData.length > 0) {
-                      createEstimationMast();
-                      createEstimationItems();
-                      createEstimationData();
-                      setSelectEstimationNo(null);
-                      handleReset();
-                      onClose();
-                    }
-                  }
+              if (selectEstimationNo?.ESTIMATIONNO) {
+                estimationDeleteItems();
+                estimationDeleteData();
+                estimationDeleteMast();
+              }
+              if (tableData.length > 0) {
+                createEstimationMast();
+                createEstimationItems();
+                createEstimationData();
+                setSelectEstimationNo(null);
+                // handleReset();
+                onClose();
+              }
+            }
             // if (selectEstimationNo?.ESTIMATIONNO) {
             //   createEstimationMast();
             //   createEstimationData();
@@ -515,32 +528,32 @@ const EstimationDrawer = ({
           Save
         </Button>
         <Dropdown menu={printMenu} placement="topCenter">
-        <Button
-          type="dashed"
-          style={{
-            background: "#FFDE63",
-            borderColor: "#FFDE63",
-            width: "8rem",
-          }}
-          // onClick={handlePrint}
-          disabled={tableData.length === 0}
-        >
-          Print
-        </Button>
+          <Button
+            type="dashed"
+            style={{
+              background: "#FFDE63",
+              borderColor: "#FFDE63",
+              width: "8rem",
+            }}
+            // onClick={handlePrint}
+            disabled={tableData.length === 0}
+          >
+            Print
+          </Button>
         </Dropdown>
         <Dropdown menu={pdfMenu} placement="topCenter">
-        <Button
-          type="dashed"
-          // onClick={handleDownloadPDF}
-          disabled={tableData.length === 0}
-          style={{
-            background: "#FF7A30",
-            borderColor: "#FF7A30",
-            width: "8rem",
-          }}
-        >
-          PDF
-        </Button>
+          <Button
+            type="dashed"
+            // onClick={handleDownloadPDF}
+            disabled={tableData.length === 0}
+            style={{
+              background: "#FF7A30",
+              borderColor: "#FF7A30",
+              width: "8rem",
+            }}
+          >
+            PDF
+          </Button>
         </Dropdown>
         <Button
           type="default"

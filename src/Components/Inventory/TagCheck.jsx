@@ -111,10 +111,11 @@ const TagCheck = () => {
     return dataUri.replace(/^data:image\/\w+;base64,/, "");
   };
 
-  const generateFileName = (tagNo) => {
-    const timestamp = Date.now();
-    return `${tagNo}.jpg`;
-  };
+    const generateFileName = (tagNo) => {
+  const timestamp = Date.now();
+  const safeTagNo = tagNo.replace(/\//g, "_"); // replace all '/' with '_'
+  return `${safeTagNo}.jpg`;
+};
 
   const imageUploadAPI = async () => {
     const base64Str = getBase64Data(photo);
@@ -126,7 +127,7 @@ const TagCheck = () => {
         {
           fileName: renamedFileName,
           fileBase: base64Str,
-          clientName: "WHOLESALE",
+          clientName: userName,
           dbId: "",
         },
         {
@@ -137,7 +138,7 @@ const TagCheck = () => {
       );
 
       if (response.status === 200) {
-        const imgUrl = `https://image.timeserasoftware.in/WHOLESALE/${renamedFileName}`;
+        const imgUrl = `https://image.timeserasoftware.in/${userName}/${renamedFileName}`;
         createImagePathAPI(imgUrl);
         alert("Image uploaded successfully!");
       }
