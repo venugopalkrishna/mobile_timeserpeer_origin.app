@@ -509,7 +509,7 @@ const TagCheck = () => {
                                 fontSize: "12px",
                               }}
                             >
-                              {stone.STONENAME || "-"}
+                              {stone.MAINTYPE || "-"}
                             </span>
                           </span>
                           <span>
