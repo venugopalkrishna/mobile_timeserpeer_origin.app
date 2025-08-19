@@ -24,6 +24,15 @@ import axios from "axios";
 import dayjs from "dayjs";
 import html2pdf from "html2pdf.js";
 import { Html5Qrcode } from "html5-qrcode";
+// import {
+//   Page,
+//   Text,
+//   View,
+//   Document,
+//   StyleSheet,
+//   PDFDownloadLink,
+//   Image
+// } from "@react-pdf/renderer";
 import { useEffect, useRef, useState } from "react";
 import Camera from "react-html5-camera-photo";
 import "react-html5-camera-photo/build/css/index.css";
@@ -37,6 +46,7 @@ import EstimationDialog from "./EstimationDialog";
 import EstimationDrawer from "./EstimationDrawer";
 import EstimationFields from "./EstimationFields";
 import EstimationStonesDrawer from "./EstimationStonesDrawer";
+import logo from "../Assets/tlogo.png";
 
 const { Option } = Select;
 const Estimation = () => {
@@ -101,7 +111,7 @@ const Estimation = () => {
   const [isSupported, setIsSupported] = useState(false);
   const [photos, setPhotos] = useState({});
   const [cameraOpenIndex, setCameraOpenIndex] = useState(null);
-  console.log(qrOpen, "qrOpen");
+  const [base64Images, setBase64Images] = useState({});
 
   const formatDate = dayjs(selectEstimationNo?.ESTIMATIONDATE).format(
     "ddd, DD MMM YYYY HH:mm:ss [GMT]"
@@ -113,7 +123,6 @@ const Estimation = () => {
   const userName = localStorage.getItem("userName");
   const singleImage = localStorage.getItem("singleImage");
   const tenantName = localStorage.getItem("tenantName");
-  console.log(userName, "userName");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -1262,6 +1271,7 @@ const Estimation = () => {
     setIsSupported(false);
     setPhotos({});
     setCameraOpenIndex(null);
+    setBase64Images({});
   };
 
   const handleOk = () => {
@@ -1371,352 +1381,569 @@ const Estimation = () => {
     }));
   };
 
+  const urlToBase64 = async (url) => {
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(
+      url
+    )}`;
+    const response = await fetch(proxyUrl);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const convertAllImages = async () => {
+      const imageMap = {};
+      for (let item of tableData) {
+        if (item.IMGPATH) {
+          try {
+            imageMap[item.IMGPATH] = await urlToBase64(item.IMGPATH);
+          } catch (err) {
+            console.error("Image conversion failed:", item.IMGPATH, err);
+          }
+        }
+      }
+      setBase64Images(imageMap);
+    };
+
+  useEffect(() => {
+    convertAllImages();
+  }, [tableData]);
+  console.log(base64Images, "base64");
+  
+
+  //   const handleLandScapePrint = () => {
+  //     const printWindow = window.open("", "", "height=700,width=900");
+
+  //     printWindow.document.write(
+  //       "<html><head><title>Estimation Report</title><style>"
+  //     );
+
+  //     // Force landscape orientation
+  //     printWindow.document.write(`
+  //     @page {
+  //         size: landscape;
+  //         margin: 2mm;
+  //     }
+  //     body {
+  //         font-family: Arial, sans-serif;
+  //         margin: 20px;
+  //         font-size: 12px;
+  //     }
+  //     .header {
+  //         text-align: center;
+  //         margin-bottom: 18px;
+  //     }
+  //     .header h2 {
+  //         margin: 0;
+  //         font-size: 16px;
+  //         font-weight: bold;
+  //         display: inline-block;
+  //         text-decoration: underline;
+  //         text-underline-offset: 4px;
+  //     }
+  //     .sub-header {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         font-size: 12px;
+  //         font-weight: bold;
+  //         margin-bottom: 10px;
+  //         padding-bottom: 5px;
+  //     }
+  //     table {
+  //         width: 100%;
+  //         border-collapse: collapse;
+  //         font-size: 12px;
+  //         margin-top: 5px;
+  //     }
+  //     th, td {
+  //         border: 1px solid black;
+  //         padding: 5px;
+  //         text-align: center;
+  //     }
+  //     th {
+  //         background-color: #e0e0e0;
+  //         font-weight: bold;
+  //     }
+  //     .total {
+  //         font-weight: bold;
+  //         background-color: #ddd;
+  //     }
+  //     .summary {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         margin-top: 15px;
+  //     }
+  //     .summary-box {
+  //         width: 48%;
+  //         border: 1px solid black;
+  //         padding: 10px;
+  //         font-size: 12px;
+  //     }
+  //     .summary-box table {
+  //         width: 100%;
+  //         border: none;
+  //     }
+  //     .summary-box td {
+  //         border: none;
+  //         text-align: left;
+  //         padding: 3px 0;
+  //     }
+  //     .footer {
+  //         margin-top: 15px;
+  //         font-size: 12px;
+  //     }
+  //   `);
+
+  //     printWindow.document.write("</style></head><body>");
+
+  //     // Header Section
+  //     printWindow.document.write(`
+  //     <div class="header">
+  //         <h2>ESTIMATION</h2>
+  //     </div>
+  //     <div class="sub-header">
+  //         <span>ESTIMATION NO. : ${
+  //           selectEstimationNo
+  //             ? selectEstimationNo?.ESTIMATIONNO
+  //             : estimationCount + 1
+  //         }</span>
+  //         <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+  //           day: "2-digit",
+  //           month: "short",
+  //           year: "numeric",
+  //         })}</span>
+  //         <span>PARTY NAME : ${selectedParty}</span>
+  //     </div>
+  //   `);
+
+  //     // Main Table
+  //     printWindow.document.write(`
+  //     <style>
+  //         table {
+  //             width: 100%;
+  //             border-collapse: collapse;
+  //             border: 2px solid black;
+  //             font-family: Arial, sans-serif;
+  //             font-size: 12px;
+  //         }
+  //         th, td {
+  //             border: 1px solid black;
+  //             padding: 5px;
+  //             text-align: center;
+  //             vertical-align: middle;
+  //         }
+  //         th {
+  //             font-weight: bold;
+  //             background-color: #e0e0e0;
+  //         }
+  //         td strong {
+  //             font-size: 12px;
+  //         }
+  //         td span {
+  //             font-size: 10px;
+  //         }
+  //         .total td {
+  //             font-weight: bold;
+  //             background-color: #ddd;
+  //         }
+  //         td div.sub-text {
+  //             text-align: left;
+  //             font-size: 10px;
+  //             font-weight: bold;
+  //         }
+  //         td div.sub-value {
+  //             text-align: left;
+  //             font-size: 10px;
+  //         }
+  //         tr.sub-row td {
+  //             border-top: none;
+  //             text-align: left;
+  //         }
+  //         .sub {
+  //             text-align: left;
+  //             width: 600;
+  //         }
+  //             .sub-tag {
+  //             text-align: center;
+  //             width: 100;
+  //         }
+  //             .sub-image {
+  //             text-align: center;
+  //         }
+  //             .sub-img {
+  //             display: flex;
+  //             text-align: center;
+  //             border-radius: 10px;
+  //             width: 100%;
+  //             height: 100%;
+  //             align-items: center;
+  //         }
+  //         .sub-right {
+  //             text-align: right;
+  //             width: 80;
+  //         }
+  //             .sub-gold {
+  //             text-align: right;
+  //             width: 130;
+  //         }
+  //     </style>
+  //     <table>
+  //         <thead>
+  //             <tr>
+  //                 <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
+  //                 <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+  //             </tr>
+  //         </thead>
+  //         <tbody>
+  //   `);
+
+  //     let totalPCS = 0;
+  //     let totalGWT = 0;
+  //     let totalStone = 0;
+  //     let totalNWT = 0;
+  //     let totalGold = 0;
+
+  //     tableData.forEach((item, index) => {
+  //       const actGrams =
+  //         stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+  //         "";
+  //       const removeUndefinedWrapper = (str) => {
+  //         let prevStr;
+  //         do {
+  //           prevStr = str;
+  //           str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+  //         } while (prevStr !== str);
+  //         return str;
+  //       };
+  //       const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+  //       printWindow.document.write(`
+  //         <tr>
+  //             <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+  //         index + 1
+  //       }</strong></td>
+  //             <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+  //         item.TAGNO
+  //       }</strong></td>
+  //       <td rowspan="${cleanedActGrams ? 2 : 1}">
+
+  // ${
+  //   item.IMGPATH || photos[index]
+  //     ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index]}"
+  //              alt="Item Image"
+  //              style="max-width:80px; max-height:80px; object-fit:contain;" />`
+  //     : ""
+  // }
+  // </td>
+  //             <td class="sub"><strong>${item.PRODNAME}</strong></td>
+  //             <td>${item.PREFIX}</td>
+  //             <td class="sub-right"><strong>${item.PIECES}</strong></td>
+  //             <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+  //             <td class="sub-right">${item.STONEWT}</td>
+  //             <td class="sub-right">${item.NETWT}</td>
+  //             <td class="sub-right">${item.TOUCH}%</td>
+  //             <td class="sub-gold">${item.FINALGOLD}</td>
+  //         </tr>
+  //     `);
+
+  //       if (cleanedActGrams) {
+  //         printWindow.document.write(`
+  //         <tr class="sub-row">
+  //             <td colspan="10" class="sub-text">${cleanedActGrams}</td>
+  //         </tr>
+  //       `);
+  //       }
+
+  //       totalPCS += item.PIECES;
+  //       totalGWT += item.GWT;
+  //       totalStone += Number(item.STONEWT);
+  //       totalNWT += Number(item.NETWT);
+  //       totalGold += Number(item?.FINALGOLD);
+  //     });
+
+  //     printWindow.document.write(`
+  //         <tr class="total">
+  //             <td colspan="5" class="sub-total">Total</td>
+  //             <td>${totalPCS}</td>
+  //             <td>${totalGWT.toFixed(3)}</td>
+  //             <td>${Number(totalStone)?.toFixed(3)}</td>
+  //             <td>${Number(totalNWT)?.toFixed(3)}</td>
+  //             <td></td>
+  //             <td>${Number(totalGold)?.toFixed(3)}</td>
+  //         </tr>
+  //     </tbody>
+  //   </table>
+  //   `);
+
+  //     if (path === "/estimations-model1") {
+  //       generateEstimationPrint({
+  //         showStonesTable: true,
+  //         includeRodiumCharges: true,
+  //         rateCutChange: true,
+  //       });
+  //     } else if (path === "/estimations-model2") {
+  //       generateEstimationPrint({
+  //         showStonesTable: false,
+  //         includeRodiumCharges: false,
+  //         rateCutChange: true,
+  //       });
+  //     }
+
+  //     function generateEstimationPrint({
+  //       showStonesTable,
+  //       includeRodiumCharges,
+  //     }) {
+  //       printWindow.document.write(`
+  //       <style>
+  //         .container {
+  //           display: flex;
+  //           justify-content: space-between;
+  //           align-items: flex-start;
+  //           width: 100%;
+  //           margin-top: 10px;
+  //         }
+  //         .table-container {
+  //           width: 55%;
+  //         }
+  //         .summary-container {
+  //           width: 35%;
+  //           margin-left: ${showStonesTable ? "0" : "auto"};
+  //         }
+  //         table {
+  //           width: 100%;
+  //           border-collapse: collapse;
+  //           border: 2px solid black;
+  //         }
+  //         th, td {
+  //           border: 1px solid black;
+  //           padding: 5px;
+  //           text-align: center;
+  //           vertical-align: middle;
+  //         }
+  //         th {
+  //           font-weight: bold;
+  //           background-color: #e0e0e0;
+  //         }
+  //         .total td {
+  //           font-weight: bold;
+  //           background-color: #ddd;
+  //           text-align: right;
+  //         }
+  //         .stone-name {
+  //           text-align: left;
+  //         }
+  //         .sub-right {
+  //           text-align: right;
+  //         }
+  //         .sub-final {
+  //           background-color: #e0e0e0;
+  //           font-weight: bold;
+  //         }
+  //         .sub-right-bold {
+  //           text-align: right;
+  //           font-weight: bold;
+  //         }
+  //         .stone-name-bold {
+  //           text-align: left;
+  //           font-weight: bold;
+  //         }
+  //       </style>
+
+  //       <div class="container">
+  //     `);
+
+  //       if (showStonesTable) {
+  //         let totalStoneWeight = 0;
+  //         let totalAmount = 0;
+
+  //         printWindow.document.write(`
+  //         <div class="table-container">
+  //           <table>
+  //             <thead>
+  //               <tr>
+  //                 <th class="stone-name">STONE NAME</th>
+  //                 <th>PIECES</th>
+  //                 <th class="sub-right">WEIGHT</th>
+  //                 <th class="sub-right">COST</th>
+  //                 <th class="sub-right">AMOUNT</th>
+  //               </tr>
+  //             </thead>
+  //             <tbody>
+  //       `);
+
+  //         stonesData.forEach((stone, index) => {
+  //           const rate = stoneRate[index] || 0;
+  //           const amount = stone.ACTGRAMS * Number(rate);
+  //           totalAmount += amount;
+  //           totalStoneWeight += stone.ACTGRAMS;
+
+  //           printWindow.document.write(`
+  //           <tr>
+  //             <td class="stone-name">${stone.MAINTYPE}</td>
+  //             <td>${stone.PCS}</td>
+  //             <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
+  //             <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
+  //             <td class="sub-right">${amount.toFixed(2)}</td>
+  //           </tr>
+  //         `);
+  //         });
+
+  //         printWindow.document.write(`
+  //               <tr class="total">
+  //                 <td colspan="2"></td>
+  //                 <td>${totalStoneWeight.toFixed(3)}</td>
+  //                 <td></td>
+  //                 <td>${totalAmount.toFixed(2)}</td>
+  //               </tr>
+  //             </tbody>
+  //           </table>
+  //         </div>
+  //       `);
+  //       }
+
+  //       printWindow.document.write(`
+  //       <div class="summary-container">
+  //         <table>
+  //           <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+  //             3
+  //           )}</td></tr>
+  //           ${
+  //             rateCut === true
+  //               ? `<tr>
+  //                   <td class="stone-name">
+  //                     Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-
+  //                   </td>
+  //                   <td class="sub-right">
+  //                     ${amountValue ? Number(amountValue).toFixed(2) : 0}
+  //                   </td>
+  //                 </tr>`
+  //               : ""
+  //           }
+  //           <tr><td class="stone-name">Making ${
+  //             makingValue || 0
+  //           } /g</td><td class="sub-right">${
+  //         perGramValue ? Number(perGramValue).toFixed(2) : 0
+  //       }</td></tr>
+  //           ${
+  //             includeRodiumCharges
+  //               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+  //                   rodiumChargeValue || 0
+  //                 }</td></tr>
+  //                  <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+  //                    2
+  //                  )}</td></tr>`
+  //               : `<tr><td class="stone-name">Stone Cost ${
+  //                   stoneMakingValue || 0
+  //                 } /g</td>
+  //                  <td class="sub-right">${
+  //                    stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+  //                  }</td></tr>`
+  //           }
+  //           <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+  //             3
+  //           )}</strong></td></tr>
+  //           <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balnace</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+  //             2
+  //           )}</strong></td></tr>
+  //         </table>
+  //       </div>
+  //     </div>
+  //     `);
+  //     }
+
+  //     printWindow.document.write("</body></html>");
+  //     printWindow.document.close();
+  //     printWindow.print();
+  //   };
   const handleLandScapePrint = () => {
-    const printWindow = window.open("", "", "height=700,width=900");
-
-    printWindow.document.write(
-      "<html><head><title>Estimation Report</title><style>"
-    );
-
-    // Force landscape orientation
-    printWindow.document.write(`
-    @page {
-        size: landscape;
-        margin: 2mm;
-    }
-    body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-        font-size: 12px;
-    }
-    .header {
-        text-align: center;
-        margin-bottom: 18px;
-    }
-    .header h2 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: bold;
-        display: inline-block;
-        text-decoration: underline;
-        text-underline-offset: 4px;
-    }
-    .sub-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-    th, td {
-        border: 1px solid black;
-        padding: 5px;
-        text-align: center;
-    }
-    th {
-        background-color: #e0e0e0;
-        font-weight: bold;
-    }
-    .total {
-        font-weight: bold;
-        background-color: #ddd;
-    }
-    .summary {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 15px;
-    }
-    .summary-box {
-        width: 48%;
-        border: 1px solid black;
-        padding: 10px;
-        font-size: 12px;
-    }
-    .summary-box table {
-        width: 100%;
-        border: none;
-    }
-    .summary-box td {
-        border: none;
-        text-align: left;
-        padding: 3px 0;
-    }
-    .footer {
-        margin-top: 15px;
-        font-size: 12px;
-    }
-  `);
-
-    printWindow.document.write("</style></head><body>");
-
-    // Header Section
-    printWindow.document.write(`
-    <div class="header">
-        <h2>ESTIMATION</h2>
-    </div>
-    <div class="sub-header">
-        <span>ESTIMATION NO. : ${
-          selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1
-        }</span>
-        <span>DATE : ${new Date().toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        })}</span>
-        <span>PARTY NAME : ${selectedParty}</span>
-    </div>
-  `);
-
-    // Main Table
-    printWindow.document.write(`
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 2px solid black;
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 5px;
-            text-align: center;
-            vertical-align: middle;
-        }
-        th {
-            font-weight: bold;
-            background-color: #e0e0e0;
-        }
-        td strong {
-            font-size: 12px;
-        }
-        td span {
-            font-size: 10px;
-        }
-        .total td {
-            font-weight: bold;
-            background-color: #ddd;
-        }
-        td div.sub-text {
-            text-align: left;
-            font-size: 10px;
-            font-weight: bold;
-        }
-        td div.sub-value {
-            text-align: left;
-            font-size: 10px;
-        }
-        tr.sub-row td {
-            border-top: none;
-            text-align: left;
-        }
-        .sub {
-            text-align: left;
-            width: 600;
-        }
-            .sub-tag {
-            text-align: center;
-            width: 100;
-        }
-            .sub-image {
-            text-align: center;
-        }
-            .sub-img {
-            display: flex;
-            text-align: center;
-            border-radius: 10px;
-            width: 100%;
-            height: 100%;
-            align-items: center;
-        }
-        .sub-right {
-            text-align: right;
-            width: 80;
-        }
-            .sub-gold {
-            text-align: right;
-            width: 130;
-        }
-    </style>
-    <table>
-        <thead>
-            <tr>
-                <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
-                <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
-            </tr>
-        </thead>
-        <tbody>
-  `);
-
     let totalPCS = 0;
     let totalGWT = 0;
     let totalStone = 0;
     let totalNWT = 0;
     let totalGold = 0;
 
-    tableData.forEach((item, index) => {
-      const actGrams =
-        stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
-        "";
-      const removeUndefinedWrapper = (str) => {
-        let prevStr;
-        do {
-          prevStr = str;
-          str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-        } while (prevStr !== str);
-        return str;
-      };
-      const cleanedActGrams = removeUndefinedWrapper(actGrams);
+    // Build table rows
+    const tableRows = tableData
+      .map((item, index) => {
+        const actGrams =
+          stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+          "";
+        const removeUndefinedWrapper = (str) => {
+          let prevStr;
+          do {
+            prevStr = str;
+            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+          } while (prevStr !== str);
+          return str;
+        };
+        const cleanedActGrams = removeUndefinedWrapper(actGrams);
 
-      printWindow.document.write(`
+        totalPCS += item.PIECES;
+        totalGWT += item.GWT;
+        totalStone += Number(item.STONEWT);
+        totalNWT += Number(item.NETWT);
+        totalGold += Number(item?.FINALGOLD);
+        const imgPath = item.IMGPATH || photos[index] || "";
+        const base64Img = base64Images[imgPath] || "";
+
+        return `
         <tr>
-            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-        index + 1
-      }</strong></td>
-            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-        item.TAGNO
-      }</strong></td>
-      <td rowspan="${cleanedActGrams ? 2 : 1}">
+          <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+          index + 1
+        }</strong></td>
+          <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+          item.TAGNO
+        }</strong></td>
+        <td rowspan="${cleanedActGrams ? 2 : 1}">
       
 ${
-  item.IMGPATH || photos[index]
-    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index]}" 
+  base64Img
+    ? `<img src="${base64Img}" 
              alt="Item Image" 
-             style="max-width:80px; max-height:80px; object-fit:contain;" />`
+             style="max-width:80px; max-height:80px;"/>`
     : ""
 }
 </td>
-            <td class="sub"><strong>${item.PRODNAME}</strong></td>
-            <td>${item.PREFIX}</td>
-            <td class="sub-right"><strong>${item.PIECES}</strong></td>
-            <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
-            <td class="sub-right">${item.STONEWT}</td>
-            <td class="sub-right">${item.NETWT}</td>
-            <td class="sub-right">${item.TOUCH}%</td>
-            <td class="sub-gold">${item.FINALGOLD}</td>
+          <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+          <td>${item.PREFIX}</td>
+          <td class="sub-right"><strong>${item.PIECES}</strong></td>
+          <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+          <td class="sub-right">${item.STONEWT}</td>
+          <td class="sub-right">${item.NETWT}</td>
+          <td class="sub-right">${item.TOUCH}%</td>
+          <td class="sub-gold">${item.FINALGOLD}</td>
         </tr>
-    `);
+        ${
+          cleanedActGrams
+            ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+            : ""
+        }
+      `;
+      })
+      .join("");
 
-      if (cleanedActGrams) {
-        printWindow.document.write(`
-        <tr class="sub-row">
-            <td colspan="10" class="sub-text">${cleanedActGrams}</td>
-        </tr>
-      `);
-      }
+    // Totals row
+    const totalsRow = `
+    <tr class="total">
+      <td colspan="5">Total</td>
+      <td>${totalPCS}</td>
+      <td>${totalGWT.toFixed(3)}</td>
+      <td>${Number(totalStone)?.toFixed(3)}</td>
+      <td>${Number(totalNWT)?.toFixed(3)}</td>
+      <td></td>
+      <td>${Number(totalGold)?.toFixed(3)}</td>
+    </tr>
+  `;
 
-      totalPCS += item.PIECES;
-      totalGWT += item.GWT;
-      totalStone += Number(item.STONEWT);
-      totalNWT += Number(item.NETWT);
-      totalGold += Number(item?.FINALGOLD);
-    });
-
-    printWindow.document.write(`
-        <tr class="total">
-            <td colspan="5" class="sub-total">Total</td>
-            <td>${totalPCS}</td>
-            <td>${totalGWT.toFixed(3)}</td>
-            <td>${Number(totalStone)?.toFixed(3)}</td>
-            <td>${Number(totalNWT)?.toFixed(3)}</td>
-            <td></td>
-            <td>${Number(totalGold)?.toFixed(3)}</td>
-        </tr>
-    </tbody>
-  </table>
-  `);
-
-    if (path === "/estimations-model1") {
-      generateEstimationPrint({
-        showStonesTable: true,
-        includeRodiumCharges: true,
-        rateCutChange: true,
-      });
-    } else if (path === "/estimations-model2") {
-      generateEstimationPrint({
-        showStonesTable: false,
-        includeRodiumCharges: false,
-        rateCutChange: true,
-      });
-    }
-
-    function generateEstimationPrint({
-      showStonesTable,
-      includeRodiumCharges,
-    }) {
-      printWindow.document.write(`
-      <style>
-        .container {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          width: 100%;
-          margin-top: 10px;
-        }
-        .table-container {
-          width: 55%;
-        }
-        .summary-container {
-          width: 35%;
-          margin-left: ${showStonesTable ? "0" : "auto"};
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          border: 2px solid black;
-        }
-        th, td {
-          border: 1px solid black;
-          padding: 5px;
-          text-align: center;
-          vertical-align: middle;
-        }
-        th {
-          font-weight: bold;
-          background-color: #e0e0e0;
-        }
-        .total td {
-          font-weight: bold;
-          background-color: #ddd;
-          text-align: right;
-        }
-        .stone-name {
-          text-align: left;
-        }
-        .sub-right {
-          text-align: right;
-        }
-        .sub-final {
-          background-color: #e0e0e0;
-          font-weight: bold;
-        }
-        .sub-right-bold {
-          text-align: right;
-          font-weight: bold;
-        }
-        .stone-name-bold {
-          text-align: left;
-          font-weight: bold;
-        }
-      </style>
-
-      <div class="container">
-    `);
-
-      if (showStonesTable) {
-        let totalStoneWeight = 0;
-        let totalAmount = 0;
-
-        printWindow.document.write(`
+    // Stones table if applicable
+    const stonesTable =
+      path === "/estimations-model1"
+        ? `
         <div class="table-container">
           <table>
             <thead>
@@ -1729,246 +1956,185 @@ ${
               </tr>
             </thead>
             <tbody>
-      `);
-
-        stonesData.forEach((stone, index) => {
-          const rate = stoneRate[index] || 0;
-          const amount = stone.ACTGRAMS * Number(rate);
-          totalAmount += amount;
-          totalStoneWeight += stone.ACTGRAMS;
-
-          printWindow.document.write(`
-          <tr>
-            <td class="stone-name">${stone.MAINTYPE}</td>
-            <td>${stone.PCS}</td>
-            <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
-            <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
-            <td class="sub-right">${amount.toFixed(2)}</td>
-          </tr>
-        `);
-        });
-
-        printWindow.document.write(`
-              <tr class="total">
-                <td colspan="2"></td>
-                <td>${totalStoneWeight.toFixed(3)}</td>
-                <td></td>
-                <td>${totalAmount.toFixed(2)}</td>
-              </tr>
+              ${(() => {
+                let totalStoneWeight = 0;
+                let totalAmount = 0;
+                return (
+                  stonesData
+                    .map((stone, index) => {
+                      const rate = stoneRate[index] || 0;
+                      const amount = stone.ACTGRAMS * Number(rate);
+                      totalAmount += amount;
+                      totalStoneWeight += stone.ACTGRAMS;
+                      return `
+                      <tr>
+                        <td class="stone-name">${stone.MAINTYPE}</td>
+                        <td>${stone.PCS}</td>
+                        <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
+                        <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
+                        <td class="sub-right">${amount.toFixed(2)}</td>
+                      </tr>
+                    `;
+                    })
+                    .join("") +
+                  `<tr class="total">
+                    <td colspan="2"></td>
+                    <td>${totalStoneWeight.toFixed(3)}</td>
+                    <td></td>
+                    <td>${totalAmount.toFixed(2)}</td>
+                  </tr>`
+                );
+              })()}
             </tbody>
           </table>
         </div>
-      `);
-      }
+      `
+        : "";
 
-      printWindow.document.write(`
-      <div class="summary-container">
-        <table>
-          <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
-            3
-          )}</td></tr>
-          ${
-            rateCut === true
-              ? `<tr>
-                  <td class="stone-name">
-                    Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-
-                  </td>
-                  <td class="sub-right">
-                    ${amountValue ? Number(amountValue).toFixed(2) : 0}
-                  </td>
-                </tr>`
-              : ""
-          }
-          <tr><td class="stone-name">Making ${
-            makingValue || 0
-          } /g</td><td class="sub-right">${
-        perGramValue ? Number(perGramValue).toFixed(2) : 0
-      }</td></tr>
-          ${
-            includeRodiumCharges
-              ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
-                  rodiumChargeValue || 0
-                }</td></tr>
-                 <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
-                   2
-                 )}</td></tr>`
-              : `<tr><td class="stone-name">Stone Cost ${
-                  stoneMakingValue || 0
-                } /g</td>
-                 <td class="sub-right">${
-                   stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
-                 }</td></tr>`
-          }
-          <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-            3
-          )}</strong></td></tr>
-          <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balnace</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
-            2
-          )}</strong></td></tr>
-        </table>
-      </div>
+    // Summary table
+    const summaryTable = `
+    <div class="summary-container">
+      <table>
+        <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+          3
+        )}</td></tr>
+        ${
+          rateCut === true
+            ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+                rateValue || 0
+              )}/-</td>
+                <td class="sub-right">${
+                  amountValue ? Number(amountValue).toFixed(2) : 0
+                }</td></tr>`
+            : ""
+        }
+        <tr><td class="stone-name">Making ${
+          makingValue || 0
+        } /g</td><td class="sub-right">${
+      perGramValue ? Number(perGramValue).toFixed(2) : 0
+    }</td></tr>
+        ${
+          path === "/estimations-model1"
+            ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+                rodiumChargeValue || 0
+              }</td></tr>
+               <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+                 2
+               )}</td></tr>`
+            : `<tr><td class="stone-name">Stone Cost ${
+                stoneMakingValue || 0
+              } /g</td>
+               <td class="sub-right">${
+                 stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+               }</td></tr>`
+        }
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+          3
+        )}</strong></td></tr>
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+          2
+        )}</strong></td></tr>
+      </table>
     </div>
-    `);
-    }
+  `;
 
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-  };
-
-  const handlePrint = () => {
-    const printWindow = window.open("", "", "height=700,width=900");
-
-    printWindow.document.write(
-      "<html><head><title>Estimation Report</title><style>"
-    );
-
-    // Force landscape orientation
-    printWindow.document.write(`
-    body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-        font-size: 12px;
-    }
-    .header {
-        text-align: center;
-        margin-bottom: 18px;
-    }
-    .header h2 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: bold;
-        display: inline-block;
-        text-decoration: underline;
-        text-underline-offset: 4px;
-    }
-    .sub-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-    th, td {
-        border: 1px solid black;
-        padding: 5px;
-        text-align: center;
-    }
-    th {
-        background-color: #e0e0e0;
-        font-weight: bold;
-    }
-    .total {
-        font-weight: bold;
-        background-color: #ddd;
-    }
-    .summary {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 15px;
-    }
-    .summary-box {
-        width: 48%;
-        border: 1px solid black;
-        padding: 10px;
-        font-size: 12px;
-    }
-    .summary-box table {
-        width: 100%;
-        border: none;
-    }
-    .summary-box td {
-        border: none;
-        text-align: left;
-        padding: 3px 0;
-    }
-    .footer {
-        margin-top: 15px;
-        font-size: 12px;
-    }
-  `);
-
-    printWindow.document.write("</style></head><body>");
-
-    // Header Section
-    printWindow.document.write(`
-    <div class="header">
-        <h2>ESTIMATION</h2>
-    </div>
-    <div class="sub-header">
-        <span>ESTIMATION NO. : ${
-          selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1
-        }</span>
-        <span>DATE : ${new Date().toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        })}</span>
-        <span>PARTY NAME : ${selectedParty}</span>
-    </div>
-  `);
-
-    // Main Table
-    printWindow.document.write(`
-    <style>
+    // Build full HTML content
+    const htmlContent = `
+    <html>
+      <head>
+        <style>
+           body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+        }
+        .sub-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+             .sub-est {
+          font-weight : bold;
+          font-size: 18px;
+          color : red;
+        }
+          .sub-party {
+          font-weight : bold;
+          font-size: 14px;
+          color : #ddd;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            border: 2px solid black;
-            font-family: Arial, sans-serif;
             font-size: 12px;
+            margin-top: 5px;
         }
         th, td {
             border: 1px solid black;
             padding: 5px;
             text-align: center;
-            vertical-align: middle;
         }
         th {
-            font-weight: bold;
             background-color: #e0e0e0;
+            font-weight: bold;
         }
-        td strong {
-            font-size: 12px;
-        }
-        td span {
-            font-size: 10px;
-        }
-        .total td {
+        .total {
             font-weight: bold;
             background-color: #ddd;
         }
-        td div.sub-text {
-            text-align: left;
-            font-size: 10px;
-            font-weight: bold;
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
         }
-        td div.sub-value {
-            text-align: left;
-            font-size: 10px;
+        .summary-box {
+            width: 48%;
+            border: 1px solid black;
+            padding: 10px;
+            font-size: 12px;
         }
-        tr.sub-row td {
-            border-top: none;
-            text-align: left;
+        .summary-box table {
+            width: 100%;
+            border: none;
         }
-        .sub {
+        .summary-box td {
+            border: none;
             text-align: left;
-            width: 400;
+            padding: 3px 0;
         }
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+        }
+          .sub {
+            text-align: left;
+            width: 300px;
+        }
+            .sub-pro {
+              text-align: left;
+              width: 500;
+              background-color: #ddd;
+          }
             .sub-tag {
             text-align: center;
             width: 100;
         }
-            .sub-image {
+             .sub-image {
             text-align: center;
         }
             .sub-img {
@@ -1987,167 +2153,581 @@ ${
             text-align: right;
             width: 130;
         }
-    </style>
-    <table>
-        <thead>
+          .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+          .sub-row td { border-top: none; text-align: left; }
+          .container { display: flex; justify-content: space-between; margin-top: 10px; }
+          .table-container { width: 55%; }
+          .summary-container { width: 35%; }
+          .stone-name { text-align: left; }
+          .sub-final { background-color: #C9CDCF; font-weight: bold; }
+          .sub-right-bold { text-align: right; font-weight: bold; }
+          .stone-name-bold { text-align: left; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <div class="header"><h2>ESTIMATION</h2></div>
+        <div class="sub-header">
+          <span>ESTIMATION NO. : <span class="sub-est">${
+            selectEstimationNo
+              ? selectEstimationNo?.ESTIMATIONNO
+              : estimationCount + 1
+          }</span></span>
+          <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}</span>
+          <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
+        </div>
+        <table>
+          <thead>
             <tr>
-                <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub">PARTICULARS</th><th>Purity</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
-                <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+              <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th>
+              <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
+              <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
             </tr>
-        </thead>
-        <tbody>
-  `);
+          </thead>
+          <tbody>
+            ${tableRows}
+            ${totalsRow}
+          </tbody>
+        </table>
+        <div class="container">
+          ${stonesTable}
+          ${summaryTable}
+        </div>
+      </body>
+    </html>
+  `;
 
+    // Create container for html2pdf
+    const container = document.createElement("div");
+    container.innerHTML = htmlContent;
+    document.body.appendChild(container);
+
+    html2pdf()
+      .set({
+        margin: [10, 5, 10, 5],
+        filename: `Estimation_${
+          selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1
+        }.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        // html2canvas: { scale: 2, useCORS: false },
+        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+      })
+      .from(container)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+      });
+  };
+
+  // const handlePrint = () => {
+  //   const printWindow = window.open("", "", "height=700,width=900");
+
+  //   printWindow.document.write(
+  //     "<html><head><title>Estimation Report</title><style>"
+  //   );
+
+  //   // Force landscape orientation
+  //   printWindow.document.write(`
+  //   body {
+  //       font-family: Arial, sans-serif;
+  //       margin: 20px;
+  //       font-size: 12px;
+  //   }
+  //   .header {
+  //       text-align: center;
+  //       margin-bottom: 18px;
+  //   }
+  //   .header h2 {
+  //       margin: 0;
+  //       font-size: 16px;
+  //       font-weight: bold;
+  //       display: inline-block;
+  //       text-decoration: underline;
+  //       text-underline-offset: 4px;
+  //   }
+  //   .sub-header {
+  //       display: flex;
+  //       justify-content: space-between;
+  //       font-size: 12px;
+  //       font-weight: bold;
+  //       margin-bottom: 10px;
+  //       padding-bottom: 5px;
+  //   }
+  //   table {
+  //       width: 100%;
+  //       border-collapse: collapse;
+  //       font-size: 12px;
+  //       margin-top: 5px;
+  //   }
+  //   th, td {
+  //       border: 1px solid black;
+  //       padding: 5px;
+  //       text-align: center;
+  //   }
+  //   th {
+  //       background-color: #e0e0e0;
+  //       font-weight: bold;
+  //   }
+  //   .total {
+  //       font-weight: bold;
+  //       background-color: #ddd;
+  //   }
+  //   .summary {
+  //       display: flex;
+  //       justify-content: space-between;
+  //       margin-top: 15px;
+  //   }
+  //   .summary-box {
+  //       width: 48%;
+  //       border: 1px solid black;
+  //       padding: 10px;
+  //       font-size: 12px;
+  //   }
+  //   .summary-box table {
+  //       width: 100%;
+  //       border: none;
+  //   }
+  //   .summary-box td {
+  //       border: none;
+  //       text-align: left;
+  //       padding: 3px 0;
+  //   }
+  //   .footer {
+  //       margin-top: 15px;
+  //       font-size: 12px;
+  //   }
+  // `);
+
+  //   printWindow.document.write("</style></head><body>");
+
+  //   // Header Section
+  //   printWindow.document.write(`
+  //   <div class="header">
+  //       <h2>ESTIMATION</h2>
+  //   </div>
+  //   <div class="sub-header">
+  //       <span>ESTIMATION NO. : ${
+  //         selectEstimationNo
+  //           ? selectEstimationNo?.ESTIMATIONNO
+  //           : estimationCount + 1
+  //       }</span>
+  //       <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+  //         day: "2-digit",
+  //         month: "short",
+  //         year: "numeric",
+  //       })}</span>
+  //       <span>PARTY NAME : ${selectedParty}</span>
+  //   </div>
+  // `);
+
+  //   // Main Table
+  //   printWindow.document.write(`
+  //   <style>
+  //       table {
+  //           width: 100%;
+  //           border-collapse: collapse;
+  //           border: 2px solid black;
+  //           font-family: Arial, sans-serif;
+  //           font-size: 12px;
+  //       }
+  //       th, td {
+  //           border: 1px solid black;
+  //           padding: 5px;
+  //           text-align: center;
+  //           vertical-align: middle;
+  //       }
+  //       th {
+  //           font-weight: bold;
+  //           background-color: #e0e0e0;
+  //       }
+  //       td strong {
+  //           font-size: 12px;
+  //       }
+  //       td span {
+  //           font-size: 10px;
+  //       }
+  //       .total td {
+  //           font-weight: bold;
+  //           background-color: #ddd;
+  //       }
+  //       td div.sub-text {
+  //           text-align: left;
+  //           font-size: 10px;
+  //           font-weight: bold;
+  //       }
+  //       td div.sub-value {
+  //           text-align: left;
+  //           font-size: 10px;
+  //       }
+  //       tr.sub-row td {
+  //           border-top: none;
+  //           text-align: left;
+  //       }
+  //       .sub {
+  //           text-align: left;
+  //           width: 400;
+  //       }
+  //           .sub-tag {
+  //           text-align: center;
+  //           width: 100;
+  //       }
+  //           .sub-image {
+  //           text-align: center;
+  //       }
+  //           .sub-img {
+  //           display: flex;
+  //           text-align: center;
+  //           border-radius: 10px;
+  //           width: 100%;
+  //           height: 100%;
+  //           align-items: center;
+  //       }
+  //       .sub-right {
+  //           text-align: right;
+  //           width: 80;
+  //       }
+  //           .sub-gold {
+  //           text-align: right;
+  //           width: 130;
+  //       }
+  //   </style>
+  //   <table>
+  //       <thead>
+  //           <tr>
+  //               <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub">PARTICULARS</th><th>Purity</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
+  //               <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+  //           </tr>
+  //       </thead>
+  //       <tbody>
+  // `);
+
+  //   let totalPCS = 0;
+  //   let totalGWT = 0;
+  //   let totalStone = 0;
+  //   let totalNWT = 0;
+  //   let totalGold = 0;
+
+  //   tableData.forEach((item, index) => {
+  //     const actGrams =
+  //       stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+  //       "";
+  //     const removeUndefinedWrapper = (str) => {
+  //       let prevStr;
+  //       do {
+  //         prevStr = str;
+  //         str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+  //       } while (prevStr !== str);
+  //       return str;
+  //     };
+  //     const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+  //     printWindow.document.write(`
+  //       <tr>
+  //           <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+  //       index + 1
+  //     }</strong></td>
+  //           <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+  //       item.TAGNO
+  //     }</strong></td>
+  //           <td class="sub"><strong>${item.PRODNAME}</strong></td>
+  //           <td>${item.PREFIX}</td>
+  //           <td class="sub-right"><strong>${item.PIECES}</strong></td>
+  //           <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+  //           <td class="sub-right">${item.STONEWT}</td>
+  //           <td class="sub-right">${item.NETWT}</td>
+  //           <td class="sub-right">${item.TOUCH}%</td>
+  //           <td class="sub-gold">${item.FINALGOLD}</td>
+  //       </tr>
+  //   `);
+
+  //     if (cleanedActGrams) {
+  //       printWindow.document.write(`
+  //       <tr class="sub-row">
+  //           <td colspan="10" class="sub-text">${cleanedActGrams}</td>
+  //       </tr>
+  //     `);
+  //     }
+
+  //     totalPCS += item.PIECES;
+  //     totalGWT += item.GWT;
+  //     totalStone += Number(item.STONEWT);
+  //     totalNWT += Number(item.NETWT);
+  //     totalGold += Number(item?.FINALGOLD);
+  //   });
+
+  //   printWindow.document.write(`
+  //       <tr class="total">
+  //           <td colspan="4" class="sub-total">Total</td>
+  //           <td>${totalPCS}</td>
+  //           <td>${totalGWT.toFixed(3)}</td>
+  //           <td>${Number(totalStone)?.toFixed(3)}</td>
+  //           <td>${Number(totalNWT)?.toFixed(3)}</td>
+  //           <td></td>
+  //           <td>${Number(totalGold)?.toFixed(3)}</td>
+  //       </tr>
+  //   </tbody>
+  // </table>
+  // `);
+
+  //   if (path === "/estimations-model1") {
+  //     generateEstimationPrint({
+  //       showStonesTable: true,
+  //       includeRodiumCharges: true,
+  //       rateCutChange: true,
+  //     });
+  //   } else if (path === "/estimations-model2") {
+  //     generateEstimationPrint({
+  //       showStonesTable: false,
+  //       includeRodiumCharges: false,
+  //       rateCutChange: true,
+  //     });
+  //   }
+
+  //   function generateEstimationPrint({
+  //     showStonesTable,
+  //     includeRodiumCharges,
+  //   }) {
+  //     printWindow.document.write(`
+  //     <style>
+  //       .container {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         align-items: flex-start;
+  //         width: 100%;
+  //         margin-top: 10px;
+  //       }
+  //       .table-container {
+  //         width: 55%;
+  //       }
+  //       .summary-container {
+  //         width: 35%;
+  //         margin-left: ${showStonesTable ? "0" : "auto"};
+  //       }
+  //       table {
+  //         width: 100%;
+  //         border-collapse: collapse;
+  //         border: 2px solid black;
+  //       }
+  //       th, td {
+  //         border: 1px solid black;
+  //         padding: 5px;
+  //         text-align: center;
+  //         vertical-align: middle;
+  //       }
+  //       th {
+  //         font-weight: bold;
+  //         background-color: #e0e0e0;
+  //       }
+  //       .total td {
+  //         font-weight: bold;
+  //         background-color: #ddd;
+  //         text-align: right;
+  //       }
+  //       .stone-name {
+  //         text-align: left;
+  //       }
+  //       .sub-right {
+  //         text-align: right;
+  //       }
+  //       .sub-final {
+  //         background-color: #e0e0e0;
+  //         font-weight: bold;
+  //       }
+  //       .sub-right-bold {
+  //         text-align: right;
+  //         font-weight: bold;
+  //       }
+  //       .stone-name-bold {
+  //         text-align: left;
+  //         font-weight: bold;
+  //       }
+  //     </style>
+
+  //     <div class="container">
+  //   `);
+
+  //     if (showStonesTable) {
+  //       let totalStoneWeight = 0;
+  //       let totalAmount = 0;
+
+  //       printWindow.document.write(`
+  //       <div class="table-container">
+  //         <table>
+  //           <thead>
+  //             <tr>
+  //               <th class="stone-name">STONE NAME</th>
+  //               <th>PIECES</th>
+  //               <th class="sub-right">WEIGHT</th>
+  //               <th class="sub-right">COST</th>
+  //               <th class="sub-right">AMOUNT</th>
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //     `);
+
+  //       stonesData.forEach((stone, index) => {
+  //         const rate = stoneRate[index] || 0;
+  //         const amount = stone.ACTGRAMS * Number(rate);
+  //         totalAmount += amount;
+  //         totalStoneWeight += stone.ACTGRAMS;
+
+  //         printWindow.document.write(`
+  //         <tr>
+  //           <td class="stone-name">${stone.MAINTYPE}</td>
+  //           <td>${stone.PCS}</td>
+  //           <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
+  //           <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
+  //           <td class="sub-right">${amount.toFixed(2)}</td>
+  //         </tr>
+  //       `);
+  //       });
+
+  //       printWindow.document.write(`
+  //             <tr class="total">
+  //               <td colspan="2"></td>
+  //               <td>${totalStoneWeight.toFixed(3)}</td>
+  //               <td></td>
+  //               <td>${totalAmount.toFixed(2)}</td>
+  //             </tr>
+  //           </tbody>
+  //         </table>
+  //       </div>
+  //     `);
+  //     }
+
+  //     printWindow.document.write(`
+  //     <div class="summary-container">
+  //       <table>
+  //         <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+  //           3
+  //         )}</td></tr>
+  //         ${
+  //           rateCut === true
+  //             ? `<tr>
+  //                 <td class="stone-name">
+  //                   Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-
+  //                 </td>
+  //                 <td class="sub-right">
+  //                   ${amountValue ? Number(amountValue).toFixed(2) : 0}
+  //                 </td>
+  //               </tr>`
+  //             : ""
+  //         }
+  //         <tr><td class="stone-name">Making ${
+  //           makingValue || 0
+  //         } /g</td><td class="sub-right">${
+  //       perGramValue ? Number(perGramValue).toFixed(2) : 0
+  //     }</td></tr>
+  //         ${
+  //           includeRodiumCharges
+  //             ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+  //                 rodiumChargeValue || 0
+  //               }</td></tr>
+  //                <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+  //                  2
+  //                )}</td></tr>`
+  //             : `<tr><td class="stone-name">Stone Cost ${
+  //                 stoneMakingValue || 0
+  //               } /g</td>
+  //                <td class="sub-right">${
+  //                  stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+  //                }</td></tr>`
+  //         }
+  //         <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+  //           3
+  //         )}</strong></td></tr>
+  //         <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balnace</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+  //           2
+  //         )}</strong></td></tr>
+  //       </table>
+  //     </div>
+  //   </div>
+  //   `);
+  //   }
+
+  //   printWindow.document.write("</body></html>");
+  //   printWindow.document.close();
+  //   printWindow.print();
+  // };
+  const handlePrint = () => {
     let totalPCS = 0;
     let totalGWT = 0;
     let totalStone = 0;
     let totalNWT = 0;
     let totalGold = 0;
 
-    tableData.forEach((item, index) => {
-      const actGrams =
-        stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
-        "";
-      const removeUndefinedWrapper = (str) => {
-        let prevStr;
-        do {
-          prevStr = str;
-          str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-        } while (prevStr !== str);
-        return str;
-      };
-      const cleanedActGrams = removeUndefinedWrapper(actGrams);
+    // Build table rows
+    const tableRows = tableData
+      .map((item, index) => {
+        const actGrams =
+          stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+          "";
+        const removeUndefinedWrapper = (str) => {
+          let prevStr;
+          do {
+            prevStr = str;
+            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+          } while (prevStr !== str);
+          return str;
+        };
+        const cleanedActGrams = removeUndefinedWrapper(actGrams);
 
-      printWindow.document.write(`
+        totalPCS += item.PIECES;
+        totalGWT += item.GWT;
+        totalStone += Number(item.STONEWT);
+        totalNWT += Number(item.NETWT);
+        totalGold += Number(item?.FINALGOLD);
+        const imgPath = item.IMGPATH || photos[index] || "";
+        const base64Img = base64Images[imgPath] || "";
+
+        return `
         <tr>
-            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-        index + 1
-      }</strong></td>
-            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-        item.TAGNO
-      }</strong></td>
-            <td class="sub"><strong>${item.PRODNAME}</strong></td>
-            <td>${item.PREFIX}</td>
-            <td class="sub-right"><strong>${item.PIECES}</strong></td>
-            <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
-            <td class="sub-right">${item.STONEWT}</td>
-            <td class="sub-right">${item.NETWT}</td>
-            <td class="sub-right">${item.TOUCH}%</td>
-            <td class="sub-gold">${item.FINALGOLD}</td>
+          <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+          index + 1
+        }</strong></td>
+          <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+          item.TAGNO
+        }</strong></td>
+          <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+          <td>${item.PREFIX}</td>
+          <td class="sub-right"><strong>${item.PIECES}</strong></td>
+          <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+          <td class="sub-right">${item.STONEWT}</td>
+          <td class="sub-right">${item.NETWT}</td>
+          <td class="sub-right">${item.TOUCH}%</td>
+          <td class="sub-gold">${item.FINALGOLD}</td>
         </tr>
-    `);
+        ${
+          cleanedActGrams
+            ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+            : ""
+        }
+      `;
+      })
+      .join("");
 
-      if (cleanedActGrams) {
-        printWindow.document.write(`
-        <tr class="sub-row">
-            <td colspan="10" class="sub-text">${cleanedActGrams}</td>
-        </tr>
-      `);
-      }
+    // Totals row
+    const totalsRow = `
+    <tr class="total">
+      <td colspan="4">Total</td>
+      <td>${totalPCS}</td>
+      <td>${totalGWT.toFixed(3)}</td>
+      <td>${Number(totalStone)?.toFixed(3)}</td>
+      <td>${Number(totalNWT)?.toFixed(3)}</td>
+      <td></td>
+      <td>${Number(totalGold)?.toFixed(3)}</td>
+    </tr>
+  `;
 
-      totalPCS += item.PIECES;
-      totalGWT += item.GWT;
-      totalStone += Number(item.STONEWT);
-      totalNWT += Number(item.NETWT);
-      totalGold += Number(item?.FINALGOLD);
-    });
-
-    printWindow.document.write(`
-        <tr class="total">
-            <td colspan="4" class="sub-total">Total</td>
-            <td>${totalPCS}</td>
-            <td>${totalGWT.toFixed(3)}</td>
-            <td>${Number(totalStone)?.toFixed(3)}</td>
-            <td>${Number(totalNWT)?.toFixed(3)}</td>
-            <td></td>
-            <td>${Number(totalGold)?.toFixed(3)}</td>
-        </tr>
-    </tbody>
-  </table>
-  `);
-
-    if (path === "/estimations-model1") {
-      generateEstimationPrint({
-        showStonesTable: true,
-        includeRodiumCharges: true,
-        rateCutChange: true,
-      });
-    } else if (path === "/estimations-model2") {
-      generateEstimationPrint({
-        showStonesTable: false,
-        includeRodiumCharges: false,
-        rateCutChange: true,
-      });
-    }
-
-    function generateEstimationPrint({
-      showStonesTable,
-      includeRodiumCharges,
-    }) {
-      printWindow.document.write(`
-      <style>
-        .container {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          width: 100%;
-          margin-top: 10px;
-        }
-        .table-container {
-          width: 55%;
-        }
-        .summary-container {
-          width: 35%;
-          margin-left: ${showStonesTable ? "0" : "auto"};
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          border: 2px solid black;
-        }
-        th, td {
-          border: 1px solid black;
-          padding: 5px;
-          text-align: center;
-          vertical-align: middle;
-        }
-        th {
-          font-weight: bold;
-          background-color: #e0e0e0;
-        }
-        .total td {
-          font-weight: bold;
-          background-color: #ddd;
-          text-align: right;
-        }
-        .stone-name {
-          text-align: left;
-        }
-        .sub-right {
-          text-align: right;
-        }
-        .sub-final {
-          background-color: #e0e0e0;
-          font-weight: bold;
-        }
-        .sub-right-bold {
-          text-align: right;
-          font-weight: bold;
-        }
-        .stone-name-bold {
-          text-align: left;
-          font-weight: bold;
-        }
-      </style>
-
-      <div class="container">
-    `);
-
-      if (showStonesTable) {
-        let totalStoneWeight = 0;
-        let totalAmount = 0;
-
-        printWindow.document.write(`
+    // Stones table if applicable
+    const stonesTable =
+      path === "/estimations-model1"
+        ? `
         <div class="table-container">
           <table>
             <thead>
@@ -2160,91 +2740,261 @@ ${
               </tr>
             </thead>
             <tbody>
-      `);
-
-        stonesData.forEach((stone, index) => {
-          const rate = stoneRate[index] || 0;
-          const amount = stone.ACTGRAMS * Number(rate);
-          totalAmount += amount;
-          totalStoneWeight += stone.ACTGRAMS;
-
-          printWindow.document.write(`
-          <tr>
-            <td class="stone-name">${stone.MAINTYPE}</td>
-            <td>${stone.PCS}</td>
-            <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
-            <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
-            <td class="sub-right">${amount.toFixed(2)}</td>
-          </tr>
-        `);
-        });
-
-        printWindow.document.write(`
-              <tr class="total">
-                <td colspan="2"></td>
-                <td>${totalStoneWeight.toFixed(3)}</td>
-                <td></td>
-                <td>${totalAmount.toFixed(2)}</td>
-              </tr>
+              ${(() => {
+                let totalStoneWeight = 0;
+                let totalAmount = 0;
+                return (
+                  stonesData
+                    .map((stone, index) => {
+                      const rate = stoneRate[index] || 0;
+                      const amount = stone.ACTGRAMS * Number(rate);
+                      totalAmount += amount;
+                      totalStoneWeight += stone.ACTGRAMS;
+                      return `
+                      <tr>
+                        <td class="stone-name">${stone.MAINTYPE}</td>
+                        <td>${stone.PCS}</td>
+                        <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
+                        <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
+                        <td class="sub-right">${amount.toFixed(2)}</td>
+                      </tr>
+                    `;
+                    })
+                    .join("") +
+                  `<tr class="total">
+                    <td colspan="2"></td>
+                    <td>${totalStoneWeight.toFixed(3)}</td>
+                    <td></td>
+                    <td>${totalAmount.toFixed(2)}</td>
+                  </tr>`
+                );
+              })()}
             </tbody>
           </table>
         </div>
-      `);
-      }
+      `
+        : "";
 
-      printWindow.document.write(`
-      <div class="summary-container">
-        <table>
-          <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
-            3
-          )}</td></tr>
-          ${
-            rateCut === true
-              ? `<tr>
-                  <td class="stone-name">
-                    Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-
-                  </td>
-                  <td class="sub-right">
-                    ${amountValue ? Number(amountValue).toFixed(2) : 0}
-                  </td>
-                </tr>`
-              : ""
-          }
-          <tr><td class="stone-name">Making ${
-            makingValue || 0
-          } /g</td><td class="sub-right">${
-        perGramValue ? Number(perGramValue).toFixed(2) : 0
-      }</td></tr>
-          ${
-            includeRodiumCharges
-              ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
-                  rodiumChargeValue || 0
-                }</td></tr>
-                 <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
-                   2
-                 )}</td></tr>`
-              : `<tr><td class="stone-name">Stone Cost ${
-                  stoneMakingValue || 0
-                } /g</td>
-                 <td class="sub-right">${
-                   stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
-                 }</td></tr>`
-          }
-          <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-            3
-          )}</strong></td></tr>
-          <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balnace</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
-            2
-          )}</strong></td></tr>
-        </table>
-      </div>
+    // Summary table
+    const summaryTable = `
+    <div class="summary-container">
+      <table>
+        <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+          3
+        )}</td></tr>
+        ${
+          rateCut === true
+            ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+                rateValue || 0
+              )}/-</td>
+                <td class="sub-right">${
+                  amountValue ? Number(amountValue).toFixed(2) : 0
+                }</td></tr>`
+            : ""
+        }
+        <tr><td class="stone-name">Making ${
+          makingValue || 0
+        } /g</td><td class="sub-right">${
+      perGramValue ? Number(perGramValue).toFixed(2) : 0
+    }</td></tr>
+        ${
+          path === "/estimations-model1"
+            ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+                rodiumChargeValue || 0
+              }</td></tr>
+               <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+                 2
+               )}</td></tr>`
+            : `<tr><td class="stone-name">Stone Cost ${
+                stoneMakingValue || 0
+              } /g</td>
+               <td class="sub-right">${
+                 stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+               }</td></tr>`
+        }
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+          3
+        )}</strong></td></tr>
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+          2
+        )}</strong></td></tr>
+      </table>
     </div>
-    `);
-    }
+  `;
 
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
+    // Build full HTML content
+    const htmlContent = `
+    <html>
+      <head>
+        <style>
+           body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+        }
+        .sub-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+             .sub-est {
+          font-weight : bold;
+          font-size: 18px;
+          color : red;
+        }
+          .sub-party {
+          font-weight : bold;
+          font-size: 14px;
+          color : #ddd;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+        .total {
+            font-weight: bold;
+            background-color: #ddd;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .summary-box {
+            width: 48%;
+            border: 1px solid black;
+            padding: 10px;
+            font-size: 12px;
+        }
+        .summary-box table {
+            width: 100%;
+            border: none;
+        }
+        .summary-box td {
+            border: none;
+            text-align: left;
+            padding: 3px 0;
+        }
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+        }
+          .sub {
+            text-align: left;
+            width: 300px;
+        }
+            .sub-pro {
+              text-align: left;
+              width: 500;
+              background-color: #ddd;
+          }
+            .sub-tag {
+            text-align: center;
+            width: 100;
+        }
+        .sub-right {
+            text-align: right;
+            width: 80;
+        }
+            .sub-gold {
+            text-align: right;
+            width: 130;
+        }
+          .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+          .sub-row td { border-top: none; text-align: left; }
+          .container { display: flex; justify-content: space-between; margin-top: 10px; }
+          .table-container { width: 55%; }
+          .summary-container { width: 35%; }
+          .stone-name { text-align: left; }
+          .sub-final { background-color: #C9CDCF; font-weight: bold; }
+          .sub-right-bold { text-align: right; font-weight: bold; }
+          .stone-name-bold { text-align: left; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <div class="header"><h2>ESTIMATION</h2></div>
+        <div class="sub-header">
+          <span>ESTIMATION NO. : <span class="sub-est">${
+            selectEstimationNo
+              ? selectEstimationNo?.ESTIMATIONNO
+              : estimationCount + 1
+          }</span></span>
+          <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}</span>
+          <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub">PARTICULARS</th><th>Purity</th>
+              <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
+              <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+            ${totalsRow}
+          </tbody>
+        </table>
+        <div class="container">
+          ${stonesTable}
+          ${summaryTable}
+        </div>
+      </body>
+    </html>
+  `;
+
+    // Create container for html2pdf
+    const container = document.createElement("div");
+    container.innerHTML = htmlContent;
+    document.body.appendChild(container);
+
+    html2pdf()
+      .set({
+        margin: [10, 5, 10, 5],
+        filename: `Estimation_${
+          selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1
+        }.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        // html2canvas: { scale: 2, useCORS: false },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      })
+      .from(container)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+      });
   };
 
   // const handlePrint = () => {
@@ -3487,17 +4237,18 @@ ${
           <table>
             <thead>
               <tr>
-                <th class="stone-name">STONE NAME</th>
-                <th>PIECES</th>
-                <th class="sub-right">WEIGHT</th>
-                <th class="sub-right">COST</th>
-                <th class="sub-right">AMOUNT</th>
+                <th class="sub-stone-name">STONE NAME</th>
+                <th class="stone-pieces">PIECES</th>
+                <th class="stone-weight">WEIGHT</th>
+                <th class="stone-cost">COST</th>
+                <th class="stone-amount">AMOUNT</th>
               </tr>
             </thead>
             <tbody>
               ${(() => {
                 let totalStoneWeight = 0;
                 let totalAmount = 0;
+                let totalStonePieces = 0;
                 return (
                   stonesData
                     .map((stone, index) => {
@@ -3505,22 +4256,24 @@ ${
                       const amount = stone.ACTGRAMS * Number(rate);
                       totalAmount += amount;
                       totalStoneWeight += stone.ACTGRAMS;
+                      totalStonePieces += stone.PCS
                       return `
                       <tr>
-                        <td class="stone-name">${stone.MAINTYPE}</td>
-                        <td>${stone.PCS}</td>
-                        <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
-                        <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
-                        <td class="sub-right">${amount.toFixed(2)}</td>
+                        <td class="sub-stone-name">${stone.MAINTYPE}</td>
+                        <td class="stone-pieces">${stone.PCS}</td>
+                        <td class="stone-weight">${stone.ACTGRAMS.toFixed(3)}</td>
+                        <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
+                        <td class="stone-amount">${amount.toFixed(2)}</td>
                       </tr>
                     `;
                     })
                     .join("") +
                   `<tr class="total">
-                    <td colspan="2"></td>
-                    <td>${totalStoneWeight.toFixed(3)}</td>
-                    <td></td>
-                    <td>${totalAmount.toFixed(2)}</td>
+                    <td colspan="1">Total</td>
+                    <td class="stone-pieces">${totalStonePieces}</td>
+                    <td class="stone-weight">${totalStoneWeight.toFixed(3)}</td>
+                    <td class="stone-cost"></td>
+                    <td class="stone-amount">${totalAmount.toFixed(2)}</td>
                   </tr>`
                 );
               })()}
@@ -3691,6 +4444,11 @@ ${
           .sub-final { background-color: #f26d14ff; font-weight: bold; }
           .sub-right-bold { text-align: right; font-weight: bold; }
           .stone-name-bold { text-align: left; font-weight: bold; }
+          .sub-stone-name { text-align: left;  width: 100px}
+          .stone-pieces { text-align: center; font-weight: bold; width: 60px }
+          .stone-weight { text-align: right; width: 60px }
+          .stone-cost { text-align: right; width: 60px }
+          .stone-amount { text-align: right; width: 60px }
         </style>
       </head>
       <body>
@@ -3737,14 +4495,14 @@ ${
     html2pdf()
       .set({
         margin: [10, 5, 10, 5],
-        filename: `Estimation-${
+        filename: `Estimation_${
           selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1
         }.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       })
       .from(container)
       .save()
@@ -3753,63 +4511,572 @@ ${
       });
   };
 
+  //   const handleLandScapDownloadPDF = () => {
+  //     let totalPCS = 0;
+  //     let totalGWT = 0;
+  //     let totalStone = 0;
+  //     let totalNWT = 0;
+  //     let totalGold = 0;
+
+  //     // Build table rows
+  //     const tableRows = tableData
+  //       .map((item, index) => {
+  //         const actGrams =
+  //           stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+  //           "";
+  //         const removeUndefinedWrapper = (str) => {
+  //           let prevStr;
+  //           do {
+  //             prevStr = str;
+  //             str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+  //           } while (prevStr !== str);
+  //           return str;
+  //         };
+  //         const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+  //         totalPCS += item.PIECES;
+  //         totalGWT += item.GWT;
+  //         totalStone += Number(item.STONEWT);
+  //         totalNWT += Number(item.NETWT);
+  //         totalGold += Number(item?.FINALGOLD);
+  //         const imgPath = item.IMGPATH || photos[index] || "";
+  // // const imgTag = imgPath
+  // //   ? `<img src="${imgPath}"
+  // //           alt="Item Image"
+  // //           style="max-width:80px; max-height:80px; object-fit:contain;"
+  // //            />`
+  // //   : "";
+
+  //         return `
+  //         <tr>
+  //           <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+  //           index + 1
+  //         }</strong></td>
+  //           <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+  //           item.TAGNO
+  //         }</strong></td>
+  //         <td rowspan="${cleanedActGrams ? 2 : 1}">
+
+  // ${imgPath
+  //   ? `<img src="${imgPath}"
+  //           alt="Item Image"
+  //           style="max-width:80px; max-height:80px;"
+  //            />`
+  //   : ""}
+  // </td>
+  //           <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+  //           <td>${item.PREFIX}</td>
+  //           <td class="sub-right"><strong>${item.PIECES}</strong></td>
+  //           <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+  //           <td class="sub-right">${item.STONEWT}</td>
+  //           <td class="sub-right">${item.NETWT}</td>
+  //           <td class="sub-right">${item.TOUCH}%</td>
+  //           <td class="sub-gold">${item.FINALGOLD}</td>
+  //         </tr>
+  //         ${
+  //           cleanedActGrams
+  //             ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+  //             : ""
+  //         }
+  //       `;
+  //       })
+  //       .join("");
+
+  //     // Totals row
+  //     const totalsRow = `
+  //     <tr class="total">
+  //       <td colspan="5">Total</td>
+  //       <td>${totalPCS}</td>
+  //       <td>${totalGWT.toFixed(3)}</td>
+  //       <td>${Number(totalStone)?.toFixed(3)}</td>
+  //       <td>${Number(totalNWT)?.toFixed(3)}</td>
+  //       <td></td>
+  //       <td>${Number(totalGold)?.toFixed(3)}</td>
+  //     </tr>
+  //   `;
+
+  //     // Stones table if applicable
+  //     const stonesTable =
+  //       path === "/estimations-model1"
+  //         ? `
+  //         <div class="table-container">
+  //           <table>
+  //             <thead>
+  //               <tr>
+  //                 <th class="stone-name">STONE NAME</th>
+  //                 <th>PIECES</th>
+  //                 <th class="sub-right">WEIGHT</th>
+  //                 <th class="sub-right">COST</th>
+  //                 <th class="sub-right">AMOUNT</th>
+  //               </tr>
+  //             </thead>
+  //             <tbody>
+  //               ${(() => {
+  //                 let totalStoneWeight = 0;
+  //                 let totalAmount = 0;
+  //                 return (
+  //                   stonesData
+  //                     .map((stone, index) => {
+  //                       const rate = stoneRate[index] || 0;
+  //                       const amount = stone.ACTGRAMS * Number(rate);
+  //                       totalAmount += amount;
+  //                       totalStoneWeight += stone.ACTGRAMS;
+  //                       return `
+  //                       <tr>
+  //                         <td class="stone-name">${stone.MAINTYPE}</td>
+  //                         <td>${stone.PCS}</td>
+  //                         <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
+  //                         <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
+  //                         <td class="sub-right">${amount.toFixed(2)}</td>
+  //                       </tr>
+  //                     `;
+  //                     })
+  //                     .join("") +
+  //                   `<tr class="total">
+  //                     <td colspan="2"></td>
+  //                     <td>${totalStoneWeight.toFixed(3)}</td>
+  //                     <td></td>
+  //                     <td>${totalAmount.toFixed(2)}</td>
+  //                   </tr>`
+  //                 );
+  //               })()}
+  //             </tbody>
+  //           </table>
+  //         </div>
+  //       `
+  //         : "";
+
+  //     // Summary table
+  //     const summaryTable = `
+  //     <div class="summary-container">
+  //       <table>
+  //         <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+  //           3
+  //         )}</td></tr>
+  //         ${
+  //           rateCut === true
+  //             ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+  //                 rateValue || 0
+  //               )}/-</td>
+  //                 <td class="sub-right">${
+  //                   amountValue ? Number(amountValue).toFixed(2) : 0
+  //                 }</td></tr>`
+  //             : ""
+  //         }
+  //         <tr><td class="stone-name">Making ${
+  //           makingValue || 0
+  //         } /g</td><td class="sub-right">${
+  //       perGramValue ? Number(perGramValue).toFixed(2) : 0
+  //     }</td></tr>
+  //         ${
+  //           path === "/estimations-model1"
+  //             ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+  //                 rodiumChargeValue || 0
+  //               }</td></tr>
+  //                <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+  //                  2
+  //                )}</td></tr>`
+  //             : `<tr><td class="stone-name">Stone Cost ${
+  //                 stoneMakingValue || 0
+  //               } /g</td>
+  //                <td class="sub-right">${
+  //                  stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+  //                }</td></tr>`
+  //         }
+  //         <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+  //           3
+  //         )}</strong></td></tr>
+  //         <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+  //           2
+  //         )}</strong></td></tr>
+  //       </table>
+  //     </div>
+  //   `;
+
+  //     // Build full HTML content
+  //     const htmlContent = `
+  //     <html>
+  //       <head>
+  //         <style>
+  //            body {
+  //             font-family: Arial, sans-serif;
+  //             margin: 20px;
+  //             font-size: 12px;
+  //         }
+  //         .header {
+  //             text-align: center;
+  //             margin-bottom: 18px;
+  //         }
+  //         .header h2 {
+  //             margin: 0;
+  //             font-size: 16px;
+  //             font-weight: bold;
+  //             display: inline-block;
+  //     text-decoration: underline;
+  //     text-underline-offset: 4px;
+  //         }
+  //         .sub-header {
+  //             display: flex;
+  //             justify-content: space-between;
+  //             font-size: 12px;
+  //             font-weight: bold;
+  //             margin-bottom: 10px;
+  //             padding-bottom: 5px;
+  //         }
+  //              .sub-est {
+  //           font-weight : bold;
+  //           font-size: 18px;
+  //           color : red;
+  //         }
+  //           .sub-party {
+  //           font-weight : bold;
+  //           font-size: 14px;
+  //           color : #162566;
+  //         }
+  //         table {
+  //             width: 100%;
+  //             border-collapse: collapse;
+  //             font-size: 12px;
+  //             margin-top: 5px;
+  //         }
+  //         th, td {
+  //             border: 1px solid black;
+  //             padding: 5px;
+  //             text-align: center;
+  //         }
+  //         th {
+  //             background-color: #52bd91;
+  //             font-weight: bold;
+  //         }
+  //         .total {
+  //             font-weight: bold;
+  //             background-color: #162566;
+  //             color: white;
+  //         }
+  //         .summary {
+  //             display: flex;
+  //             justify-content: space-between;
+  //             margin-top: 15px;
+  //         }
+  //         .summary-box {
+  //             width: 48%;
+  //             border: 1px solid black;
+  //             padding: 10px;
+  //             font-size: 12px;
+  //         }
+  //         .summary-box table {
+  //             width: 100%;
+  //             border: none;
+  //         }
+  //         .summary-box td {
+  //             border: none;
+  //             text-align: left;
+  //             padding: 3px 0;
+  //         }
+  //         .footer {
+  //             margin-top: 15px;
+  //             font-size: 12px;
+  //         }
+  //           .sub {
+  //             text-align: left;
+  //             width: 300px;
+  //         }
+  //             .sub-pro {
+  //               text-align: left;
+  //               width: 500;
+  //               background-color: #BCF2F6;
+  //           }
+  //             .sub-tag {
+  //             text-align: center;
+  //             width: 100;
+  //         }
+  //              .sub-image {
+  //             text-align: center;
+  //         }
+  //             .sub-img {
+  //             display: flex;
+  //             text-align: center;
+  //             border-radius: 10px;
+  //             width: 100%;
+  //             height: 100%;
+  //             align-items: center;
+  //         }
+  //         .sub-right {
+  //             text-align: right;
+  //             width: 80;
+  //         }
+  //             .sub-gold {
+  //             text-align: right;
+  //             width: 130;
+  //         }
+  //           .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+  //           .sub-row td { border-top: none; text-align: left; }
+  //           .container { display: flex; justify-content: space-between; margin-top: 10px; }
+  //           .table-container { width: 55%; }
+  //           .summary-container { width: 35%; }
+  //           .stone-name { text-align: left; }
+  //           .sub-final { background-color: #f26d14ff; font-weight: bold; }
+  //           .sub-right-bold { text-align: right; font-weight: bold; }
+  //           .stone-name-bold { text-align: left; font-weight: bold; }
+  //         </style>
+  //       </head>
+  //       <body>
+  //         <div class="header"><h2>ESTIMATION</h2></div>
+  //         <div class="sub-header">
+  //           <span>ESTIMATION NO. : <span class="sub-est">${
+  //             selectEstimationNo
+  //               ? selectEstimationNo?.ESTIMATIONNO
+  //               : estimationCount + 1
+  //           }</span></span>
+  //           <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+  //             day: "2-digit",
+  //             month: "short",
+  //             year: "numeric",
+  //           })}</span>
+  //           <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
+  //         </div>
+  //         <table>
+  //           <thead>
+  //             <tr>
+  //               <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th>
+  //               <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
+  //               <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //             ${tableRows}
+  //             ${totalsRow}
+  //           </tbody>
+  //         </table>
+  //         <div class="container">
+  //           ${stonesTable}
+  //           ${summaryTable}
+  //         </div>
+  //       </body>
+  //     </html>
+  //   `;
+
+  //     const blob = new Blob([htmlContent], { type: "application/pdf" });
+  //   const link = document.createElement("a");
+  //   link.href = URL.createObjectURL(blob);
+  //   link.download = `Estimation_${selectEstimationNo ? selectEstimationNo.ESTIMATIONNO : estimationCount + 1}.pdf`;
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  //   };
+
   const handleLandScapDownloadPDF = () => {
-    const printWindow = window.open("", "", "height=700,width=900");
+    let totalPCS = 0;
+    let totalGWT = 0;
+    let totalStone = 0;
+    let totalNWT = 0;
+    let totalGold = 0;
 
-    printWindow.document.write(
-      `<html><head><title>Estimation_${
-        selectEstimationNo
-          ? selectEstimationNo?.ESTIMATIONNO
-          : estimationCount + 1
-      }</title><style>`
-    );
+    // Build table rows
+    const tableRows = tableData
+      .map((item, index) => {
+        const actGrams =
+          stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+          "";
+        const removeUndefinedWrapper = (str) => {
+          let prevStr;
+          do {
+            prevStr = str;
+            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+          } while (prevStr !== str);
+          return str;
+        };
+        const cleanedActGrams = removeUndefinedWrapper(actGrams);
 
-    // Force landscape orientation
-    printWindow.document.write(`
-    @media print {
-          @page {
-            size: A4 landscape !important;
-            margin: 1mm;
-          }
-          body {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
+        totalPCS += item.PIECES;
+        totalGWT += item.GWT;
+        totalStone += Number(item.STONEWT);
+        totalNWT += Number(item.NETWT);
+        totalGold += Number(item?.FINALGOLD);
+        const imgPath = item.IMGPATH || photos[index] || "";
+        const base64Img = base64Images[imgPath] || "";
+
+        return `
+        <tr>
+          <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+          index + 1
+        }</strong></td>
+          <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+          item.TAGNO
+        }</strong></td>
+        <td rowspan="${cleanedActGrams ? 2 : 1}">
+      
+${
+  base64Img
+    ? `<img src="${base64Img}" 
+             alt="Item Image" 
+             style="max-width:80px; max-height:80px;"/>`
+    : ""
+}
+</td>
+          <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+          <td>${item.PREFIX}</td>
+          <td class="sub-right"><strong>${item.PIECES}</strong></td>
+          <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+          <td class="sub-right">${item.STONEWT}</td>
+          <td class="sub-right">${item.NETWT}</td>
+          <td class="sub-right">${item.TOUCH}%</td>
+          <td class="sub-gold">${item.FINALGOLD}</td>
+        </tr>
+        ${
+          cleanedActGrams
+            ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+            : ""
         }
+      `;
+      })
+      .join("");
 
-        /* Force color printing for all elements */
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          color-adjust: exact !important;
+    // Totals row
+    const totalsRow = `
+    <tr class="total">
+      <td colspan="5">Total</td>
+      <td class="sub-right">${totalPCS}</td>
+      <td class="sub-right">${totalGWT.toFixed(3)}</td>
+      <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
+      <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
+      <td></td>
+      <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
+    </tr>
+  `;
+
+    // Stones table if applicable
+    const stonesTable =
+      path === "/estimations-model1"
+        ? `
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="sub-stone-name">STONE NAME</th>
+                <th class="stone-pieces">PIECES</th>
+                <th class="stone-weight">WEIGHT</th>
+                <th class="stone-cost">COST</th>
+                <th class="stone-amount">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(() => {
+                let totalStoneWeight = 0;
+                let totalAmount = 0;
+                let totalStonePieces =0;
+                return (
+                  stonesData
+                    .map((stone, index) => {
+                      const rate = stoneRate[index] || 0;
+                      const amount = stone.ACTGRAMS * Number(rate);
+                      totalAmount += amount;
+                      totalStoneWeight += stone.ACTGRAMS;
+                      totalStonePieces += stone.PCS;
+                      return `
+                      <tr>
+                        <td class="sub-stone-name">${stone.MAINTYPE}</td>
+                        <td class="stone-pieces">${stone.PCS}</td>
+                        <td class="stone-weight">${stone.ACTGRAMS.toFixed(3)}</td>
+                        <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
+                        <td class="stone-amount">${amount.toFixed(2)}</td>
+                      </tr>
+                    `;
+                    })
+                    .join("") +
+                  `<tr class="total">
+                    <td colspan="1">Total</td>
+                    <td class="stone-pieces">${totalStonePieces}</td>
+                    <td class="stone-weight">${totalStoneWeight.toFixed(3)}</td>
+                    <td class="stone-cost"></td>
+                    <td class="stone-amount">${totalAmount.toFixed(2)}</td>
+                  </tr>`
+                );
+              })()}
+            </tbody>
+          </table>
+        </div>
+      `
+        : "";
+
+    // Summary table
+    const summaryTable = `
+    <div class="summary-container">
+      <table>
+        <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+          3
+        )}</td></tr>
+        ${
+          rateCut === true
+            ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+                rateValue || 0
+              )}/-</td>
+                <td class="sub-right">${
+                  amountValue ? Number(amountValue).toFixed(2) : 0
+                }</td></tr>`
+            : ""
         }
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0px;
-        font-size: 12px;
-    }
-    .header {
-        text-align: center;
-        margin-bottom: 18px;
-    }
-    .header h2 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: bold;
-        display: inline-block;
-        text-decoration: underline;
-        text-underline-offset: 4px;
-    }
-    .sub-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-    }
-        .sub-est {
+        <tr><td class="stone-name">Making ${
+          makingValue || 0
+        } /g</td><td class="sub-right">${
+      perGramValue ? Number(perGramValue).toFixed(2) : 0
+    }</td></tr>
+        ${
+          path === "/estimations-model1"
+            ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+                rodiumChargeValue || 0
+              }</td></tr>
+               <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+                 2
+               )}</td></tr>`
+            : `<tr><td class="stone-name">Stone Cost ${
+                stoneMakingValue || 0
+              } /g</td>
+               <td class="sub-right">${
+                 stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+               }</td></tr>`
+        }
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+          3
+        )}</strong></td></tr>
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+          2
+        )}</strong></td></tr>
+      </table>
+    </div>
+  `;
+
+    // Build full HTML content
+    const htmlContent = `
+    <html>
+      <head>
+        <style>
+           body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+        }
+        .sub-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+             .sub-est {
           font-weight : bold;
           font-size: 18px;
           color : red;
@@ -3819,121 +5086,53 @@ ${
           font-size: 14px;
           color : #162566;
         }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-    th, td {
-        border: 1px solid black;
-        padding: 5px;
-        text-align: center;
-    }
-    th {
-        background-color: #52bd91;
-        font-weight: bold;
-    }
-    .total {
-        font-weight: bold;
-        background-color: #162566;
-        color: white;
-    }
-    .summary {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 15px;
-    }
-    .summary-box {
-        width: 48%;
-        border: 1px solid black;
-        padding: 10px;
-        font-size: 12px;
-    }
-    .summary-box table {
-        width: 100%;
-        border: none;
-    }
-    .summary-box td {
-        border: none;
-        text-align: left;
-        padding: 3px 0;
-    }
-    .footer {
-        margin-top: 15px;
-        font-size: 12px;
-    }
-  `);
-
-    printWindow.document.write("</style></head><body>");
-
-    // Header Section
-    printWindow.document.write(`
-    <div class="header">
-        <h2>ESTIMATION</h2>
-    </div>
-    <div class="sub-header">
-        <span>ESTIMATION NO. : <span class="sub-est">${
-          selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1
-        }</span></span>
-        <span>DATE : ${new Date().toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        })}</span>
-        <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
-    </div>
-  `);
-
-    // Main Table
-    printWindow.document.write(`
-    <style>
         table {
             width: 100%;
             border-collapse: collapse;
-            border: 2px solid black;
-            font-family: Arial, sans-serif;
             font-size: 12px;
+            margin-top: 5px;
         }
         th, td {
             border: 1px solid black;
             padding: 5px;
             text-align: center;
-            vertical-align: middle;
         }
         th {
-            font-weight: bold;
             background-color: #52bd91;
+            font-weight: bold;
         }
-        td strong {
-            font-size: 12px;
-        }
-        td span {
-            font-size: 10px;
-        }
-        .total td {
+        .total {
             font-weight: bold;
             background-color: #162566;
             color: white;
         }
-        td div.sub-text {
-            text-align: left;
-            font-size: 10px;
-            font-weight: bold;
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
         }
-        td div.sub-value {
-            text-align: left;
-            font-size: 10px;
+        .summary-box {
+            width: 48%;
+            border: 1px solid black;
+            padding: 10px;
+            font-size: 12px;
         }
-        tr.sub-row td {
-            border-top: none;
-            text-align: left;
+        .summary-box table {
+            width: 100%;
+            border: none;
         }
-        .sub {
+        .summary-box td {
+            border: none;
             text-align: left;
-            width: 500;
+            padding: 3px 0;
+        }
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+        }
+          .sub {
+            text-align: left;
+            width: 300px;
         }
             .sub-pro {
               text-align: left;
@@ -3944,7 +5143,7 @@ ${
             text-align: center;
             width: 100;
         }
-            .sub-image {
+             .sub-image {
             text-align: center;
         }
             .sub-img {
@@ -3963,276 +5162,565 @@ ${
             text-align: right;
             width: 130;
         }
-    </style>
-    <table>
-        <thead>
-            <tr>
-                <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
-                <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
-            </tr>
-        </thead>
-        <tbody>
-  `);
-
-    let totalPCS = 0;
-    let totalGWT = 0;
-    let totalStone = 0;
-    let totalNWT = 0;
-    let totalGold = 0;
-
-    tableData.forEach((item, index) => {
-      const actGrams =
-        stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
-        "";
-      const removeUndefinedWrapper = (str) => {
-        let prevStr;
-        do {
-          prevStr = str;
-          str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-        } while (prevStr !== str);
-        return str;
-      };
-      const cleanedActGrams = removeUndefinedWrapper(actGrams);
-
-      printWindow.document.write(`
-        <tr>
-            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-        index + 1
-      }</strong></td>
-            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-        item.TAGNO
-      }</strong></td>
-      <td rowspan="${cleanedActGrams ? 2 : 1}">
-      
-${
-  item.IMGPATH || photos[index]
-    ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index]}" 
-             alt="Item Image" 
-             style="max-width:80px; max-height:80px; object-fit:contain;" />`
-    : ""
-}
-</td>
-            <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
-            <td>${item.PREFIX}</td>
-            <td class="sub-right"><strong>${item.PIECES}</strong></td>
-            <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
-            <td class="sub-right">${item.STONEWT}</td>
-            <td class="sub-right">${item.NETWT}</td>
-            <td class="sub-right">${item.TOUCH}%</td>
-            <td class="sub-gold">${item.FINALGOLD}</td>
-        </tr>
-    `);
-
-      if (cleanedActGrams) {
-        printWindow.document.write(`
-        <tr class="sub-row">
-            <td colspan="10" class="sub-text">${cleanedActGrams}</td>
-        </tr>
-      `);
-      }
-
-      totalPCS += item.PIECES;
-      totalGWT += item.GWT;
-      totalStone += Number(item.STONEWT);
-      totalNWT += Number(item.NETWT);
-      totalGold += Number(item?.FINALGOLD);
-    });
-
-    printWindow.document.write(`
-        <tr class="total">
-            <td colspan="5" class="sub-total">Total</td>
-            <td>${totalPCS}</td>
-            <td>${totalGWT.toFixed(3)}</td>
-            <td>${Number(totalStone)?.toFixed(3)}</td>
-            <td>${Number(totalNWT)?.toFixed(3)}</td>
-            <td></td>
-            <td>${Number(totalGold)?.toFixed(3)}</td>
-        </tr>
-    </tbody>
-  </table>
-  `);
-
-    if (path === "/estimations-model1") {
-      generateEstimationPrint({
-        showStonesTable: true,
-        includeRodiumCharges: true,
-        rateCutChange: true,
-      });
-    } else if (path === "/estimations-model2") {
-      generateEstimationPrint({
-        showStonesTable: false,
-        includeRodiumCharges: false,
-        rateCutChange: true,
-      });
-    }
-
-    function generateEstimationPrint({
-      showStonesTable,
-      includeRodiumCharges,
-    }) {
-      printWindow.document.write(`
-      <style>
-        .container {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          width: 100%;
-          margin-top: 10px;
-        }
-        .table-container {
-          width: 55%;
-        }
-        .summary-container {
-          width: 35%;
-          margin-left: ${showStonesTable ? "0" : "auto"};
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          border: 2px solid black;
-        }
-        th, td {
-          border: 1px solid black;
-          padding: 5px;
-          text-align: center;
-          vertical-align: middle;
-        }
-        th {
-          font-weight: bold;
-          background-color: #52bd91;
-        }
-        .total td {
-          font-weight: bold;
-          background-color: #162566;
-          text-align: right;
-          color: white;
-        }
-        .stone-name {
-          text-align: left;
-        }
-        .sub-right {
-          text-align: right;
-        }
-        .sub-final {
-          background-color: #f26d14ff;
-          font-weight: bold;
-        }
-        .sub-right-bold {
-          text-align: right;
-          font-weight: bold;
-        }
-        .stone-name-bold {
-          text-align: left;
-          font-weight: bold;
-        }
-      </style>
-
-      <div class="container">
-    `);
-
-      if (showStonesTable) {
-        let totalStoneWeight = 0;
-        let totalAmount = 0;
-
-        printWindow.document.write(`
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th class="stone-name">STONE NAME</th>
-                <th>PIECES</th>
-                <th class="sub-right">WEIGHT</th>
-                <th class="sub-right">COST</th>
-                <th class="sub-right">AMOUNT</th>
-              </tr>
-            </thead>
-            <tbody>
-      `);
-
-        stonesData.forEach((stone, index) => {
-          const rate = stoneRate[index] || 0;
-          const amount = stone.ACTGRAMS * Number(rate);
-          totalAmount += amount;
-          totalStoneWeight += stone.ACTGRAMS;
-
-          printWindow.document.write(`
-          <tr>
-            <td class="stone-name">${stone.MAINTYPE}</td>
-            <td>${stone.PCS}</td>
-            <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
-            <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
-            <td class="sub-right">${amount.toFixed(2)}</td>
-          </tr>
-        `);
-        });
-
-        printWindow.document.write(`
-              <tr class="total">
-                <td colspan="2"></td>
-                <td>${totalStoneWeight.toFixed(3)}</td>
-                <td></td>
-                <td>${totalAmount.toFixed(2)}</td>
-              </tr>
-            </tbody>
-          </table>
+          .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+          .sub-row td { border-top: none; text-align: left; }
+          .container { display: flex; justify-content: space-between; margin-top: 10px; }
+          .table-container { width: 40%; }
+          .summary-container { width: 35%; }
+          .stone-name { text-align: left;}
+          .sub-final { background-color: #f26d14ff; font-weight: bold; }
+          .sub-right-bold { text-align: right; font-weight: bold; }
+          .stone-name-bold { text-align: left; font-weight: bold; }
+          .sub-stone-name { text-align: left;  width: 100px}
+          .stone-pieces { text-align: center; font-weight: bold; width: 60px }
+          .stone-weight { text-align: right; width: 60px }
+          .stone-cost { text-align: right; width: 60px }
+          .stone-amount { text-align: right; width: 60px }
+        </style>
+      </head>
+      <body>
+        <div class="header"><h2>ESTIMATION</h2></div>
+        <div class="sub-header">
+          <span>ESTIMATION NO. : <span class="sub-est">${
+            selectEstimationNo
+              ? selectEstimationNo?.ESTIMATIONNO
+              : estimationCount + 1
+          }</span></span>
+          <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}</span>
+          <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
         </div>
-      `);
-      }
-
-      printWindow.document.write(`
-      <div class="summary-container">
         <table>
-          <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
-            3
-          )}</td></tr>
-          ${
-            rateCut === true
-              ? `<tr>
-                  <td class="stone-name">
-                    Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-
-                  </td>
-                  <td class="sub-right">
-                    ${amountValue ? Number(amountValue).toFixed(2) : 0}
-                  </td>
-                </tr>`
-              : ""
-          }
-          <tr><td class="stone-name">Making ${
-            makingValue || 0
-          } /g</td><td class="sub-right">${
-        perGramValue ? Number(perGramValue).toFixed(2) : 0
-      }</td></tr>
-          ${
-            includeRodiumCharges
-              ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
-                  rodiumChargeValue || 0
-                }</td></tr>
-                 <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
-                   2
-                 )}</td></tr>`
-              : `<tr><td class="stone-name">Stone Cost ${
-                  stoneMakingValue || 0
-                } /g</td>
-                 <td class="sub-right">${
-                   stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
-                 }</td></tr>`
-          }
-          <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-            3
-          )}</strong></td></tr>
-          <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balnace</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
-            2
-          )}</strong></td></tr>
+          <thead>
+            <tr>
+              <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th>
+              <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
+              <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+            ${totalsRow}
+          </tbody>
         </table>
-      </div>
-    </div>
-    `);
-    }
+        <div class="container">
+          ${stonesTable}
+          ${summaryTable}
+        </div>
+      </body>
+    </html>
+  `;
 
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
+    // Create container for html2pdf
+    const container = document.createElement("div");
+    container.innerHTML = htmlContent;
+    document.body.appendChild(container);
+
+    html2pdf()
+      .set({
+        margin: [10, 5, 10, 5],
+        filename: `Estimation_${
+          selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1
+        }.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        // html2canvas: { scale: 2, useCORS: false },
+        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+      })
+      .from(container)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+      });
   };
+
+  //   const handleLandScapDownloadPDF = () => {
+  //     const printWindow = window.open("", "", "height=700,width=900");
+
+  //     printWindow.document.write(
+  //       `<html><head><title>Estimation_${
+  //         selectEstimationNo
+  //           ? selectEstimationNo?.ESTIMATIONNO
+  //           : estimationCount + 1
+  //       }</title><style>`
+  //     );
+
+  //     // Force landscape orientation
+  //     printWindow.document.write(`
+  //     @media print {
+  //           @page {
+  //             size: A4 landscape !important;
+  //             margin: 1mm;
+  //           }
+  //           body {
+  //             -webkit-print-color-adjust: exact !important;
+  //             print-color-adjust: exact !important;
+  //             color-adjust: exact !important;
+  //           }
+  //         }
+
+  //         /* Force color printing for all elements */
+  //         * {
+  //           -webkit-print-color-adjust: exact !important;
+  //           print-color-adjust: exact !important;
+  //           color-adjust: exact !important;
+  //         }
+  //     body {
+  //         font-family: Arial, sans-serif;
+  //         margin: 0px;
+  //         font-size: 12px;
+  //     }
+  //     .header {
+  //         text-align: center;
+  //         margin-bottom: 18px;
+  //     }
+  //     .header h2 {
+  //         margin: 0;
+  //         font-size: 16px;
+  //         font-weight: bold;
+  //         display: inline-block;
+  //         text-decoration: underline;
+  //         text-underline-offset: 4px;
+  //     }
+  //     .sub-header {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         font-size: 12px;
+  //         font-weight: bold;
+  //         margin-bottom: 10px;
+  //         padding-bottom: 5px;
+  //     }
+  //         .sub-est {
+  //           font-weight : bold;
+  //           font-size: 18px;
+  //           color : red;
+  //         }
+  //           .sub-party {
+  //           font-weight : bold;
+  //           font-size: 14px;
+  //           color : #162566;
+  //         }
+  //     table {
+  //         width: 100%;
+  //         border-collapse: collapse;
+  //         font-size: 12px;
+  //         margin-top: 5px;
+  //     }
+  //     th, td {
+  //         border: 1px solid black;
+  //         padding: 5px;
+  //         text-align: center;
+  //     }
+  //     th {
+  //         background-color: #52bd91;
+  //         font-weight: bold;
+  //     }
+  //     .total {
+  //         font-weight: bold;
+  //         background-color: #162566;
+  //         color: white;
+  //     }
+  //     .summary {
+  //         display: flex;
+  //         justify-content: space-between;
+  //         margin-top: 15px;
+  //     }
+  //     .summary-box {
+  //         width: 48%;
+  //         border: 1px solid black;
+  //         padding: 10px;
+  //         font-size: 12px;
+  //     }
+  //     .summary-box table {
+  //         width: 100%;
+  //         border: none;
+  //     }
+  //     .summary-box td {
+  //         border: none;
+  //         text-align: left;
+  //         padding: 3px 0;
+  //     }
+  //     .footer {
+  //         margin-top: 15px;
+  //         font-size: 12px;
+  //     }
+  //   `);
+
+  //     printWindow.document.write("</style></head><body>");
+
+  //     // Header Section
+  //     printWindow.document.write(`
+  //     <div class="header">
+  //         <h2>ESTIMATION</h2>
+  //     </div>
+  //     <div class="sub-header">
+  //         <span>ESTIMATION NO. : <span class="sub-est">${
+  //           selectEstimationNo
+  //             ? selectEstimationNo?.ESTIMATIONNO
+  //             : estimationCount + 1
+  //         }</span></span>
+  //         <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+  //           day: "2-digit",
+  //           month: "short",
+  //           year: "numeric",
+  //         })}</span>
+  //         <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
+  //     </div>
+  //   `);
+
+  //     // Main Table
+  //     printWindow.document.write(`
+  //     <style>
+  //         table {
+  //             width: 100%;
+  //             border-collapse: collapse;
+  //             border: 2px solid black;
+  //             font-family: Arial, sans-serif;
+  //             font-size: 12px;
+  //         }
+  //         th, td {
+  //             border: 1px solid black;
+  //             padding: 5px;
+  //             text-align: center;
+  //             vertical-align: middle;
+  //         }
+  //         th {
+  //             font-weight: bold;
+  //             background-color: #52bd91;
+  //         }
+  //         td strong {
+  //             font-size: 12px;
+  //         }
+  //         td span {
+  //             font-size: 10px;
+  //         }
+  //         .total td {
+  //             font-weight: bold;
+  //             background-color: #162566;
+  //             color: white;
+  //         }
+  //         td div.sub-text {
+  //             text-align: left;
+  //             font-size: 10px;
+  //             font-weight: bold;
+  //         }
+  //         td div.sub-value {
+  //             text-align: left;
+  //             font-size: 10px;
+  //         }
+  //         tr.sub-row td {
+  //             border-top: none;
+  //             text-align: left;
+  //         }
+  //         .sub {
+  //             text-align: left;
+  //             width: 500;
+  //         }
+  //             .sub-pro {
+  //               text-align: left;
+  //               width: 500;
+  //               background-color: #BCF2F6;
+  //           }
+  //             .sub-tag {
+  //             text-align: center;
+  //             width: 100;
+  //         }
+  //             .sub-image {
+  //             text-align: center;
+  //         }
+  //             .sub-img {
+  //             display: flex;
+  //             text-align: center;
+  //             border-radius: 10px;
+  //             width: 100%;
+  //             height: 100%;
+  //             align-items: center;
+  //         }
+  //         .sub-right {
+  //             text-align: right;
+  //             width: 80;
+  //         }
+  //             .sub-gold {
+  //             text-align: right;
+  //             width: 130;
+  //         }
+  //     </style>
+  //     <table>
+  //         <thead>
+  //             <tr>
+  //                 <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th><th>Pieces</th><th class="sub-right">Gross.Wt</th>
+  //                 <th class="sub-right">Less.Wt</th><th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+  //             </tr>
+  //         </thead>
+  //         <tbody>
+  //   `);
+
+  //     let totalPCS = 0;
+  //     let totalGWT = 0;
+  //     let totalStone = 0;
+  //     let totalNWT = 0;
+  //     let totalGold = 0;
+
+  //     tableData.forEach((item, index) => {
+  //       const actGrams =
+  //         stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+  //         "";
+  //       const removeUndefinedWrapper = (str) => {
+  //         let prevStr;
+  //         do {
+  //           prevStr = str;
+  //           str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+  //         } while (prevStr !== str);
+  //         return str;
+  //       };
+  //       const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+  //       printWindow.document.write(`
+  //         <tr>
+  //             <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+  //         index + 1
+  //       }</strong></td>
+  //             <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+  //         item.TAGNO
+  //       }</strong></td>
+  //       <td rowspan="${cleanedActGrams ? 2 : 1}">
+
+  // ${
+  //   item.IMGPATH || photos[index]
+  //     ? `<img src="${item.IMGPATH ? item.IMGPATH : photos[index]}"
+  //              alt="Item Image"
+  //              style="max-width:80px; max-height:80px; object-fit:contain;" />`
+  //     : ""
+  // }
+  // </td>
+  //             <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+  //             <td>${item.PREFIX}</td>
+  //             <td class="sub-right"><strong>${item.PIECES}</strong></td>
+  //             <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+  //             <td class="sub-right">${item.STONEWT}</td>
+  //             <td class="sub-right">${item.NETWT}</td>
+  //             <td class="sub-right">${item.TOUCH}%</td>
+  //             <td class="sub-gold">${item.FINALGOLD}</td>
+  //         </tr>
+  //     `);
+
+  //       if (cleanedActGrams) {
+  //         printWindow.document.write(`
+  //         <tr class="sub-row">
+  //             <td colspan="10" class="sub-text">${cleanedActGrams}</td>
+  //         </tr>
+  //       `);
+  //       }
+
+  //       totalPCS += item.PIECES;
+  //       totalGWT += item.GWT;
+  //       totalStone += Number(item.STONEWT);
+  //       totalNWT += Number(item.NETWT);
+  //       totalGold += Number(item?.FINALGOLD);
+  //     });
+
+  //     printWindow.document.write(`
+  //         <tr class="total">
+  //             <td colspan="5" class="sub-total">Total</td>
+  //             <td>${totalPCS}</td>
+  //             <td>${totalGWT.toFixed(3)}</td>
+  //             <td>${Number(totalStone)?.toFixed(3)}</td>
+  //             <td>${Number(totalNWT)?.toFixed(3)}</td>
+  //             <td></td>
+  //             <td>${Number(totalGold)?.toFixed(3)}</td>
+  //         </tr>
+  //     </tbody>
+  //   </table>
+  //   `);
+
+  //     if (path === "/estimations-model1") {
+  //       generateEstimationPrint({
+  //         showStonesTable: true,
+  //         includeRodiumCharges: true,
+  //         rateCutChange: true,
+  //       });
+  //     } else if (path === "/estimations-model2") {
+  //       generateEstimationPrint({
+  //         showStonesTable: false,
+  //         includeRodiumCharges: false,
+  //         rateCutChange: true,
+  //       });
+  //     }
+
+  //     function generateEstimationPrint({
+  //       showStonesTable,
+  //       includeRodiumCharges,
+  //     }) {
+  //       printWindow.document.write(`
+  //       <style>
+  //         .container {
+  //           display: flex;
+  //           justify-content: space-between;
+  //           align-items: flex-start;
+  //           width: 100%;
+  //           margin-top: 10px;
+  //         }
+  //         .table-container {
+  //           width: 55%;
+  //         }
+  //         .summary-container {
+  //           width: 35%;
+  //           margin-left: ${showStonesTable ? "0" : "auto"};
+  //         }
+  //         table {
+  //           width: 100%;
+  //           border-collapse: collapse;
+  //           border: 2px solid black;
+  //         }
+  //         th, td {
+  //           border: 1px solid black;
+  //           padding: 5px;
+  //           text-align: center;
+  //           vertical-align: middle;
+  //         }
+  //         th {
+  //           font-weight: bold;
+  //           background-color: #52bd91;
+  //         }
+  //         .total td {
+  //           font-weight: bold;
+  //           background-color: #162566;
+  //           text-align: right;
+  //           color: white;
+  //         }
+  //         .stone-name {
+  //           text-align: left;
+  //         }
+  //         .sub-right {
+  //           text-align: right;
+  //         }
+  //         .sub-final {
+  //           background-color: #f26d14ff;
+  //           font-weight: bold;
+  //         }
+  //         .sub-right-bold {
+  //           text-align: right;
+  //           font-weight: bold;
+  //         }
+  //         .stone-name-bold {
+  //           text-align: left;
+  //           font-weight: bold;
+  //         }
+  //       </style>
+
+  //       <div class="container">
+  //     `);
+
+  //       if (showStonesTable) {
+  //         let totalStoneWeight = 0;
+  //         let totalAmount = 0;
+
+  //         printWindow.document.write(`
+  //         <div class="table-container">
+  //           <table>
+  //             <thead>
+  //               <tr>
+  //                 <th class="stone-name">STONE NAME</th>
+  //                 <th>PIECES</th>
+  //                 <th class="sub-right">WEIGHT</th>
+  //                 <th class="sub-right">COST</th>
+  //                 <th class="sub-right">AMOUNT</th>
+  //               </tr>
+  //             </thead>
+  //             <tbody>
+  //       `);
+
+  //         stonesData.forEach((stone, index) => {
+  //           const rate = stoneRate[index] || 0;
+  //           const amount = stone.ACTGRAMS * Number(rate);
+  //           totalAmount += amount;
+  //           totalStoneWeight += stone.ACTGRAMS;
+
+  //           printWindow.document.write(`
+  //           <tr>
+  //             <td class="stone-name">${stone.MAINTYPE}</td>
+  //             <td>${stone.PCS}</td>
+  //             <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
+  //             <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
+  //             <td class="sub-right">${amount.toFixed(2)}</td>
+  //           </tr>
+  //         `);
+  //         });
+
+  //         printWindow.document.write(`
+  //               <tr class="total">
+  //                 <td colspan="2"></td>
+  //                 <td>${totalStoneWeight.toFixed(3)}</td>
+  //                 <td></td>
+  //                 <td>${totalAmount.toFixed(2)}</td>
+  //               </tr>
+  //             </tbody>
+  //           </table>
+  //         </div>
+  //       `);
+  //       }
+
+  //       printWindow.document.write(`
+  //       <div class="summary-container">
+  //         <table>
+  //           <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+  //             3
+  //           )}</td></tr>
+  //           ${
+  //             rateCut === true
+  //               ? `<tr>
+  //                   <td class="stone-name">
+  //                     Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-
+  //                   </td>
+  //                   <td class="sub-right">
+  //                     ${amountValue ? Number(amountValue).toFixed(2) : 0}
+  //                   </td>
+  //                 </tr>`
+  //               : ""
+  //           }
+  //           <tr><td class="stone-name">Making ${
+  //             makingValue || 0
+  //           } /g</td><td class="sub-right">${
+  //         perGramValue ? Number(perGramValue).toFixed(2) : 0
+  //       }</td></tr>
+  //           ${
+  //             includeRodiumCharges
+  //               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+  //                   rodiumChargeValue || 0
+  //                 }</td></tr>
+  //                  <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+  //                    2
+  //                  )}</td></tr>`
+  //               : `<tr><td class="stone-name">Stone Cost ${
+  //                   stoneMakingValue || 0
+  //                 } /g</td>
+  //                  <td class="sub-right">${
+  //                    stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+  //                  }</td></tr>`
+  //           }
+  //           <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+  //             3
+  //           )}</strong></td></tr>
+  //           <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balnace</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+  //             2
+  //           )}</strong></td></tr>
+  //         </table>
+  //       </div>
+  //     </div>
+  //     `);
+  //     }
+
+  //     printWindow.document.close();
+  // printWindow.onload = () => {
+  //   printWindow.focus();
+  //   printWindow.print();
+  //   printWindow.onafterprint = () => printWindow.close();
+  // };
+  //   };
 
   const handlePrintClick = ({ key }) => {
     if (key === "1") {
@@ -4261,8 +5749,35 @@ ${
   const handlePdfClick = ({ key }) => {
     if (key === "1") {
       handleLandScapDownloadPDF();
+      if (tableData.length > 0) {
+        if (selectEstimationNo?.ESTIMATIONNO) {
+          estimationDeleteItems();
+          estimationDeleteData();
+          estimationDeleteMast();
+        }
+        if (tableData.length > 0) {
+          createEstimationMast();
+          createEstimationItems();
+          createEstimationData();
+          setSelectEstimationNo(null);
+        }
+      }
     } else if (key === "2") {
       handleDownloadPDF();
+      if (tableData.length > 0) {
+        if (selectEstimationNo?.ESTIMATIONNO) {
+          estimationDeleteItems();
+          estimationDeleteData();
+          estimationDeleteMast();
+        }
+        if (tableData.length > 0) {
+          createEstimationMast();
+          createEstimationItems();
+          createEstimationData();
+          setSelectEstimationNo(null);
+          
+        }
+      }
     }
   };
 

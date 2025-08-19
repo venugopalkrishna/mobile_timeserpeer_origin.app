@@ -627,7 +627,7 @@ const ReturnEstimationDrawer = ({
         >
           Save
         </Button>
-        <Dropdown menu={printMenu} placement="topCenter">
+        {/* <Dropdown menu={printMenu} placement="topCenter">
           <Button
             type="dashed"
             style={{
@@ -640,7 +640,7 @@ const ReturnEstimationDrawer = ({
           >
             Print
           </Button>
-        </Dropdown>
+        </Dropdown> */}
         <Dropdown menu={pdfMenu} placement="topCenter">
           <Button
             type="dashed"
