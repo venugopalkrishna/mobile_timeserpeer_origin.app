@@ -21,6 +21,9 @@ const EstimationDialog = ({
   setSelectEstimationNo,
   estimationNoItemsAPI,
   estimationNoMastAPI,
+  setStonesData,
+  setTableData,
+  setStoneMainData
 }) => {
   const [summaryData, setSummaryData] = useState([]);
   const [fromDate, setFromDate] = useState(dayjs());
@@ -157,6 +160,8 @@ const EstimationDialog = ({
               }}
               onClick={() => {
                 setOpenDialog(false);
+                setStonesData([]);
+                setTableData([]);
                 estimationNoDataAPI(selectedObject?.ESTIMATIONNO);
                 estimationNoItemsAPI(selectedObject?.ESTIMATIONNO);
                 estimationNoMastAPI(selectedObject?.ESTIMATIONNO);

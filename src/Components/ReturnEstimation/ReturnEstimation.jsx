@@ -1248,49 +1248,68 @@ const ReturnEstimation = () => {
     }));
   };
 
-  const urlToBase64 = async (url) => {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(
-      url
-    )}`;
-    const response = await fetch(proxyUrl);
-    const blob = await response.blob();
+ const fetchWithRetry = async (url, retries = 3, delay = 500) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return res;
+    } catch (e) {
+      console.warn(`Retry ${i + 1} for ${url}`);
+    }
+    await new Promise(r => setTimeout(r, delay));
+  }
+  throw new Error("Failed after retries: " + url);
+};
 
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  };
+const urlToBase64 = async (url) => {
+  const cleanUrl = decodeURIComponent(url);
+  const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`;
+
+  const response = await fetchWithRetry(proxyUrl, 3, 800);
+  const blob = await response.blob();
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
   useEffect(() => {
-  const convertAllImages = async () => {
-    if (!tableData || tableData.length === 0) {
-      setBase64Images({}); // clear all if tableData empty
-      return;
-    }
-
-    const results = await Promise.all(
-      tableData.map(async (item) => {
-        if (item.IMGPATH) {
-          try {
-            const base64 = await urlToBase64(item.IMGPATH);
-            return [item.IMGPATH, base64];
-          } catch (err) {
-            console.error("Image conversion failed:", item.IMGPATH, err);
+    const convertAllImages = async () => {
+      if (!tableData || tableData.length === 0) {
+        setBase64Images({});
+        return;
+      }
+  
+      const imageMap = {};
+  
+      await Promise.all(
+        tableData.map(async (item, index) => {
+          if (item.IMGPATH) {
+            try {
+              // ✅ Use already available base64 (photos) or previously cached (base64Images)
+              if (photos[index]) {
+                imageMap[item.IMGPATH] = photos[index];
+              } else if (base64Images[item.IMGPATH]) {
+                imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
+              } else {
+                const base64 = await urlToBase64(item.IMGPATH);
+                imageMap[item.IMGPATH] = base64;
+              }
+            } catch (err) {
+              console.error("Image conversion failed:", item.IMGPATH, err);
+            }
           }
-        }
-        return null;
-      })
-    );
-
-    // Create new map only for the current IMGPATHs
-    const imageMap = Object.fromEntries(results.filter(Boolean));
-    setBase64Images(imageMap);
-  };
-
-  convertAllImages();
-}, [tableData]);
+        })
+      );
+  
+      setBase64Images(imageMap);
+    };
+  
+    convertAllImages();
+  }, [tableData, photos]);
 
   const handleLandScapePrint = () => {
     let totalPCS = 0;
@@ -3398,6 +3417,9 @@ const ReturnEstimation = () => {
         setSelectEstimationNo={setSelectEstimationNo}
         estimationNoItemsAPI={estimationNoItemsAPI}
         estimationNoMastAPI={estimationNoMastAPI}
+        setStonesData={setStonesData}
+        setTableData={setTableData}
+        setStoneMainData={setStoneMainData}
       />
       <ReturnEstimationStonesDrawer
         stonesDrawerOpen={stonesDrawerOpen}

@@ -1381,51 +1381,89 @@ const Estimation = () => {
     }));
   };
 
-  const urlToBase64 = async (url) => {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(
-      url
-    )}`;
-    const response = await fetch(proxyUrl);
-    const blob = await response.blob();
+  const fetchWithRetry = async (url, retries = 3, delay = 500) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return res;
+    } catch (e) {
+      console.warn(`Retry ${i + 1} for ${url}`);
+    }
+    await new Promise(r => setTimeout(r, delay));
+  }
+  throw new Error("Failed after retries: " + url);
+};
 
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  };
+const urlToBase64 = async (url) => {
+  const cleanUrl = decodeURIComponent(url);
+  const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`;
 
+  const response = await fetchWithRetry(proxyUrl, 3, 800);
+  const blob = await response.blob();
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+//   const urlToBase64 = async (url) => {
+//   const cleanUrl = decodeURIComponent(url);
+//   const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`;
   
+//   const response = await fetch(proxyUrl);
+//   if (!response.ok) {
+//     throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`);
+//   }
+
+//   const blob = await response.blob();
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader();
+//     reader.onloadend = () => resolve(reader.result);
+//     reader.onerror = reject;
+//     reader.readAsDataURL(blob);
+//   });
+// };
 
 useEffect(() => {
   const convertAllImages = async () => {
     if (!tableData || tableData.length === 0) {
-      setBase64Images({}); // clear all if tableData empty
+      setBase64Images({});
       return;
     }
 
-    const results = await Promise.all(
-      tableData.map(async (item) => {
+    const imageMap = {};
+
+    await Promise.all(
+      tableData.map(async (item, index) => {
         if (item.IMGPATH) {
           try {
-            const base64 = await urlToBase64(item.IMGPATH);
-            return [item.IMGPATH, base64];
+            // ✅ Use already available base64 (photos) or previously cached (base64Images)
+            if (photos[index]) {
+              imageMap[item.IMGPATH] = photos[index];
+            } else if (base64Images[item.IMGPATH]) {
+              imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
+            } else {
+              const base64 = await urlToBase64(item.IMGPATH);
+              imageMap[item.IMGPATH] = base64;
+            }
           } catch (err) {
             console.error("Image conversion failed:", item.IMGPATH, err);
           }
         }
-        return null;
       })
     );
 
-    // Create new map only for the current IMGPATHs
-    const imageMap = Object.fromEntries(results.filter(Boolean));
     setBase64Images(imageMap);
   };
 
   convertAllImages();
-}, [tableData]);
+}, [tableData, photos]);
+  console.log(base64Images, "base64");
+  console.log("photos", photos);
+  
   
 
   //   const handleLandScapePrint = () => {
@@ -6217,11 +6255,11 @@ ${
                             border: "2px solid #52bd91",
                           }}
                           onClick={() => {
-                            handleImageOk(photos[index] || item?.IMGPATH);
+                            handleImageOk(photos[index] || base64Images[item?.IMGPATH] || item?.IMGPATH);
                           }}
                         >
                           <img
-                            src={photos[index] || item?.IMGPATH}
+                            src={photos[index] || base64Images[item?.IMGPATH] || item?.IMGPATH}
                             alt="img"
                             style={{
                               width: "100%",
@@ -6493,6 +6531,9 @@ ${
         setSelectEstimationNo={setSelectEstimationNo}
         estimationNoItemsAPI={estimationNoItemsAPI}
         estimationNoMastAPI={estimationNoMastAPI}
+        setStonesData={setStonesData}
+        setTableData={setTableData}
+        setStoneMainData={setStoneMainData}
       />
       <EstimationStonesDrawer
         stonesDrawerOpen={stonesDrawerOpen}

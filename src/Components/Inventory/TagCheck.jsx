@@ -128,6 +128,42 @@ const TagCheck = () => {
     }
   };
 
+  const fetchWithRetry = async (url, retries = 3, delay = 500) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return res;
+    } catch (e) {
+      console.warn(`Retry ${i + 1} for ${url}`);
+    }
+    await new Promise(r => setTimeout(r, delay));
+  }
+  throw new Error("Failed after retries: " + url);
+};
+
+const urlToBase64 = async (url) => {
+  const cleanUrl = decodeURIComponent(url);
+  const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`;
+
+  const response = await fetchWithRetry(proxyUrl, 3, 800);
+  const blob = await response.blob();
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+useEffect(() => {
+  const test = async () => {
+    const base64 = await urlToBase64("https://image.timeserasoftware.in/LAKSHMI%20VYSHNAVI%20JEWELLERS/86_1.jpg");
+    console.log("Base64:", base64);
+  };
+  test();
+}, []);
+
   const getBase64Data = (dataUri) => {
     return dataUri.replace(/^data:image\/\w+;base64,/, "");
   };
