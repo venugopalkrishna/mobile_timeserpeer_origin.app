@@ -266,6 +266,7 @@ const Estimation = () => {
       });
 
       // Merge into setStonesData
+      if(!selectEstimationNo?.ESTIMATIONNO) {
       setStonesData((prevData) => {
         const combinedData = [...prevData, ...newData];
 
@@ -283,6 +284,7 @@ const Estimation = () => {
 
         return mergedData;
       });
+    }
 
       return finalData; // ✅ return processed data
     } catch (error) {
@@ -938,11 +940,11 @@ const Estimation = () => {
           0
         );
 
-        setTotalPieces(total);
-        setTotalGrossWeight(totalGross);
-        setTotalStoneWeight(totalStones);
-        setTotalNetWeight(totalNetWt);
-        setTotalFineGold(totalGold);
+        // setTotalPieces(total);
+        // setTotalGrossWeight(totalGross);
+        // setTotalStoneWeight(totalStones);
+        // setTotalNetWeight(totalNetWt);
+        // setTotalFineGold(totalGold);
 
         setSelectedObject(null);
       }

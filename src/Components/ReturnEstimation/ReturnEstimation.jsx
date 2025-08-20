@@ -256,6 +256,7 @@ const ReturnEstimation = () => {
       });
 
       // Merge into setStonesData
+      if(!selectEstimationNo?.ESTIMATIONNO) {
       setStonesData((prevData) => {
         const combinedData = [...prevData, ...newData];
 
@@ -273,6 +274,7 @@ const ReturnEstimation = () => {
 
         return mergedData;
       });
+    }
 
       return finalData; // ✅ return processed data
     } catch (error) {
