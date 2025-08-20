@@ -1264,22 +1264,33 @@ const ReturnEstimation = () => {
   };
 
   useEffect(() => {
-    const convertAllImages = async () => {
-      const imageMap = {};
-      for (let item of tableData) {
+  const convertAllImages = async () => {
+    if (!tableData || tableData.length === 0) {
+      setBase64Images({}); // clear all if tableData empty
+      return;
+    }
+
+    const results = await Promise.all(
+      tableData.map(async (item) => {
         if (item.IMGPATH) {
           try {
-            imageMap[item.IMGPATH] = await urlToBase64(item.IMGPATH);
+            const base64 = await urlToBase64(item.IMGPATH);
+            return [item.IMGPATH, base64];
           } catch (err) {
             console.error("Image conversion failed:", item.IMGPATH, err);
           }
         }
-      }
-      setBase64Images(imageMap);
-    };
+        return null;
+      })
+    );
 
-    convertAllImages();
-  }, [tableData, submitRef]);
+    // Create new map only for the current IMGPATHs
+    const imageMap = Object.fromEntries(results.filter(Boolean));
+    setBase64Images(imageMap);
+  };
+
+  convertAllImages();
+}, [tableData]);
 
   const handleLandScapePrint = () => {
     let totalPCS = 0;
