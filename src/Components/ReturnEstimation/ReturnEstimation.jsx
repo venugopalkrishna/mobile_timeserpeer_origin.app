@@ -2841,6 +2841,7 @@ const ReturnEstimation = () => {
                 <span>Date:</span>
                 <DatePicker
                   style={{ width: "130px" }}
+                  inputReadOnly
                   value={selectedDate ? dayjs(selectedDate) : null}
                   onChange={(date) => setSelectedDate(date)}
                   format="DD-MMM-YYYY"

@@ -243,6 +243,7 @@ const EstimationDetails = () => {
           <DatePicker
             style={{ flex: 1, minWidth: "80px" }}
             ref={formRef}
+            inputReadOnly
             onKeyDown={(e) => handleKeyDown(e, toRef)}
             value={fromDate ? dayjs(fromDate) : null}
             onChange={(date) => setFromDate(date)}
@@ -252,6 +253,7 @@ const EstimationDetails = () => {
           <DatePicker
             style={{ flex: 1, minWidth: "80px" }}
             ref={toRef}
+            inputReadOnly
             onKeyDown={(e) => handleKeyDown(e, partyRef)}
             value={toDate ? dayjs(toDate) : null}
             onChange={(date) => setToDate(date)}

@@ -91,6 +91,25 @@ const TagCheck = () => {
     }
   };
 
+  const imageMainAPI = async (tagNo) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO='${tagNo}'`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const createImagePathAPI = async (imgUrl) => {
     try {
       const response = await axios.get(
@@ -142,6 +161,7 @@ const TagCheck = () => {
       if (response.status === 200) {
         const imgUrl = `https://image.timeserasoftware.in/${userName}/${renamedFileName}`;
         createImagePathAPI(imgUrl);
+        imageMainAPI(tagNo);
         alert("Image uploaded successfully!");
       }
     } catch (error) {
@@ -160,6 +180,7 @@ const TagCheck = () => {
     setImageOpen(false);
     setCameraOpen(false);
     setImageUrl(null);
+    window.location.reload();
   };
 
   // useEffect(() => {

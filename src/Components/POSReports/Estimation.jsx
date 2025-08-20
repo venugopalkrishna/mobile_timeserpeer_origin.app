@@ -5749,35 +5749,35 @@ ${
   const handlePdfClick = ({ key }) => {
     if (key === "1") {
       handleLandScapDownloadPDF();
-      if (tableData.length > 0) {
-        if (selectEstimationNo?.ESTIMATIONNO) {
-          estimationDeleteItems();
-          estimationDeleteData();
-          estimationDeleteMast();
-        }
-        if (tableData.length > 0) {
-          createEstimationMast();
-          createEstimationItems();
-          createEstimationData();
-          setSelectEstimationNo(null);
-        }
-      }
+      // if (tableData.length > 0) {
+      //   if (selectEstimationNo?.ESTIMATIONNO) {
+      //     estimationDeleteItems();
+      //     estimationDeleteData();
+      //     estimationDeleteMast();
+      //   }
+      //   if (tableData.length > 0) {
+      //     createEstimationMast();
+      //     createEstimationItems();
+      //     createEstimationData();
+      //     setSelectEstimationNo(null);
+      //   }
+      // }
     } else if (key === "2") {
       handleDownloadPDF();
-      if (tableData.length > 0) {
-        if (selectEstimationNo?.ESTIMATIONNO) {
-          estimationDeleteItems();
-          estimationDeleteData();
-          estimationDeleteMast();
-        }
-        if (tableData.length > 0) {
-          createEstimationMast();
-          createEstimationItems();
-          createEstimationData();
-          setSelectEstimationNo(null);
+      // if (tableData.length > 0) {
+      //   if (selectEstimationNo?.ESTIMATIONNO) {
+      //     estimationDeleteItems();
+      //     estimationDeleteData();
+      //     estimationDeleteMast();
+      //   }
+      //   if (tableData.length > 0) {
+      //     createEstimationMast();
+      //     createEstimationItems();
+      //     createEstimationData();
+      //     setSelectEstimationNo(null);
           
-        }
-      }
+      //   }
+      // }
     }
   };
 
@@ -5927,6 +5927,7 @@ ${
                 <span>Date:</span>
                 <DatePicker
                   style={{ width: "130px" }}
+                  inputReadOnly
                   value={selectedDate ? dayjs(selectedDate) : null}
                   onChange={(date) => setSelectedDate(date)}
                   format="DD-MMM-YYYY"

@@ -116,6 +116,7 @@ const EstimationDialog = ({
             <DatePicker
               style={{ width: "40%" }}
               value={fromDate}
+              inputReadOnly
               onChange={(date) => {
                 setFromDate(date);
                 setSelectedObject(null);
@@ -126,6 +127,7 @@ const EstimationDialog = ({
             <DatePicker
               style={{ width: "40%" }}
               value={toDate}
+              inputReadOnly
               onChange={(date) => {
                 setToDate(date);
                 setSelectedObject(null);

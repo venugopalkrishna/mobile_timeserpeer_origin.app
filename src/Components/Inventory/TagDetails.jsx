@@ -510,6 +510,7 @@ const TagDetails = () => {
           <DatePicker
             style={{ flex: 1, minWidth: "80px" }}
             ref={formRef}
+            inputReadOnly
             disabled={selectDate === false}
             onKeyDown={(e) => handleKeyDown(e, toRef)}
             value={fromDate ? dayjs(fromDate) : null}
@@ -520,6 +521,7 @@ const TagDetails = () => {
           <DatePicker
             style={{ flex: 1, minWidth: "80px" }}
             ref={toRef}
+            inputReadOnly
             disabled={selectDate === false}
             onKeyDown={(e) => handleKeyDown(e, partyRef)}
             value={toDate ? dayjs(toDate) : null}
