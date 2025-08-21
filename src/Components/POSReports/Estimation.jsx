@@ -4563,6 +4563,364 @@ ${
       });
   };
 
+//   const handleDownloadPDF = () => {
+//   let totalPCS = 0;
+//   let totalGWT = 0;
+//   let totalStone = 0;
+//   let totalNWT = 0;
+//   let totalGold = 0;
+
+//   // Build table rows
+//   const tableRows = tableData
+//     .map((item, index) => {
+//       const actGrams =
+//         stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+//         "";
+//       const removeUndefinedWrapper = (str) => {
+//         let prevStr;
+//         do {
+//           prevStr = str;
+//           str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+//         } while (prevStr !== str);
+//         return str;
+//       };
+//       const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+//       totalPCS += item.PIECES;
+//       totalGWT += item.GWT;
+//       totalStone += Number(item.STONEWT);
+//       totalNWT += Number(item.NETWT);
+//       totalGold += Number(item?.FINALGOLD);
+//       const imgPath = item.IMGPATH || photos[index] || "";
+//       const base64Img = base64Images[imgPath] || "";
+
+//       return `
+//         <tr>
+//           <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${index + 1}</strong></td>
+//           <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${item.TAGNO}</strong></td>
+//           <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+//           <td>${item.PREFIX}</td>
+//           <td class="sub-right"><strong>${item.PIECES}</strong></td>
+//           <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+//           <td class="sub-right">${item.STONEWT}</td>
+//           <td class="sub-right">${item.NETWT}</td>
+//           <td class="sub-right">${item.TOUCH}%</td>
+//           <td class="sub-gold">${item.FINALGOLD}</td>
+//         </tr>
+//         ${
+//           cleanedActGrams
+//             ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+//             : ""
+//         }
+//       `;
+//     })
+//     .join("");
+
+//   // Totals row
+//   const totalsRow = `
+//     <tr class="total">
+//       <td colspan="4">Total</td>
+//       <td class="sub-right">${totalPCS}</td>
+//       <td class="sub-right">${totalGWT.toFixed(3)}</td>
+//       <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
+//       <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
+//       <td></td>
+//       <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
+//     </tr>
+//   `;
+
+//   // Stones table if applicable
+//   const stonesTable =
+//     path === "/estimations-model1"
+//       ? `
+//         <div class="table-container">
+//           <table>
+//             <thead>
+//               <tr>
+//                 <th class="sub-stone-name">STONE NAME</th>
+//                 <th class="stone-pieces">PIECES</th>
+//                 <th class="stone-weight">WEIGHT</th>
+//                 <th class="stone-cost">COST</th>
+//                 <th class="stone-amount">AMOUNT</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               ${(() => {
+//                 let totalStoneWeight = 0;
+//                 let totalAmount = 0;
+//                 let totalStonePieces = 0;
+//                 return (
+//                   stonesData
+//                     .map((stone, index) => {
+//                       const rate = stoneRate[index] || 0;
+//                       const amount = stone.ACTGRAMS * Number(rate);
+//                       totalAmount += amount;
+//                       totalStoneWeight += stone.ACTGRAMS;
+//                       totalStonePieces += stone.PCS;
+//                       return `
+//                       <tr>
+//                         <td class="sub-stone-name">${stone.MAINTYPE}</td>
+//                         <td class="stone-pieces">${stone.PCS}</td>
+//                         <td class="stone-weight">${stone.ACTGRAMS.toFixed(3)}</td>
+//                         <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
+//                         <td class="stone-amount">${amount.toFixed(2)}</td>
+//                       </tr>
+//                     `;
+//                     })
+//                     .join("") +
+//                   `<tr class="total">
+//                     <td colspan="1">Total</td>
+//                     <td class="stone-pieces">${totalStonePieces}</td>
+//                     <td class="stone-weight">${totalStoneWeight.toFixed(3)}</td>
+//                     <td class="stone-cost"></td>
+//                     <td class="stone-amount">${totalAmount.toFixed(2)}</td>
+//                   </tr>`
+//                 );
+//               })()}
+//             </tbody>
+//           </table>
+//         </div>
+//       `
+//       : "";
+
+//   // Summary table
+//   const summaryTable = `
+//     <div class="summary-container">
+//       <table>
+//         <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+//           3
+//         )}</td></tr>
+//         ${
+//           rateCut === true
+//             ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+//                 rateValue || 0
+//               )}/-</td>
+//                 <td class="sub-right">${
+//                   amountValue ? Number(amountValue).toFixed(2) : 0
+//                 }</td></tr>`
+//             : ""
+//         }
+//         <tr><td class="stone-name">Making ${
+//           makingValue || 0
+//         } /g</td><td class="sub-right">${
+//     perGramValue ? Number(perGramValue).toFixed(2) : 0
+//   }</td></tr>
+//         ${
+//           path === "/estimations-model1"
+//             ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+//                 rodiumChargeValue || 0
+//               }</td></tr>
+//                <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+//                  2
+//                )}</td></tr>`
+//             : `<tr><td class="stone-name">Stone Cost ${
+//                 stoneMakingValue || 0
+//               } /g</td>
+//                <td class="sub-right">${
+//                  stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+//                }</td></tr>`
+//         }
+//         <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+//           3
+//         )}</strong></td></tr>
+//         <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+//           2
+//         )}</strong></td></tr>
+//       </table>
+//     </div>
+//   `;
+
+//   // Build full HTML content
+//   const htmlContent = `
+//     <html>
+//       <head>
+//         <style>
+//            body {
+//             font-family: Arial, sans-serif;
+//             margin: 20px;
+//             font-size: 12px;
+//         }
+//         .header {
+//             text-align: center;
+//             margin-bottom: 12px;
+//           }
+//           .header h2 {
+//             margin: 0;
+//             font-size: 16px;
+//             font-weight: bold;
+//             text-decoration: underline;
+//             text-underline-offset: 3px;
+//           }
+//           .sub-header {
+//             display: flex;
+//             justify-content: space-between;
+//             font-size: 11px;
+//             font-weight: bold;
+//             margin-bottom: 8px;
+//           }
+//           .sub-est { font-weight: bold; font-size: 14px; color: red; }
+//           .sub-party { font-weight: bold; font-size: 13px; color: #162566; }
+
+//           table {
+//             border-collapse: collapse;
+//             width: 100%;
+//             font-size: 10px;
+//           }
+//           th, td {
+//             border: 1px solid #000;
+//             padding: 4px;
+//             text-align: center;
+//           }
+//           thead {
+//             display: table-header-group;
+//             background: #e6f8f9;
+//             font-weight: bold;
+//           }
+//           tfoot { display: table-footer-group; }
+//           tr { page-break-inside: avoid; break-inside: avoid; }
+//           .table-container, .summary-container { page-break-inside: avoid; }
+
+//           th {
+//             background-color: #52bd91;
+//             font-weight: bold;
+//           }
+//         .total {
+//             font-weight: bold;
+//             background-color: #162566;
+//             color: white;
+//         }
+//         .summary {
+//             display: flex;
+//             justify-content: space-between;
+//             margin-top: 15px;
+//         }
+//         .summary-box {
+//             width: 48%;
+//             border: 1px solid black;
+//             padding: 10px;
+//             font-size: 12px;
+//         }
+//         .summary-box table {
+//             width: 100%;
+//             border: none;
+//         }
+//         .summary-box td {
+//             border: none;
+//             text-align: left;
+//             padding: 3px 0;
+//         }
+//         .footer {
+//             margin-top: 15px;
+//             font-size: 12px;
+//         }
+//         .sub {
+//             text-align: left;
+//             width: 300px;
+//         }
+//         .sub-pro {
+//             text-align: left;
+//             width: 500;
+//             background-color: #BCF2F6;
+//         }
+//         .sub-tag {
+//             text-align: center;
+//             width: 100;
+//         }
+//         .sub-image {
+//             text-align: center;
+//         }
+//         .sub-img {
+//             display: flex;
+//             text-align: center;
+//             border-radius: 10px;
+//             width: 100%;
+//             height: 100%;
+//             align-items: center;
+//         }
+//         .sub-right {
+//             text-align: right;
+//             width: 80;
+//         }
+//         .sub-gold {
+//             text-align: right;
+//             width: 130;
+//         }
+//         .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+//         .sub-row td { border-top: none; text-align: left; }
+//         .container { display: flex; justify-content: space-between; margin-top: 10px; }
+//         .table-container { width: 40%; }
+//         .summary-container { width: 35%; }
+//         .stone-name { text-align: left;}
+//         .sub-final { background-color: #f26d14ff; font-weight: bold; }
+//         .sub-right-bold { text-align: right; font-weight: bold; }
+//         .stone-name-bold { text-align: left; font-weight: bold; }
+//         .sub-stone-name { text-align: left;  width: 100px}
+//         .stone-pieces { text-align: center; font-weight: bold; width: 60px }
+//         .stone-weight { text-align: right; width: 60px }
+//         .stone-cost { text-align: right; width: 60px }
+//         .stone-amount { text-align: right; width: 60px }
+//         </style>
+//       </head>
+//       <body>
+//         <div class="header"><h2>ESTIMATION</h2></div>
+//         <div class="sub-header">
+//           <span>ESTIMATION NO. : <span class="sub-est">${
+//             selectEstimationNo
+//               ? selectEstimationNo?.ESTIMATIONNO
+//               : estimationCount + 1
+//           }</span></span>
+//           <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+//             day: "2-digit",
+//             month: "short",
+//             year: "numeric",
+//           })}</span>
+//           <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
+//         </div>
+//         <table>
+//           <thead>
+//             <tr>
+//               <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub">PARTICULARS</th><th>Purity</th>
+//               <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
+//               <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             ${tableRows}
+//             ${totalsRow}
+//           </tbody>
+//         </table>
+//         <div class="container">
+//           ${stonesTable}
+//           ${summaryTable}
+//         </div>
+//       </body>
+//     </html>
+//   `;
+
+//   // Create container for html2pdf
+//   const container = document.createElement("div");
+//   container.innerHTML = htmlContent;
+//   document.body.appendChild(container);
+
+//   html2pdf()
+//     .set({
+//       margin: [10, 5, 10, 5],
+//       filename: `Estimation_${
+//         selectEstimationNo
+//           ? selectEstimationNo?.ESTIMATIONNO
+//           : estimationCount + 1
+//       }.pdf`,
+//       image: { type: "jpeg", quality: 0.98 },
+//       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+//       pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+//     })
+//     .from(container)
+//     .save()
+//     .then(() => {
+//       document.body.removeChild(container);
+//     });
+// };
+
   //   const handleLandScapDownloadPDF = () => {
   //     let totalPCS = 0;
   //     let totalGWT = 0;
@@ -4917,378 +5275,378 @@ ${
   //   document.body.removeChild(link);
   //   };
 
-  const handleLandScapDownloadPDF = () => {
-    let totalPCS = 0;
-    let totalGWT = 0;
-    let totalStone = 0;
-    let totalNWT = 0;
-    let totalGold = 0;
+//   const handleLandScapDownloadPDF = () => {
+//     let totalPCS = 0;
+//     let totalGWT = 0;
+//     let totalStone = 0;
+//     let totalNWT = 0;
+//     let totalGold = 0;
 
-    // Build table rows
-    const tableRows = tableData
-      .map((item, index) => {
-        const actGrams =
-          stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
-          "";
-        const removeUndefinedWrapper = (str) => {
-          let prevStr;
-          do {
-            prevStr = str;
-            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-          } while (prevStr !== str);
-          return str;
-        };
-        const cleanedActGrams = removeUndefinedWrapper(actGrams);
+//     // Build table rows
+//     const tableRows = tableData
+//       .map((item, index) => {
+//         const actGrams =
+//           stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+//           "";
+//         const removeUndefinedWrapper = (str) => {
+//           let prevStr;
+//           do {
+//             prevStr = str;
+//             str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+//           } while (prevStr !== str);
+//           return str;
+//         };
+//         const cleanedActGrams = removeUndefinedWrapper(actGrams);
 
-        totalPCS += item.PIECES;
-        totalGWT += item.GWT;
-        totalStone += Number(item.STONEWT);
-        totalNWT += Number(item.NETWT);
-        totalGold += Number(item?.FINALGOLD);
-        const imgPath = item.IMGPATH || photos[index] || "";
-        const base64Img = base64Images[imgPath] || "";
+//         totalPCS += item.PIECES;
+//         totalGWT += item.GWT;
+//         totalStone += Number(item.STONEWT);
+//         totalNWT += Number(item.NETWT);
+//         totalGold += Number(item?.FINALGOLD);
+//         const imgPath = item.IMGPATH || photos[index] || "";
+//         const base64Img = base64Images[imgPath] || "";
 
-        return `
-        <tr>
-          <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          index + 1
-        }</strong></td>
-          <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          item.TAGNO
-        }</strong></td>
-        <td rowspan="${cleanedActGrams ? 2 : 1}">
+//         return `
+//         <tr>
+//           <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+//           index + 1
+//         }</strong></td>
+//           <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+//           item.TAGNO
+//         }</strong></td>
+//         <td rowspan="${cleanedActGrams ? 2 : 1}">
       
-${
-  base64Img
-    ? `<img src="${base64Img}" 
-             alt="Item Image" 
-             style="max-width:80px; max-height:80px;"/>`
-    : ""
-}
-</td>
-          <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
-          <td>${item.PREFIX}</td>
-          <td class="sub-right"><strong>${item.PIECES}</strong></td>
-          <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
-          <td class="sub-right">${item.STONEWT}</td>
-          <td class="sub-right">${item.NETWT}</td>
-          <td class="sub-right">${item.TOUCH}%</td>
-          <td class="sub-gold">${item.FINALGOLD}</td>
-        </tr>
-        ${
-          cleanedActGrams
-            ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
-            : ""
-        }
-      `;
-      })
-      .join("");
+// ${
+//   base64Img
+//     ? `<img src="${base64Img}" 
+//              alt="Item Image" 
+//              style="max-width:80px; max-height:80px;"/>`
+//     : ""
+// }
+// </td>
+//           <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+//           <td>${item.PREFIX}</td>
+//           <td class="sub-right"><strong>${item.PIECES}</strong></td>
+//           <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+//           <td class="sub-right">${item.STONEWT}</td>
+//           <td class="sub-right">${item.NETWT}</td>
+//           <td class="sub-right">${item.TOUCH}%</td>
+//           <td class="sub-gold">${item.FINALGOLD}</td>
+//         </tr>
+//         ${
+//           cleanedActGrams
+//             ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+//             : ""
+//         }
+//       `;
+//       })
+//       .join("");
 
-    // Totals row
-    const totalsRow = `
-    <tr class="total">
-      <td colspan="5">Total</td>
-      <td class="sub-right">${totalPCS}</td>
-      <td class="sub-right">${totalGWT.toFixed(3)}</td>
-      <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
-      <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
-      <td></td>
-      <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
-    </tr>
-  `;
+//     // Totals row
+//     const totalsRow = `
+//     <tr class="total">
+//       <td colspan="5">Total</td>
+//       <td class="sub-right">${totalPCS}</td>
+//       <td class="sub-right">${totalGWT.toFixed(3)}</td>
+//       <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
+//       <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
+//       <td></td>
+//       <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
+//     </tr>
+//   `;
 
-    // Stones table if applicable
-    const stonesTable =
-      path === "/estimations-model1"
-        ? `
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th class="sub-stone-name">STONE NAME</th>
-                <th class="stone-pieces">PIECES</th>
-                <th class="stone-weight">WEIGHT</th>
-                <th class="stone-cost">COST</th>
-                <th class="stone-amount">AMOUNT</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${(() => {
-                let totalStoneWeight = 0;
-                let totalAmount = 0;
-                let totalStonePieces =0;
-                return (
-                  stonesData
-                    .map((stone, index) => {
-                      const rate = stoneRate[index] || 0;
-                      const amount = stone.ACTGRAMS * Number(rate);
-                      totalAmount += amount;
-                      totalStoneWeight += stone.ACTGRAMS;
-                      totalStonePieces += stone.PCS;
-                      return `
-                      <tr>
-                        <td class="sub-stone-name">${stone.MAINTYPE}</td>
-                        <td class="stone-pieces">${stone.PCS}</td>
-                        <td class="stone-weight">${stone.ACTGRAMS.toFixed(3)}</td>
-                        <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
-                        <td class="stone-amount">${amount.toFixed(2)}</td>
-                      </tr>
-                    `;
-                    })
-                    .join("") +
-                  `<tr class="total">
-                    <td colspan="1">Total</td>
-                    <td class="stone-pieces">${totalStonePieces}</td>
-                    <td class="stone-weight">${totalStoneWeight.toFixed(3)}</td>
-                    <td class="stone-cost"></td>
-                    <td class="stone-amount">${totalAmount.toFixed(2)}</td>
-                  </tr>`
-                );
-              })()}
-            </tbody>
-          </table>
-        </div>
-      `
-        : "";
+//     // Stones table if applicable
+//     const stonesTable =
+//       path === "/estimations-model1"
+//         ? `
+//         <div class="table-container">
+//           <table>
+//             <thead>
+//               <tr>
+//                 <th class="sub-stone-name">STONE NAME</th>
+//                 <th class="stone-pieces">PIECES</th>
+//                 <th class="stone-weight">WEIGHT</th>
+//                 <th class="stone-cost">COST</th>
+//                 <th class="stone-amount">AMOUNT</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               ${(() => {
+//                 let totalStoneWeight = 0;
+//                 let totalAmount = 0;
+//                 let totalStonePieces =0;
+//                 return (
+//                   stonesData
+//                     .map((stone, index) => {
+//                       const rate = stoneRate[index] || 0;
+//                       const amount = stone.ACTGRAMS * Number(rate);
+//                       totalAmount += amount;
+//                       totalStoneWeight += stone.ACTGRAMS;
+//                       totalStonePieces += stone.PCS;
+//                       return `
+//                       <tr>
+//                         <td class="sub-stone-name">${stone.MAINTYPE}</td>
+//                         <td class="stone-pieces">${stone.PCS}</td>
+//                         <td class="stone-weight">${stone.ACTGRAMS.toFixed(3)}</td>
+//                         <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
+//                         <td class="stone-amount">${amount.toFixed(2)}</td>
+//                       </tr>
+//                     `;
+//                     })
+//                     .join("") +
+//                   `<tr class="total">
+//                     <td colspan="1">Total</td>
+//                     <td class="stone-pieces">${totalStonePieces}</td>
+//                     <td class="stone-weight">${totalStoneWeight.toFixed(3)}</td>
+//                     <td class="stone-cost"></td>
+//                     <td class="stone-amount">${totalAmount.toFixed(2)}</td>
+//                   </tr>`
+//                 );
+//               })()}
+//             </tbody>
+//           </table>
+//         </div>
+//       `
+//         : "";
 
-    // Summary table
-    const summaryTable = `
-    <div class="summary-container">
-      <table>
-        <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
-          3
-        )}</td></tr>
-        ${
-          rateCut === true
-            ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
-                rateValue || 0
-              )}/-</td>
-                <td class="sub-right">${
-                  amountValue ? Number(amountValue).toFixed(2) : 0
-                }</td></tr>`
-            : ""
-        }
-        <tr><td class="stone-name">Making ${
-          makingValue || 0
-        } /g</td><td class="sub-right">${
-      perGramValue ? Number(perGramValue).toFixed(2) : 0
-    }</td></tr>
-        ${
-          path === "/estimations-model1"
-            ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
-                rodiumChargeValue || 0
-              }</td></tr>
-               <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
-                 2
-               )}</td></tr>`
-            : `<tr><td class="stone-name">Stone Cost ${
-                stoneMakingValue || 0
-              } /g</td>
-               <td class="sub-right">${
-                 stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
-               }</td></tr>`
-        }
-        <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-          3
-        )}</strong></td></tr>
-        <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
-          2
-        )}</strong></td></tr>
-      </table>
-    </div>
-  `;
+//     // Summary table
+//     const summaryTable = `
+//     <div class="summary-container">
+//       <table>
+//         <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+//           3
+//         )}</td></tr>
+//         ${
+//           rateCut === true
+//             ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+//                 rateValue || 0
+//               )}/-</td>
+//                 <td class="sub-right">${
+//                   amountValue ? Number(amountValue).toFixed(2) : 0
+//                 }</td></tr>`
+//             : ""
+//         }
+//         <tr><td class="stone-name">Making ${
+//           makingValue || 0
+//         } /g</td><td class="sub-right">${
+//       perGramValue ? Number(perGramValue).toFixed(2) : 0
+//     }</td></tr>
+//         ${
+//           path === "/estimations-model1"
+//             ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+//                 rodiumChargeValue || 0
+//               }</td></tr>
+//                <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+//                  2
+//                )}</td></tr>`
+//             : `<tr><td class="stone-name">Stone Cost ${
+//                 stoneMakingValue || 0
+//               } /g</td>
+//                <td class="sub-right">${
+//                  stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+//                }</td></tr>`
+//         }
+//         <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+//           3
+//         )}</strong></td></tr>
+//         <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+//           2
+//         )}</strong></td></tr>
+//       </table>
+//     </div>
+//   `;
 
-    // Build full HTML content
-    const htmlContent = `
-    <html>
-      <head>
-        <style>
-           body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            font-size: 12px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 18px;
-        }
-        .header h2 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: bold;
-            display: inline-block;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-        }
-        .sub-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-        }
-             .sub-est {
-          font-weight : bold;
-          font-size: 18px;
-          color : red;
-        }
-          .sub-party {
-          font-weight : bold;
-          font-size: 14px;
-          color : #162566;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 5px;
-            text-align: center;
-        }
-        th {
-            background-color: #52bd91;
-            font-weight: bold;
-        }
-        .total {
-            font-weight: bold;
-            background-color: #162566;
-            color: white;
-        }
-        .summary {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        .summary-box {
-            width: 48%;
-            border: 1px solid black;
-            padding: 10px;
-            font-size: 12px;
-        }
-        .summary-box table {
-            width: 100%;
-            border: none;
-        }
-        .summary-box td {
-            border: none;
-            text-align: left;
-            padding: 3px 0;
-        }
-        .footer {
-            margin-top: 15px;
-            font-size: 12px;
-        }
-          .sub {
-            text-align: left;
-            width: 300px;
-        }
-            .sub-pro {
-              text-align: left;
-              width: 500;
-              background-color: #BCF2F6;
-          }
-            .sub-tag {
-            text-align: center;
-            width: 100;
-        }
-             .sub-image {
-            text-align: center;
-        }
-            .sub-img {
-            display: flex;
-            text-align: center;
-            border-radius: 10px;
-            width: 100%;
-            height: 100%;
-            align-items: center;
-        }
-        .sub-right {
-            text-align: right;
-            width: 80;
-        }
-            .sub-gold {
-            text-align: right;
-            width: 130;
-        }
-          .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
-          .sub-row td { border-top: none; text-align: left; }
-          .container { display: flex; justify-content: space-between; margin-top: 10px; }
-          .table-container { width: 40%; }
-          .summary-container { width: 35%; }
-          .stone-name { text-align: left;}
-          .sub-final { background-color: #f26d14ff; font-weight: bold; }
-          .sub-right-bold { text-align: right; font-weight: bold; }
-          .stone-name-bold { text-align: left; font-weight: bold; }
-          .sub-stone-name { text-align: left;  width: 100px}
-          .stone-pieces { text-align: center; font-weight: bold; width: 60px }
-          .stone-weight { text-align: right; width: 60px }
-          .stone-cost { text-align: right; width: 60px }
-          .stone-amount { text-align: right; width: 60px }
-        </style>
-      </head>
-      <body>
-        <div class="header"><h2>ESTIMATION</h2></div>
-        <div class="sub-header">
-          <span>ESTIMATION NO. : <span class="sub-est">${
-            selectEstimationNo
-              ? selectEstimationNo?.ESTIMATIONNO
-              : estimationCount + 1
-          }</span></span>
-          <span>DATE : ${new Date().toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })}</span>
-          <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th>
-              <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
-              <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tableRows}
-            ${totalsRow}
-          </tbody>
-        </table>
-        <div class="container">
-          ${stonesTable}
-          ${summaryTable}
-        </div>
-      </body>
-    </html>
-  `;
+//     // Build full HTML content
+//     const htmlContent = `
+//     <html>
+//       <head>
+//         <style>
+//            body {
+//             font-family: Arial, sans-serif;
+//             margin: 20px;
+//             font-size: 12px;
+//         }
+//         .header {
+//             text-align: center;
+//             margin-bottom: 18px;
+//         }
+//         .header h2 {
+//             margin: 0;
+//             font-size: 16px;
+//             font-weight: bold;
+//             display: inline-block;
+//     text-decoration: underline;
+//     text-underline-offset: 4px;
+//         }
+//         .sub-header {
+//             display: flex;
+//             justify-content: space-between;
+//             font-size: 12px;
+//             font-weight: bold;
+//             margin-bottom: 10px;
+//             padding-bottom: 5px;
+//         }
+//              .sub-est {
+//           font-weight : bold;
+//           font-size: 18px;
+//           color : red;
+//         }
+//           .sub-party {
+//           font-weight : bold;
+//           font-size: 14px;
+//           color : #162566;
+//         }
+//         table {
+//             width: 100%;
+//             border-collapse: collapse;
+//             font-size: 12px;
+//             margin-top: 5px;
+//         }
+//         th, td {
+//             border: 1px solid black;
+//             padding: 5px;
+//             text-align: center;
+//         }
+//         th {
+//             background-color: #52bd91;
+//             font-weight: bold;
+//         }
+//         .total {
+//             font-weight: bold;
+//             background-color: #162566;
+//             color: white;
+//         }
+//         .summary {
+//             display: flex;
+//             justify-content: space-between;
+//             margin-top: 15px;
+//         }
+//         .summary-box {
+//             width: 48%;
+//             border: 1px solid black;
+//             padding: 10px;
+//             font-size: 12px;
+//         }
+//         .summary-box table {
+//             width: 100%;
+//             border: none;
+//         }
+//         .summary-box td {
+//             border: none;
+//             text-align: left;
+//             padding: 3px 0;
+//         }
+//         .footer {
+//             margin-top: 15px;
+//             font-size: 12px;
+//         }
+//           .sub {
+//             text-align: left;
+//             width: 300px;
+//         }
+//             .sub-pro {
+//               text-align: left;
+//               width: 500;
+//               background-color: #BCF2F6;
+//           }
+//             .sub-tag {
+//             text-align: center;
+//             width: 100;
+//         }
+//              .sub-image {
+//             text-align: center;
+//         }
+//             .sub-img {
+//             display: flex;
+//             text-align: center;
+//             border-radius: 10px;
+//             width: 100%;
+//             height: 100%;
+//             align-items: center;
+//         }
+//         .sub-right {
+//             text-align: right;
+//             width: 80;
+//         }
+//             .sub-gold {
+//             text-align: right;
+//             width: 130;
+//         }
+//           .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+//           .sub-row td { border-top: none; text-align: left; }
+//           .container { display: flex; justify-content: space-between; margin-top: 10px; }
+//           .table-container { width: 40%; }
+//           .summary-container { width: 35%; }
+//           .stone-name { text-align: left;}
+//           .sub-final { background-color: #f26d14ff; font-weight: bold; }
+//           .sub-right-bold { text-align: right; font-weight: bold; }
+//           .stone-name-bold { text-align: left; font-weight: bold; }
+//           .sub-stone-name { text-align: left;  width: 100px}
+//           .stone-pieces { text-align: center; font-weight: bold; width: 60px }
+//           .stone-weight { text-align: right; width: 60px }
+//           .stone-cost { text-align: right; width: 60px }
+//           .stone-amount { text-align: right; width: 60px }
+//         </style>
+//       </head>
+//       <body>
+//         <div class="header"><h2>ESTIMATION</h2></div>
+//         <div class="sub-header">
+//           <span>ESTIMATION NO. : <span class="sub-est">${
+//             selectEstimationNo
+//               ? selectEstimationNo?.ESTIMATIONNO
+//               : estimationCount + 1
+//           }</span></span>
+//           <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+//             day: "2-digit",
+//             month: "short",
+//             year: "numeric",
+//           })}</span>
+//           <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
+//         </div>
+//         <table>
+//           <thead>
+//             <tr>
+//               <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th>
+//               <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
+//               <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             ${tableRows}
+//             ${totalsRow}
+//           </tbody>
+//         </table>
+//         <div class="container">
+//           ${stonesTable}
+//           ${summaryTable}
+//         </div>
+//       </body>
+//     </html>
+//   `;
 
-    // Create container for html2pdf
-    const container = document.createElement("div");
-    container.innerHTML = htmlContent;
-    document.body.appendChild(container);
+//     // Create container for html2pdf
+//     const container = document.createElement("div");
+//     container.innerHTML = htmlContent;
+//     document.body.appendChild(container);
 
-    html2pdf()
-      .set({
-        margin: [10, 5, 10, 5],
-        filename: `Estimation_${
-          selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1
-        }.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        // html2canvas: { scale: 2, useCORS: false },
-        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-      })
-      .from(container)
-      .save()
-      .then(() => {
-        document.body.removeChild(container);
-      });
-  };
+//     html2pdf()
+//       .set({
+//         margin: [10, 5, 10, 5],
+//         filename: `Estimation_${
+//           selectEstimationNo
+//             ? selectEstimationNo?.ESTIMATIONNO
+//             : estimationCount + 1
+//         }.pdf`,
+//         image: { type: "jpeg", quality: 0.98 },
+//         // html2canvas: { scale: 2, useCORS: false },
+//         jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+//       })
+//       .from(container)
+//       .save()
+//       .then(() => {
+//         document.body.removeChild(container);
+//       });
+//   };
 
   //   const handleLandScapDownloadPDF = () => {
   //     const printWindow = window.open("", "", "height=700,width=900");
@@ -5773,6 +6131,408 @@ ${
   //   printWindow.onafterprint = () => printWindow.close();
   // };
   //   };
+
+
+  const handleLandScapDownloadPDF = () => {
+  let totalPCS = 0;
+  let totalGWT = 0;
+  let totalStone = 0;
+  let totalNWT = 0;
+  let totalGold = 0;
+
+  // Build table rows
+  const tableRows = tableData
+    .map((item, index) => {
+      const actGrams =
+        stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+        "";
+      const removeUndefinedWrapper = (str) => {
+        let prevStr;
+        do {
+          prevStr = str;
+          str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+        } while (prevStr !== str);
+        return str;
+      };
+      const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+      totalPCS += item.PIECES;
+      totalGWT += item.GWT;
+      totalStone += Number(item.STONEWT);
+      totalNWT += Number(item.NETWT);
+      totalGold += Number(item?.FINALGOLD);
+      const imgPath = item.IMGPATH || photos[index] || "";
+      const base64Img = base64Images[imgPath] || "";
+
+      return `
+        <tr>
+          <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${index + 1}</strong></td>
+          <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${item.TAGNO}</strong></td>
+          <td rowspan="${cleanedActGrams ? 2 : 1}">
+            ${
+              base64Img
+                ? `<img src="${base64Img}" 
+                         alt="Item Image" 
+                         style="max-width:80px; max-height:80px;"/>`
+                : ""
+            }
+          </td>
+          <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+          <td>${item.PREFIX}</td>
+          <td class="sub-right"><strong>${item.PIECES}</strong></td>
+          <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+          <td class="sub-right">${item.STONEWT}</td>
+          <td class="sub-right">${item.NETWT}</td>
+          <td class="sub-right">${item.TOUCH}%</td>
+          <td class="sub-gold">${item.FINALGOLD}</td>
+        </tr>
+        ${
+          cleanedActGrams
+            ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+            : ""
+        }
+      `;
+    })
+    .join("");
+
+  // Totals row
+  const totalsRow = `
+    <tr class="total">
+      <td colspan="5">Total</td>
+      <td class="sub-right">${totalPCS}</td>
+      <td class="sub-right">${totalGWT.toFixed(3)}</td>
+      <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
+      <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
+      <td></td>
+      <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
+    </tr>
+  `;
+
+  // Stones table if applicable
+  const stonesTable =
+    path === "/estimations-model1"
+      ? `
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="sub-stone-name">STONE NAME</th>
+                <th class="stone-pieces">PIECES</th>
+                <th class="stone-weight">WEIGHT</th>
+                <th class="stone-cost">COST</th>
+                <th class="stone-amount">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(() => {
+                let totalStoneWeight = 0;
+                let totalAmount = 0;
+                let totalStonePieces = 0;
+                return (
+                  stonesData
+                    .map((stone, index) => {
+                      const rate = stoneRate[index] || 0;
+                      const amount = stone.ACTGRAMS * Number(rate);
+                      totalAmount += amount;
+                      totalStoneWeight += stone.ACTGRAMS;
+                      totalStonePieces += stone.PCS;
+                      return `
+                      <tr>
+                        <td class="sub-stone-name">${stone.MAINTYPE}</td>
+                        <td class="stone-pieces">${stone.PCS}</td>
+                        <td class="stone-weight">${stone.ACTGRAMS.toFixed(3)}</td>
+                        <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
+                        <td class="stone-amount">${amount.toFixed(2)}</td>
+                      </tr>
+                    `;
+                    })
+                    .join("") +
+                  `<tr class="total">
+                    <td colspan="1">Total</td>
+                    <td class="stone-pieces">${totalStonePieces}</td>
+                    <td class="stone-weight">${totalStoneWeight.toFixed(3)}</td>
+                    <td class="stone-cost"></td>
+                    <td class="stone-amount">${totalAmount.toFixed(2)}</td>
+                  </tr>`
+                );
+              })()}
+            </tbody>
+          </table>
+        </div>
+      `
+      : "";
+
+  // Summary table
+  const summaryTable = `
+    <div class="summary-container">
+      <table>
+        <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+          3
+        )}</td></tr>
+        ${
+          rateCut === true
+            ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+                rateValue || 0
+              )}/-</td>
+                <td class="sub-right">${
+                  amountValue ? Number(amountValue).toFixed(2) : 0
+                }</td></tr>`
+            : ""
+        }
+        <tr><td class="stone-name">Making ${
+          makingValue || 0
+        } /g</td><td class="sub-right">${
+    perGramValue ? Number(perGramValue).toFixed(2) : 0
+  }</td></tr>
+        ${
+          path === "/estimations-model1"
+            ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+                rodiumChargeValue || 0
+              }</td></tr>
+               <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+                 2
+               )}</td></tr>`
+            : `<tr><td class="stone-name">Stone Cost ${
+                stoneMakingValue || 0
+              } /g</td>
+               <td class="sub-right">${
+                 stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+               }</td></tr>`
+        }
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+          3
+        )}</strong></td></tr>
+        <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+          2
+        )}</strong></td></tr>
+      </table>
+    </div>
+  `;
+
+  // Build full HTML content
+  const htmlContent = `
+    <html>
+      <head>
+        <style>
+           body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+        .sub-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+        .sub-est {
+          font-weight : bold;
+          font-size: 18px;
+          color : red;
+        }
+        .sub-party {
+          font-weight : bold;
+          font-size: 14px;
+          color : #162566;
+        }
+        table {
+            border-collapse: collapse;
+  width: 100%;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #000;
+  padding: 6px;
+  text-align: center;
+  vertical-align: middle;
+        }
+  thead {
+  display: table-header-group; /* repeat headers */
+  background: #e6f8f9; 
+  font-weight: bold;
+}
+  tfoot {
+  display: table-footer-group;
+}
+  tr {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  -webkit-region-break-inside: avoid;
+}
+  td img {
+  max-width: 70px;
+  max-height: 70px;
+  object-fit: contain;
+  display: block;
+  margin: auto;
+  page-break-inside: avoid !important;
+}
+  .table-container {
+  page-break-inside: avoid;
+  margin-bottom: 10px;
+}
+        th {
+            background-color: #52bd91;
+            font-weight: bold;
+        }
+        .total {
+            font-weight: bold;
+            background-color: #162566;
+            color: white;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .summary-box {
+            width: 48%;
+            border: 1px solid black;
+            padding: 10px;
+            font-size: 12px;
+        }
+        .summary-box table {
+            width: 100%;
+            border: none;
+        }
+        .summary-box td {
+            border: none;
+            text-align: left;
+            padding: 3px 0;
+        }
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+        }
+        .sub {
+            text-align: left;
+            width: 300px;
+        }
+        .sub-pro {
+            text-align: left;
+            width: 500;
+            background-color: #BCF2F6;
+        }
+        .sub-tag {
+            text-align: center;
+            width: 100;
+        }
+        .sub-image {
+            text-align: center;
+        }
+        .sub-img {
+            display: flex;
+            text-align: center;
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+        }
+        .sub-right {
+            text-align: right;
+            width: 80;
+        }
+        .sub-gold {
+            text-align: right;
+            width: 130;
+        }
+        .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+        .sub-row td { border-top: none; text-align: left; }
+        .container { display: flex; justify-content: space-between; margin-top: 10px; }
+        .table-container { width: 40%; }
+        .summary-container { width: 35%; }
+        .stone-name { text-align: left;}
+        .sub-final { background-color: #f26d14ff; font-weight: bold; }
+        .sub-right-bold { text-align: right; font-weight: bold; }
+        .stone-name-bold { text-align: left; font-weight: bold; }
+        .sub-stone-name { text-align: left;  width: 100px}
+        .stone-pieces { text-align: center; font-weight: bold; width: 60px }
+        .stone-weight { text-align: right; width: 60px }
+        .stone-cost { text-align: right; width: 60px }
+        .stone-amount { text-align: right; width: 60px }
+
+        /* ✅ Page break fixes */
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        tr { page-break-inside: avoid; break-inside: avoid; }
+        img { page-break-inside: avoid; break-inside: avoid; }
+        .table-container, .summary-container { page-break-inside: avoid; }
+        </style>
+      </head>
+      <body>
+        <div class="header"><h2>ESTIMATION</h2></div>
+        <div class="sub-header">
+          <span>ESTIMATION NO. : <span class="sub-est">${
+            selectEstimationNo
+              ? selectEstimationNo?.ESTIMATIONNO
+              : estimationCount + 1
+          }</span></span>
+          <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}</span>
+          <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub-image">Image</th><th class="sub">PARTICULARS</th><th>Purity</th>
+              <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
+              <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+            ${totalsRow}
+          </tbody>
+        </table>
+        <div class="container">
+          ${stonesTable}
+          ${summaryTable}
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Create container for html2pdf
+  const container = document.createElement("div");
+  container.innerHTML = htmlContent;
+  document.body.appendChild(container);
+
+  html2pdf()
+    .set({
+      margin: [10, 5, 10, 5],
+      filename: `Estimation_${
+        selectEstimationNo
+          ? selectEstimationNo?.ESTIMATIONNO
+          : estimationCount + 1
+      }.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      jsPDF: { unit: "pt", format: "a4", orientation: "landscape" },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+    })
+    .from(container)
+    .save()
+    .then(() => {
+      document.body.removeChild(container);
+    });
+};
 
   const handlePrintClick = ({ key }) => {
     if (key === "1") {

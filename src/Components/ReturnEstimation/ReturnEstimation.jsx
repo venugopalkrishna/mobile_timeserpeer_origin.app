@@ -865,11 +865,11 @@ const ReturnEstimation = () => {
       );
 
       const data = response.data;
-      // setFineGoldValue(data[0]?.RBRATE?.toFixed(3));
-      // setRateValue(data[0]?.CZRATE);
-      // setAmountValue(data[0]?.SSPRATE);
-      // setCashBalanceValue(data[0]?.TOTCASH);
-      // setMetalBalanceValue(data[0]?.BEADSRATE);
+      setFineGoldValue(data[0]?.RBRATE?.toFixed(3));
+      setRateValue(data[0]?.CZRATE);
+      setAmountValue(data[0]?.SSPRATE);
+      setCashBalanceValue(data[0]?.TOTCASH);
+      setMetalBalanceValue(data[0]?.BEADSRATE);
       if (data[0]?.RBRATE > 0) {
         setRateCut(true);
       }
@@ -2374,54 +2374,49 @@ const urlToBase64 = async (url) => {
     };
 
   const handleLandScapDownloadPDF = () => {
-      let totalPCS = 0;
-      let totalGWT = 0;
-      let totalStone = 0;
-      let totalNWT = 0;
-      let totalGold = 0;
+    let totalPCS = 0;
+    let totalGWT = 0;
+    let totalStone = 0;
+    let totalNWT = 0;
+    let totalGold = 0;
   
-      // Build table rows
-      const tableRows = tableData
-        .map((item, index) => {
-          const actGrams =
-            stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
-            "";
-          const removeUndefinedWrapper = (str) => {
-            let prevStr;
-            do {
-              prevStr = str;
-              str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-            } while (prevStr !== str);
-            return str;
-          };
-          const cleanedActGrams = removeUndefinedWrapper(actGrams);
+    // Build table rows
+    const tableRows = tableData
+      .map((item, index) => {
+        const actGrams =
+          stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+          "";
+        const removeUndefinedWrapper = (str) => {
+          let prevStr;
+          do {
+            prevStr = str;
+            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+          } while (prevStr !== str);
+          return str;
+        };
+        const cleanedActGrams = removeUndefinedWrapper(actGrams);
   
-          totalPCS += item.PIECES;
-          totalGWT += item.GWT;
-          totalStone += Number(item.STONEWT);
-          totalNWT += Number(item.NETWT);
-          totalGold += Number(item?.FINALGOLD);
-          const imgPath = item.IMGPATH || photos[index] || "";
-          const base64Img = base64Images[imgPath] || "";
+        totalPCS += item.PIECES;
+        totalGWT += item.GWT;
+        totalStone += Number(item.STONEWT);
+        totalNWT += Number(item.NETWT);
+        totalGold += Number(item?.FINALGOLD);
+        const imgPath = item.IMGPATH || photos[index] || "";
+        const base64Img = base64Images[imgPath] || "";
   
-          return `
+        return `
           <tr>
-            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-            index + 1
-          }</strong></td>
-            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-            item.TAGNO
-          }</strong></td>
-          <td rowspan="${cleanedActGrams ? 2 : 1}">
-        
-  ${
-    base64Img
-      ? `<img src="${base64Img}" 
-               alt="Item Image" 
-               style="max-width:80px; max-height:80px;"/>`
-      : ""
-  }
-  </td>
+            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${index + 1}</strong></td>
+            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${item.TAGNO}</strong></td>
+            <td rowspan="${cleanedActGrams ? 2 : 1}">
+              ${
+                base64Img
+                  ? `<img src="${base64Img}" 
+                           alt="Item Image" 
+                           style="max-width:80px; max-height:80px;"/>`
+                  : ""
+              }
+            </td>
             <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
             <td>${item.PREFIX}</td>
             <td class="sub-right"><strong>${item.PIECES}</strong></td>
@@ -2437,11 +2432,11 @@ const urlToBase64 = async (url) => {
               : ""
           }
         `;
-        })
-        .join("");
+      })
+      .join("");
   
-      // Totals row
-      const totalsRow = `
+    // Totals row
+    const totalsRow = `
       <tr class="total">
         <td colspan="5">Total</td>
         <td class="sub-right">${totalPCS}</td>
@@ -2453,10 +2448,10 @@ const urlToBase64 = async (url) => {
       </tr>
     `;
   
-      // Stones table if applicable
-      const stonesTable =
-        path === "/estimations-model1"
-          ? `
+    // Stones table if applicable
+    const stonesTable =
+      path === "/estimations-model1"
+        ? `
           <div class="table-container">
             <table>
               <thead>
@@ -2472,7 +2467,7 @@ const urlToBase64 = async (url) => {
                 ${(() => {
                   let totalStoneWeight = 0;
                   let totalAmount = 0;
-                  let totalStonePieces =0;
+                  let totalStonePieces = 0;
                   return (
                     stonesData
                       .map((stone, index) => {
@@ -2505,10 +2500,10 @@ const urlToBase64 = async (url) => {
             </table>
           </div>
         `
-          : "";
+        : "";
   
-      // Summary table
-      const summaryTable = `
+    // Summary table
+    const summaryTable = `
       <div class="summary-container">
         <table>
           <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
@@ -2527,8 +2522,8 @@ const urlToBase64 = async (url) => {
           <tr><td class="stone-name">Making ${
             makingValue || 0
           } /g</td><td class="sub-right">${
-        perGramValue ? Number(perGramValue).toFixed(2) : 0
-      }</td></tr>
+      perGramValue ? Number(perGramValue).toFixed(2) : 0
+    }</td></tr>
           ${
             path === "/estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
@@ -2554,8 +2549,8 @@ const urlToBase64 = async (url) => {
       </div>
     `;
   
-      // Build full HTML content
-      const htmlContent = `
+    // Build full HTML content
+    const htmlContent = `
       <html>
         <head>
           <style>
@@ -2573,8 +2568,8 @@ const urlToBase64 = async (url) => {
               font-size: 16px;
               font-weight: bold;
               display: inline-block;
-      text-decoration: underline;
-      text-underline-offset: 4px;
+              text-decoration: underline;
+              text-underline-offset: 4px;
           }
           .sub-header {
               display: flex;
@@ -2584,27 +2579,53 @@ const urlToBase64 = async (url) => {
               margin-bottom: 10px;
               padding-bottom: 5px;
           }
-               .sub-est {
+          .sub-est {
             font-weight : bold;
             font-size: 18px;
             color : red;
           }
-            .sub-party {
+          .sub-party {
             font-weight : bold;
             font-size: 14px;
             color : #162566;
           }
           table {
-              width: 100%;
               border-collapse: collapse;
-              font-size: 12px;
-              margin-top: 5px;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
           }
           th, td {
-              border: 1px solid black;
-              padding: 5px;
-              text-align: center;
+              border: 1px solid #000;
+    padding: 6px;
+    text-align: center;
+    vertical-align: middle;
           }
+    thead {
+    display: table-header-group; /* repeat headers */
+    background: #e6f8f9; 
+    font-weight: bold;
+  }
+    tfoot {
+    display: table-footer-group;
+  }
+    tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-region-break-inside: avoid;
+  }
+    td img {
+    max-width: 70px;
+    max-height: 70px;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+    page-break-inside: avoid !important;
+  }
+    .table-container {
+    page-break-inside: avoid;
+    margin-bottom: 10px;
+  }
           th {
               background-color: #52bd91;
               font-weight: bold;
@@ -2638,23 +2659,23 @@ const urlToBase64 = async (url) => {
               margin-top: 15px;
               font-size: 12px;
           }
-            .sub {
+          .sub {
               text-align: left;
               width: 300px;
           }
-              .sub-pro {
-                text-align: left;
-                width: 500;
-                background-color: #BCF2F6;
-            }
-              .sub-tag {
+          .sub-pro {
+              text-align: left;
+              width: 500;
+              background-color: #BCF2F6;
+          }
+          .sub-tag {
               text-align: center;
               width: 100;
           }
-               .sub-image {
+          .sub-image {
               text-align: center;
           }
-              .sub-img {
+          .sub-img {
               display: flex;
               text-align: center;
               border-radius: 10px;
@@ -2666,24 +2687,31 @@ const urlToBase64 = async (url) => {
               text-align: right;
               width: 80;
           }
-              .sub-gold {
+          .sub-gold {
               text-align: right;
               width: 130;
           }
-            .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
-            .sub-row td { border-top: none; text-align: left; }
-            .container { display: flex; justify-content: space-between; margin-top: 10px; }
-            .table-container { width: 40%; }
-            .summary-container { width: 35%; }
-            .stone-name { text-align: left;}
-            .sub-final { background-color: #f26d14ff; font-weight: bold; }
-            .sub-right-bold { text-align: right; font-weight: bold; }
-            .stone-name-bold { text-align: left; font-weight: bold; }
-            .sub-stone-name { text-align: left;  width: 100px}
-            .stone-pieces { text-align: center; font-weight: bold; width: 60px }
-            .stone-weight { text-align: right; width: 60px }
-            .stone-cost { text-align: right; width: 60px }
-            .stone-amount { text-align: right; width: 60px }
+          .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+          .sub-row td { border-top: none; text-align: left; }
+          .container { display: flex; justify-content: space-between; margin-top: 10px; }
+          .table-container { width: 40%; }
+          .summary-container { width: 35%; }
+          .stone-name { text-align: left;}
+          .sub-final { background-color: #f26d14ff; font-weight: bold; }
+          .sub-right-bold { text-align: right; font-weight: bold; }
+          .stone-name-bold { text-align: left; font-weight: bold; }
+          .sub-stone-name { text-align: left;  width: 100px}
+          .stone-pieces { text-align: center; font-weight: bold; width: 60px }
+          .stone-weight { text-align: right; width: 60px }
+          .stone-cost { text-align: right; width: 60px }
+          .stone-amount { text-align: right; width: 60px }
+  
+          /* ✅ Page break fixes */
+          thead { display: table-header-group; }
+          tfoot { display: table-footer-group; }
+          tr { page-break-inside: avoid; break-inside: avoid; }
+          img { page-break-inside: avoid; break-inside: avoid; }
+          .table-container, .summary-container { page-break-inside: avoid; }
           </style>
         </head>
         <body>
@@ -2722,29 +2750,29 @@ const urlToBase64 = async (url) => {
       </html>
     `;
   
-      // Create container for html2pdf
-      const container = document.createElement("div");
-      container.innerHTML = htmlContent;
-      document.body.appendChild(container);
+    // Create container for html2pdf
+    const container = document.createElement("div");
+    container.innerHTML = htmlContent;
+    document.body.appendChild(container);
   
-      html2pdf()
-        .set({
-          margin: [10, 5, 10, 5],
-          filename: `Estimation_${
-            selectEstimationNo
-              ? selectEstimationNo?.ESTIMATIONNO
-              : estimationCount + 1
-          }.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          // html2canvas: { scale: 2, useCORS: false },
-          jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-        })
-        .from(container)
-        .save()
-        .then(() => {
-          document.body.removeChild(container);
-        });
-    };
+    html2pdf()
+      .set({
+        margin: [10, 5, 10, 5],
+        filename: `Estimation_${
+          selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1
+        }.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        jsPDF: { unit: "pt", format: "a4", orientation: "landscape" },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+      })
+      .from(container)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+      });
+  };
 
   const handlePrintClick = ({ key }) => {
     if (key === "1") {
