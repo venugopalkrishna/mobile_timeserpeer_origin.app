@@ -1383,19 +1383,7 @@ const Estimation = () => {
     }));
   };
 
-//   const fetchWithRetry = async (url, retries = 3, delay = 500) => {
-//   for (let i = 0; i < retries; i++) {
-//     try {
-//       const res = await fetch(url);
-//       if (res.ok) return res;
-//     } catch (e) {
-//       console.warn(`Retry ${i + 1} for ${url}`);
-//     }
-//     await new Promise(r => setTimeout(r, delay));
-//   }
-//   throw new Error("Failed after retries: " + url);
-// };
-const fetchWithRetry = async (url, retries = 3, delay = 500) => {
+  const fetchWithRetry = async (url, retries = 3, delay = 100) => {
   for (let i = 0; i < retries; i++) {
     try {
       const res = await fetch(url);
@@ -1403,11 +1391,7 @@ const fetchWithRetry = async (url, retries = 3, delay = 500) => {
     } catch (e) {
       console.warn(`Retry ${i + 1} for ${url}`);
     }
-    if (i < retries - 1) {
-      const backoff = delay * Math.pow(2, i);
-      const jitter = Math.random() * 300; // add randomness (0–300ms)
-      await new Promise(r => setTimeout(r, backoff + jitter));
-    }
+    await new Promise(r => setTimeout(r, delay));
   }
   throw new Error("Failed after retries: " + url);
 };
