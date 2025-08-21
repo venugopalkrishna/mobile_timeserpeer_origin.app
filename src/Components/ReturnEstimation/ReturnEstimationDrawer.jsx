@@ -495,9 +495,7 @@ const ReturnEstimationDrawer = ({
               </label>
               <span style={{ flex: 0.1 }}>:</span>
               <div style={{ textAlign: "right", flex: 1, fontSize: "15px" }}>
-                {selectEstimationNo
-                  ? selectEstimationNo?.STCHARGES
-                  : totalStoneCost?.toFixed(2)}
+                {totalStoneCost?.toFixed(2)}
               </div>
             </div>
           )}
