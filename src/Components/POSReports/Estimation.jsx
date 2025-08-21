@@ -975,11 +975,11 @@ const Estimation = () => {
       );
 
       const data = response.data;
-      setFineGoldValue(data[0]?.RBRATE);
-      setRateValue(data[0]?.CZRATE);
-      setAmountValue(data[0]?.SSPRATE);
-      setCashBalanceValue(data[0]?.TOTCASH);
-      setMetalBalanceValue(data[0]?.BEADSRATE);
+      // setFineGoldValue(data[0]?.RBRATE);
+      // setRateValue(data[0]?.CZRATE);
+      // setAmountValue(data[0]?.SSPRATE);
+      // setCashBalanceValue(data[0]?.TOTCASH);
+      // setMetalBalanceValue(data[0]?.BEADSRATE);
       if (data[0]?.RBRATE > 0) {
         setRateCut(true);
       }
