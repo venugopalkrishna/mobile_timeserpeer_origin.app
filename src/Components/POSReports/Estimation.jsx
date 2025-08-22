@@ -37,6 +37,8 @@ import { useEffect, useRef, useState } from "react";
 import Camera from "react-html5-camera-photo";
 import "react-html5-camera-photo/build/css/index.css";
 import { useLocation } from "react-router-dom";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import { CREATE_jwel } from "../../Config/Config";
 import Header from "../Header";
 import ImageDialog from "../Inventory/ImageDialog";
@@ -1383,19 +1385,76 @@ const Estimation = () => {
     }));
   };
 
-  const fetchWithRetry = async (url, retries = 3, delay = 100) => {
+//   const fetchWithRetry = async (url, retries = 3, delay = 100) => {
+//   for (let i = 0; i < retries; i++) {
+//     try {
+//       const res = await fetch(url);
+//       if (res.ok) return res;
+//     } catch (e) {
+//       console.warn(`Retry ${i + 1} for ${url}`);
+//     }
+//     await new Promise(r => setTimeout(r, delay));
+//   }
+//   throw new Error("Failed after retries: " + url);
+// };
+
+// const urlToBase64 = async (url) => {
+//   const cleanUrl = decodeURIComponent(url);
+//   const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`;
+
+//   const response = await fetchWithRetry(proxyUrl, 3, 800);
+//   const blob = await response.blob();
+
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader();
+//     reader.onloadend = () => resolve(reader.result);
+//     reader.onerror = reject;
+//     reader.readAsDataURL(blob);
+//   });
+// };
+const fetchWithRetry = async (url, retries = 3, delay = 300) => {
   for (let i = 0; i < retries; i++) {
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, { mode: "cors" });
       if (res.ok) return res;
     } catch (e) {
       console.warn(`Retry ${i + 1} for ${url}`);
     }
-    await new Promise(r => setTimeout(r, delay));
+    await new Promise((r) => setTimeout(r, delay));
   }
   throw new Error("Failed after retries: " + url);
 };
 
+// ✅ Helper: resize & convert to base64 (fix for iOS Safari blank PDF)
+const resizeBase64Img = (base64Str, maxWidth = 500, maxHeight = 500) =>
+  new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let canvas = document.createElement("canvas");
+      let ctx = canvas.getContext("2d");
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth || height > maxHeight) {
+        if (width / height > maxWidth / maxHeight) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        } else {
+          width *= maxHeight / height;
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.src = base64Str;
+  });
+
+// ✅ Convert URL → base64 (with resize)
 const urlToBase64 = async (url) => {
   const cleanUrl = decodeURIComponent(url);
   const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`;
@@ -1405,7 +1464,10 @@ const urlToBase64 = async (url) => {
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
+    reader.onloadend = async () => {
+      const resized = await resizeBase64Img(reader.result);
+      resolve(resized);
+    };
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
@@ -1429,40 +1491,71 @@ const urlToBase64 = async (url) => {
 //   });
 // };
 
+// useEffect(() => {
+//   const convertAllImages = async () => {
+//     if (!tableData || tableData.length === 0) {
+//       setBase64Images({});
+//       return;
+//     }
+
+//     const imageMap = {};
+
+//     await Promise.all(
+//       tableData.map(async (item, index) => {
+//         if (item.IMGPATH) {
+//           try {
+//             // ✅ Use already available base64 (photos) or previously cached (base64Images)
+//             if (photos[index]) {
+//               imageMap[item.IMGPATH] = photos[index];
+//             } else if (base64Images[item.IMGPATH]) {
+//               imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
+//             } else {
+//               const base64 = await urlToBase64(item.IMGPATH);
+//               imageMap[item.IMGPATH] = base64;
+//             }
+//           } catch (err) {
+//             console.error("Image conversion failed:", item.IMGPATH, err);
+//           }
+//         }
+//       })
+//     );
+
+//     setBase64Images(imageMap);
+//   };
+
+//   convertAllImages();
+// }, [tableData, photos]);
 useEffect(() => {
-  const convertAllImages = async () => {
-    if (!tableData || tableData.length === 0) {
-      setBase64Images({});
-      return;
-    }
+    const convertAllImages = async () => {
+      if (!tableData || tableData.length === 0) {
+        setBase64Images({});
+        return;
+      }
 
-    const imageMap = {};
-
-    await Promise.all(
-      tableData.map(async (item, index) => {
-        if (item.IMGPATH) {
-          try {
-            // ✅ Use already available base64 (photos) or previously cached (base64Images)
-            if (photos[index]) {
-              imageMap[item.IMGPATH] = photos[index];
-            } else if (base64Images[item.IMGPATH]) {
-              imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
-            } else {
-              const base64 = await urlToBase64(item.IMGPATH);
-              imageMap[item.IMGPATH] = base64;
+      const imageMap = {};
+      await Promise.all(
+        tableData.map(async (item, index) => {
+          if (item.IMGPATH) {
+            try {
+              if (photos[index]) {
+                imageMap[item.IMGPATH] = photos[index];
+              } else if (base64Images[item.IMGPATH]) {
+                imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
+              } else {
+                const base64 = await urlToBase64(item.IMGPATH);
+                imageMap[item.IMGPATH] = base64;
+              }
+            } catch (err) {
+              console.error("Image conversion failed:", item.IMGPATH, err);
             }
-          } catch (err) {
-            console.error("Image conversion failed:", item.IMGPATH, err);
           }
-        }
-      })
-    );
+        })
+      );
+      setBase64Images(imageMap);
+    };
 
-    setBase64Images(imageMap);
-  };
-
-  convertAllImages();
-}, [tableData, photos]);
+    convertAllImages();
+  }, [tableData, photos]);
   console.log(base64Images, "base64");
   console.log("photos", photos);
   
@@ -6513,7 +6606,7 @@ ${
   // Create container for html2pdf
   const container = document.createElement("div");
   container.innerHTML = htmlContent;
-  document.body.appendChild(container);
+  const clone = container.cloneNode(true);
 
   html2pdf()
     .set({
@@ -6523,16 +6616,189 @@ ${
           ? selectEstimationNo?.ESTIMATIONNO
           : estimationCount + 1
       }.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
+      image: { type: "jpeg", quality: 0.95 },
+      html2canvas: {
+          useCORS: true,
+          allowTaint: true,
+          scale: 2, // clearer text
+        },
       jsPDF: { unit: "pt", format: "a4", orientation: "landscape" },
       pagebreak: { mode: ["avoid-all", "css", "legacy"] }
     })
-    .from(container)
+    .from(clone)
     .save()
     .then(() => {
       document.body.removeChild(container);
     });
 };
+
+// const handleDownloadExcel = async () => {
+//   const workbook = new ExcelJS.Workbook();
+//   const worksheet = workbook.addWorksheet("Estimation");
+
+//   // --- HEADER ROW ---
+//   worksheet.columns = [
+//     { header: "SNo", key: "SNo", width: 6 },
+//     { header: "TAG NO", key: "TAGNO", width: 12 },
+//     { header: "Image", key: "Image", width: 15 },
+//     { header: "PARTICULARS", key: "PRODUCT", width: 25 },
+//     { header: "Purity", key: "Purity", width: 10 },
+//     { header: "Pieces", key: "Pieces", width: 8 },
+//     { header: "Gross.Wt", key: "GrossWt", width: 12 },
+//     { header: "Less.Wt", key: "StoneWt", width: 12 },
+//     { header: "Net.Wt", key: "NetWt", width: 12 },
+//     { header: "Touch", key: "Touch", width: 10 },
+//     { header: "Fine Gold", key: "FineGold", width: 14 }
+//   ];
+
+//   worksheet.getRow(1).eachCell((cell) => {
+//     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+//     cell.alignment = { horizontal: "center", vertical: "middle" };
+//     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF52BD91" } };
+//     cell.border = {
+//       top: { style: "thin" },
+//       left: { style: "thin" },
+//       bottom: { style: "thin" },
+//       right: { style: "thin" }
+//     };
+//   });
+
+//   // --- TABLE ROWS ---
+//   let totalPCS = 0, totalGWT = 0, totalStone = 0, totalNWT = 0, totalGold = 0;
+
+//   for (let index = 0; index < tableData.length; index++) {
+//     const item = tableData[index];
+
+//     const actGrams =
+//       stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS || "";
+
+//     totalPCS += item.PIECES;
+//     totalGWT += item.GWT;
+//     totalStone += Number(item.STONEWT || 0);
+//     totalNWT += Number(item.NETWT || 0);
+//     totalGold += Number(item.FINALGOLD || 0);
+
+//     const row = worksheet.addRow({
+//       SNo: index + 1,
+//       TAGNO: item.TAGNO,
+//       PRODUCT: item.PRODNAME,
+//       Purity: item.PREFIX,
+//       Pieces: item.PIECES,
+//       GrossWt: item.GWT?.toFixed(3),
+//       StoneWt: item.STONEWT,
+//       NetWt: item.NETWT,
+//       Touch: `${item.TOUCH}%`,
+//       FineGold: item.FINALGOLD
+//     });
+
+//     // 🔹 Add Image if available
+//     const imgPath = item.IMGPATH || photos[index] || "";
+//     const base64Img = base64Images[imgPath] || "";
+//     if (base64Img) {
+//       const imageId = workbook.addImage({
+//         base64: base64Img,
+//         extension: "png", // or "jpeg"
+//       });
+//       worksheet.addImage(imageId, {
+//         tl: { col: 2, row: row.number - 1 }, // put inside "Image" column
+//         ext: { width: 50, height: 50 }
+//       });
+//       row.height = 60; // increase row height for image
+//     }
+
+//     // 🔹 Add ActGrams row if exists
+//     if (actGrams) {
+//       const subRow = worksheet.addRow({
+//         PRODUCT: actGrams
+//       });
+//       subRow.font = { italic: true, bold: true };
+//       worksheet.mergeCells(`D${subRow.number}:K${subRow.number}`); // merge across columns
+//     }
+//   }
+
+//   // --- TOTALS ROW ---
+//   const totalsRow = worksheet.addRow({
+//     PRODUCT: "Total",
+//     Pieces: totalPCS,
+//     GrossWt: totalGWT.toFixed(3),
+//     StoneWt: totalStone.toFixed(3),
+//     NetWt: totalNWT.toFixed(3),
+//     FineGold: totalGold.toFixed(3)
+//   });
+
+//   totalsRow.eachCell((cell) => {
+//     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+//     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF162566" } };
+//   });
+
+//   // --- OPTIONAL: Stones table in another sheet ---
+//   if (path === "/estimations-model1") {
+//     const stoneSheet = workbook.addWorksheet("Stones");
+//     stoneSheet.columns = [
+//       { header: "STONE NAME", key: "name", width: 20 },
+//       { header: "PIECES", key: "pcs", width: 12 },
+//       { header: "WEIGHT", key: "weight", width: 12 },
+//       { header: "COST", key: "cost", width: 12 },
+//       { header: "AMOUNT", key: "amount", width: 14 }
+//     ];
+
+//     let totalStoneWeight = 0, totalAmount = 0, totalStonePieces = 0;
+//     stonesData.forEach((stone, idx) => {
+//       const rate = stoneRate[idx] || 0;
+//       const amount = stone.ACTGRAMS * rate;
+//       totalAmount += amount;
+//       totalStoneWeight += stone.ACTGRAMS;
+//       totalStonePieces += stone.PCS;
+
+//       stoneSheet.addRow({
+//         name: stone.MAINTYPE,
+//         pcs: stone.PCS,
+//         weight: stone.ACTGRAMS.toFixed(3),
+//         cost: Number(rate).toFixed(2),
+//         amount: Number(amount).toFixed(2)
+//       });
+//     });
+
+//     stoneSheet.addRow({
+//       name: "Total",
+//       pcs: totalStonePieces,
+//       weight: totalStoneWeight.toFixed(3),
+//       amount: totalAmount.toFixed(2)
+//     }).font = { bold: true };
+//   }
+
+//   // --- OPTIONAL: Summary table in another sheet ---
+//   const summarySheet = workbook.addWorksheet("Summary");
+//   summarySheet.addRow(["Fine Gold", totalFineGold.toFixed(3)]);
+//   if (rateCut === true) {
+//     summarySheet.addRow([
+//       `Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-`,
+//       amountValue ? Number(amountValue).toFixed(2) : 0
+//     ]);
+//   }
+//   summarySheet.addRow([`Making ${makingValue || 0}/g`, perGramValue ? Number(perGramValue).toFixed(2) : 0]);
+
+//   if (path === "/estimations-model1") {
+//     summarySheet.addRow(["Other Charges", rodiumChargeValue || 0]);
+//     summarySheet.addRow(["Stone Cost", totalStoneCost?.toFixed(2)]);
+//   } else {
+//     summarySheet.addRow([`Stone Cost ${stoneMakingValue || 0}/g`, stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0]);
+//   }
+
+//   summarySheet.addRow(["Metal Balance", metalBalanceValue.toFixed(3)]);
+//   summarySheet.addRow(["Cash Balance", cashBalanceValue.toFixed(2)]);
+
+//   // --- EXPORT FILE ---
+//   const buffer = await workbook.xlsx.writeBuffer();
+//   saveAs(
+//     new Blob([buffer], {
+//       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+//     }),
+//     `Estimation_${
+//       selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : estimationCount + 1
+//     }.xlsx`
+//   );
+// };
 
   const handlePrintClick = ({ key }) => {
     if (key === "1") {

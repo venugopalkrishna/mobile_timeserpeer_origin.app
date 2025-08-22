@@ -1249,7 +1249,7 @@ const ReturnEstimation = () => {
     }));
   };
 
-const fetchWithRetry = async (url, retries = 3, delay = 500) => {
+const fetchWithRetry = async (url, retries = 3, delay = 100) => {
   for (let i = 0; i < retries; i++) {
     try {
       const res = await fetch(url);
