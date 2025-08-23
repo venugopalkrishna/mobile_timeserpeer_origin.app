@@ -1,11 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  DatePicker,
-  Drawer,
-  Flex,
-  Spin
-} from "antd";
+import { Button, Checkbox, DatePicker, Drawer, Flex, Spin } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
@@ -23,7 +16,7 @@ const EstimationDialog = ({
   estimationNoMastAPI,
   setStonesData,
   setTableData,
-  setStoneMainData
+  setStoneMainData,
 }) => {
   const [summaryData, setSummaryData] = useState([]);
   const [fromDate, setFromDate] = useState(dayjs());
@@ -154,28 +147,6 @@ const EstimationDialog = ({
               type="primary"
               htmlType="submit"
               style={{
-                backgroundColor: "green",
-                borderColor: "green",
-                flex: "0 1 50px",
-              }}
-              onClick={() => {
-                setOpenDialog(false);
-                setStonesData([]);
-                setTableData([]);
-                estimationNoDataAPI(selectedObject?.ESTIMATIONNO);
-                estimationNoItemsAPI(selectedObject?.ESTIMATIONNO);
-                estimationNoMastAPI(selectedObject?.ESTIMATIONNO);
-                setFromDate(dayjs());
-                setToDate(dayjs());
-              }}
-              disabled={selectedObject === null}
-            >
-              Submit
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              style={{
                 backgroundColor: "orange",
                 borderColor: "orange",
                 flex: "0 1 50px",
@@ -192,56 +163,118 @@ const EstimationDialog = ({
           </div>
           <div className={styles.cardContainer}>
             {summaryData?.map((item, index) => (
-              <div key={index} className={styles.infoBox}
-              onClick={() => handleCheckboxChange(item)}
-              >
-                {/* Tag No */}
-                <div className={styles.rowTag}>
-                  <p style={{ fontSize: "12px" }}>
-                    Est No: <span style={{ fontWeight: "bold", fontSize: "16px" }}>{item.ESTIMATIONNO}</span>
-                  </p>
-                  <Checkbox
-                    checked={selectedObject?.ESTIMATIONNO === item.ESTIMATIONNO}
-                    onChange={() => handleCheckboxChange(item)}
-                    disabled={
-                      selectedObject !== null &&
-                      selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO
-                    }
-                  />
-                </div>
-                <hr className={styles.fullWidthLine} />
+              <>
+                <div
+                  className={styles.infoBox}
+                  onClick={() => handleCheckboxChange(item)}
+                >
+                  {/* Tag No */}
+                  <div className={styles.rowTag}>
+                    <p style={{ fontSize: "12px" }}>
+                      Est No:{" "}
+                      <span style={{ fontWeight: "bold", fontSize: "16px" }}>
+                        {item.ESTIMATIONNO}
+                      </span>
+                    </p>
+                    <Checkbox
+                      checked={
+                        selectedObject?.ESTIMATIONNO === item.ESTIMATIONNO
+                      }
+                      onChange={() => handleCheckboxChange(item)}
+                      disabled={
+                        selectedObject !== null &&
+                        selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO
+                      }
+                    />
+                  </div>
+                  <hr className={styles.fullWidthLine} />
 
-                {/* Item and Purity */}
-                <div className={styles.row}>
-                  <p style={{ fontSize: "11px" }}>
-                    
-                    <span style={{ fontWeight: "bold", fontSize: "12px" }}>{dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}</span>
-                  </p>
-                  <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                     <span style={{ fontWeight: "bold", fontSize: "12px", color: "#52bd91" }}>{item.DESCRIPTION}</span>
-                  </p>
-                </div>
-                <hr className={styles.fullWidthLine} />
+                  {/* Item and Purity */}
+                  <div className={styles.row}>
+                    <p style={{ fontSize: "11px" }}>
+                      <span style={{ fontWeight: "bold", fontSize: "12px" }}>
+                        {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                      </span>
+                    </p>
+                    <p style={{ fontWeight: "bold", fontSize: "11px" }}>
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: "#52bd91",
+                        }}
+                      >
+                        {item.DESCRIPTION}
+                      </span>
+                    </p>
+                  </div>
+                  <hr className={styles.fullWidthLine} />
 
-                {/* Gross Wt, Less Wt, Net Wt */}
-                <div className={styles.row}>
-                  {/* <p style={{ fontWeight: "bold", fontSize: "12px" }}>
+                  {/* Gross Wt, Less Wt, Net Wt */}
+                  <div className={styles.row}>
+                    {/* <p style={{ fontWeight: "bold", fontSize: "12px" }}>
                     <strong>Pieces:</strong> {item.TOTPCS}
                   </p> */}
-                  <p style={{ fontSize: "11px" }}>
-                    Gross Wt:{" "}
-                    <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>
-                      {item.GWT}
-                    </span>
-                  </p>
-                  <p style={{ fontSize: "11px" }}>
-                    Less Wt: <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>{item.STONEWT}</span>
-                  </p>
-                  <p style={{ fontSize: "11px" }}>
-                    Net Wt: <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>{item.NWT}</span>
-                  </p>
+                    <p style={{ fontSize: "11px" }}>
+                      Gross Wt:{" "}
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: "red",
+                        }}
+                      >
+                        {item.GWT}
+                      </span>
+                    </p>
+                    <p style={{ fontSize: "11px" }}>
+                      Less Wt:{" "}
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: "red",
+                        }}
+                      >
+                        {item.STONEWT}
+                      </span>
+                    </p>
+                    <p style={{ fontSize: "11px" }}>
+                      Net Wt:{" "}
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: "red",
+                        }}
+                      >
+                        {item.NWT}
+                      </span>
+                    </p>
+                  </div>
                 </div>
-              </div>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{
+                    backgroundColor: "green",
+                    borderColor: "green",
+                  }}
+                  onClick={() => {
+                    setOpenDialog(false);
+                    setStonesData([]);
+                    setTableData([]);
+                    estimationNoDataAPI(item.ESTIMATIONNO);
+                    estimationNoItemsAPI(item.ESTIMATIONNO);
+                    estimationNoMastAPI(item.ESTIMATIONNO);
+                    setFromDate(dayjs());
+                    setToDate(dayjs());
+                  }}
+                  disabled={selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO}
+                >
+                  Submit
+                </Button>
+              </>
             ))}
           </div>
         </Drawer>

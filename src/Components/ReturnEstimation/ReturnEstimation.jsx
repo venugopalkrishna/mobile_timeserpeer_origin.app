@@ -256,7 +256,7 @@ const ReturnEstimation = () => {
       });
 
       // Merge into setStonesData
-      if(!selectEstimationNo?.ESTIMATIONNO) {
+      // if(!selectEstimationNo?.ESTIMATIONNO) {
       setStonesData((prevData) => {
         const combinedData = [...prevData, ...newData];
 
@@ -274,7 +274,7 @@ const ReturnEstimation = () => {
 
         return mergedData;
       });
-    }
+    // }
 
       return finalData; // ✅ return processed data
     } catch (error) {
@@ -502,96 +502,96 @@ const ReturnEstimation = () => {
   const formattedDate = selectedDate ? selectedDate.format("YYYY-MM-DD") : null;
 
   const createEstimationData = async () => {
-    const requestBody = tableData.map((stone, index) => {
-      const actGrams =
-        stoneMainData.find((item) => item.TAGNO === stone.TAGNO)?.ACTGRAMS ||
-        "";
-      const removeUndefinedWrapper = (str) => {
-        let cleanedStr = str;
-        let prevStr;
-        do {
-          prevStr = cleanedStr;
-          cleanedStr = cleanedStr
-            .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
-            .trim();
-        } while (prevStr !== cleanedStr);
-        return cleanedStr;
-      };
-      const cleanedActGrams = removeUndefinedWrapper(actGrams);
-
-      return {
-        estimationtype: "estimation",
-        estimationno: selectEstimationNo
-          ? selectEstimationNo?.ESTIMATIONNO
-          : estimationCount + 1,
-        estimationdate: formattedDate,
-        description: selectedParty,
-        sno: index + 1 || 0,
-        tagno: stone.TAGNO || "-",
-        prodname: stone.PRODNAME || "-",
-        gwt: Number(stone.GWT) || 0,
-        stonewt: Number(stone.STONEWT) || 0,
-        nwt: Number(stone.NETWT) || 0,
-        mix: 0,
-        rE_EM: 0,
-        rb: 0,
-        others: 0,
-        cz: 0,
-        re: 0,
-        rr: 0,
-        ee: 0,
-        dp: 0,
-        ds: 0,
-        ch: 0,
-        ep: 0,
-        pf: 0,
-        st: 0,
-        gr: 0,
-        ge: 0,
-        dr: 0,
-        dc: 0,
-        bd: 0,
-        bb: 0,
-        etype: "-",
-        billno: 0,
-        billdate: formattedDate,
-        status: false,
-        apprtnstatus: false,
-        tray: false,
-        branchcode: "-",
-        branchname: "-",
-        ssp: 0,
-        descriptioN1: "-",
-        pieces: stone.PIECES || 0,
-        diffswt: 0,
-        appno: 0,
-        appdate: formattedDate,
-        prefix: stone.PREFIX || "-",
-        touch: stone.TOUCH || 0,
-        wastage: Number(wastageValue) || 0,
-        finegold: Number(stone.FINALGOLD) || 0,
-        actper: Number(stone.ACTPER) || 0,
-        stdet: cleanedActGrams || "-",
-        homekey: 0,
-      };
-    });
-    try {
-      const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/InsertWholesalReturnEstimationData`,
-        requestBody,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            tenantName: tenantName,
-          },
-        }
-      );
-      let data = response?.data;
-      setEstimationData(data[0].isInsert);
-    } catch (error) {
-      console.error("Error posting data:", error);
-    }
-  };
+      const requestBody = tableData.map((stone, index) => {
+        const actGrams =
+          stoneMainData.find((item) => item.TAGNO === stone.TAGNO)?.ACTGRAMS ||
+          "";
+        const removeUndefinedWrapper = (str) => {
+          let cleanedStr = str;
+          let prevStr;
+          do {
+            prevStr = cleanedStr;
+            cleanedStr = cleanedStr
+              .replace(/undefined\(\s*(.*?)\s*\)/g, "$1")
+              .trim();
+          } while (prevStr !== cleanedStr);
+          return cleanedStr;
+        };
+        const cleanedActGrams = removeUndefinedWrapper(actGrams);
+  
+        return {
+          estimationtype: "estimation",
+          estimationno: selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1,
+          estimationdate: formattedDate,
+          description: selectedParty,
+          sno: index + 1 || 0,
+          tagno: stone.TAGNO || "-",
+          prodname: stone.PRODNAME || "-",
+          gwt: Number(stone.GWT) || 0,
+          stonewt: Number(stone.STONEWT) || 0,
+          nwt: Number(stone.NETWT) || 0,
+          mix: 0,
+          rE_EM: 0,
+          rb: 0,
+          others: 0,
+          cz: 0,
+          re: 0,
+          rr: 0,
+          ee: 0,
+          dp: 0,
+          ds: 0,
+          ch: 0,
+          ep: 0,
+          pf: 0,
+          st: 0,
+          gr: 0,
+          ge: 0,
+          dr: 0,
+          dc: 0,
+          bd: 0,
+          bb: 0,
+          etype: "-",
+          billno: 0,
+          billdate: formattedDate,
+          status: false,
+          apprtnstatus: false,
+          tray: false,
+          branchcode: "-",
+          branchname: stone.IMGPATH,
+          ssp: 0,
+          descriptioN1: "-",
+          pieces: stone.PIECES || 0,
+          diffswt: 0,
+          appno: 0,
+          appdate: formattedDate,
+          prefix: stone.PREFIX || "-",
+          touch: stone.TOUCH || 0,
+          wastage: Number(wastageValue) || 0,
+          finegold: Number(stone.FINALGOLD) || 0,
+          actper: Number(stone.ACTPER) || 0,
+          stdet: cleanedActGrams || "-",
+          homekey: 0,
+        };
+      });
+      try {
+        const response = await axios.post(
+          `${CREATE_jwel}/api/Wholesal/InsertWholesalEstimationData`,
+          requestBody,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              tenantName: tenantName,
+            },
+          }
+        );
+        let data = response?.data;
+        setEstimationData(data[0].isInsert);
+      } catch (error) {
+        console.error("Error posting data:", error);
+      }
+    };
 
   const createEstimationItems = async () => {
     const requestBody = stonesData.map((stone, index) => ({
@@ -718,130 +718,251 @@ const ReturnEstimation = () => {
   };
 
   const estimationNoDataAPI = async (estNo) => {
-    try {
-      let whereCondition = "";
-      if (estNo) {
-        whereCondition = `ESTIMATIONNO=${estNo}`;
-      }
-      let params = {
-        tableName: "RETURN_ESTIMATION_DATA",
-        where: whereCondition,
-        order: "SNO",
-      };
-
-      const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder`,
-        {
-          params,
-          headers: {
-            tenantName: tenantName,
-          },
+      try {
+        let whereCondition = "";
+        if (estNo) {
+          whereCondition = `ESTIMATIONNO=${estNo}`;
         }
-      );
-
-      const data = response.data;
-
-      if (Array.isArray(data) && data.length > 0) {
-        const updatedData = data.map((item, index) => ({
-          ACTPER: item.ACTPER,
-          ACTSWT: 0.2,
-          BALGWT: 1500,
-          BALNWT: 1500,
-          BALPIECES: 0,
-          BALSTONEWT: 0,
-          BRANCHCODE: "",
-          BRANCHNAME: "",
-          CNAME: "",
-          CZ: 0,
-          DIFFSWT: 0,
-          DIFFWT: 0,
-          ENTRYNO: 0,
-          FINALGOLD: item.FINEGOLD,
-          GROSSWEIGHT: item.GWT,
-          GWT: item.GWT,
-          HUID1: "-",
-          HUID2: "-",
-          ITEM_TOTCTS: 1,
-          ITEM_TOTGMS: 0,
-          ITEM_TOTPCS: 0,
-          LOTNO: 2,
-          MIX: 0,
-          NETWT: item.NWT,
-          NWT: item.NWT,
-          ORDERITEM: false,
-          ORDERNO: ".",
-          OTHERS: 0,
-          PIECES: item.PIECES,
-          PREFIX: item.PREFIX,
-          PRODNAME: item.PRODNAME,
-          RB: 0,
-          RECYCLE: "NO",
-          RE_EM: 0,
-          SERIALNO: 242,
-          SLIPNO: 79,
-          SNO: 904,
-          SSP: 0,
-          SSTATUS: false,
-          STONEWT: item.STONEWT,
-          TAGDATE: "2025-03-04T00:00:00",
-          TAGNO: item.TAGNO,
-          TAGTIME: "1900-01-01T06:27:17",
-          TAG_PRE: "*",
-          TOTGWT: 30.23,
-          TOTNWT: 26.13,
-          TOTPCS: 2,
-          TOTSTONEWT: 4.1,
-          TOUCH: item.TOUCH,
-          VNO: 0,
-          slipdate: "2025-03-04T00:00:00",
-          workername: "HIRU - A4",
-        }));
-        // const stones = data.map((item, index) => ({
-        //   TAGNO: item.TAGNO,
-        //   ACTGRAMS: item.STDET,
-        // }));
-        // setStoneMainData(stones);
-        // setTableData(updatedData);
-        for (const item of updatedData) {
-          if (item.TAGNO) {
-            await mainAPI(item.TAGNO);
-            await stonesAPI(item.TAGNO);
+        let params = {
+          tableName: "ESTIMATION_DATA",
+          where: whereCondition,
+          order: "SNO",
+        };
+  
+        const response = await axios.get(
+          `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder`,
+          {
+            params,
+            headers: {
+              tenantName: tenantName,
+            },
           }
+        );
+  
+        const data = response.data;
+  
+        if (Array.isArray(data) && data.length > 0) {
+          const updatedData = data.map((item, index) => ({
+            ACTPER: item.ACTPER,
+            ACTSWT: 0.2,
+            BALGWT: 1500,
+            BALNWT: 1500,
+            BALPIECES: 0,
+            BALSTONEWT: 0,
+            BRANCHCODE: "",
+            BRANCHNAME: "",
+            CNAME: "",
+            CZ: 0,
+            DIFFSWT: 0,
+            DIFFWT: 0,
+            ENTRYNO: 0,
+            FINALGOLD: item.FINEGOLD,
+            GROSSWEIGHT: item.GWT,
+            GWT: item.GWT,
+            HUID1: "-",
+            HUID2: "-",
+            ITEM_TOTCTS: 1,
+            ITEM_TOTGMS: 0,
+            ITEM_TOTPCS: 0,
+            LOTNO: 2,
+            MIX: 0,
+            NETWT: item.NWT,
+            NWT: item.NWT,
+            ORDERITEM: false,
+            ORDERNO: ".",
+            OTHERS: 0,
+            PIECES: item.PIECES,
+            PREFIX: item.PREFIX,
+            PRODNAME: item.PRODNAME,
+            IMGPATH: item.BRANCHNAME,
+            RB: 0,
+            RECYCLE: "NO",
+            RE_EM: 0,
+            SERIALNO: 242,
+            SLIPNO: 79,
+            SNO: 904,
+            SSP: 0,
+            SSTATUS: false,
+            STONEWT: item.STONEWT,
+            TAGDATE: "2025-03-04T00:00:00",
+            TAGNO: item.TAGNO,
+            TAGTIME: "1900-01-01T06:27:17",
+            TAG_PRE: "*",
+            TOTGWT: 30.23,
+            TOTNWT: 26.13,
+            TOTPCS: 2,
+            TOTSTONEWT: 4.1,
+            TOUCH: item.TOUCH,
+            VNO: 0,
+            slipdate: "2025-03-04T00:00:00",
+            workername: "HIRU - A4",
+          }));
+          const stones = data.map((item, index) => ({
+            TAGNO: item.TAGNO,
+            ACTGRAMS: item.STDET,
+          }));
+          setStoneMainData(stones);
+          setTableData(updatedData);
+          const total = updatedData.reduce(
+            (sum, item) => sum + Number(item.PIECES || 0),
+            0
+          );
+          const totalGross = updatedData.reduce(
+            (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
+            0
+          );
+          const totalStones = updatedData.reduce(
+            (sum, item) => sum + Number(item.STONEWT || 0),
+            0
+          );
+          const totalNetWt = updatedData.reduce(
+            (sum, item) => sum + Number(item.NETWT || 0),
+            0
+          );
+          const totalGold = updatedData.reduce(
+            (sum, item) => sum + Number(item.FINALGOLD || 0),
+            0
+          );
+  
+          // Set totals
+          setTotalPieces(total);
+          setTotalGrossWeight(totalGross);
+          setTotalStoneWeight(totalStones);
+          setTotalNetWeight(totalNetWt);
+          setTotalFineGold(totalGold);
+  
+          setSelectedObject(null);
         }
-        const total = updatedData.reduce(
-          (sum, item) => sum + Number(item.PIECES || 0),
-          0
-        );
-        const totalGross = updatedData.reduce(
-          (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
-          0
-        );
-        const totalStones = updatedData.reduce(
-          (sum, item) => sum + Number(item.STONEWT || 0),
-          0
-        );
-        const totalNetWt = updatedData.reduce(
-          (sum, item) => sum + Number(item.NETWT || 0),
-          0
-        );
-        const totalGold = updatedData.reduce(
-          (sum, item) => sum + Number(item.FINALGOLD || 0),
-          0
-        );
-
-        // Set totals
-        setTotalPieces(total);
-        setTotalGrossWeight(totalGross);
-        setTotalStoneWeight(totalStones);
-        setTotalNetWeight(totalNetWt);
-        setTotalFineGold(totalGold);
-
-        setSelectedObject(null);
+      } catch (error) {
+        console.error("Error fetching estimation count:", error);
       }
-    } catch (error) {
-      console.error("Error fetching estimation count:", error);
-    }
-  };
+    };
+
+  // const estimationNoDataAPI = async (estNo) => {
+  //   try {
+  //     let whereCondition = "";
+  //     if (estNo) {
+  //       whereCondition = `ESTIMATIONNO=${estNo}`;
+  //     }
+  //     let params = {
+  //       tableName: "RETURN_ESTIMATION_DATA",
+  //       where: whereCondition,
+  //       order: "SNO",
+  //     };
+
+  //     const response = await axios.get(
+  //       `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder`,
+  //       {
+  //         params,
+  //         headers: {
+  //           tenantName: tenantName,
+  //         },
+  //       }
+  //     );
+
+  //     const data = response.data;
+
+  //     if (Array.isArray(data) && data.length > 0) {
+  //       const updatedData = data.map((item, index) => ({
+  //         ACTPER: item.ACTPER,
+  //         ACTSWT: 0.2,
+  //         BALGWT: 1500,
+  //         BALNWT: 1500,
+  //         BALPIECES: 0,
+  //         BALSTONEWT: 0,
+  //         BRANCHCODE: "",
+  //         BRANCHNAME: "",
+  //         CNAME: "",
+  //         CZ: 0,
+  //         DIFFSWT: 0,
+  //         DIFFWT: 0,
+  //         ENTRYNO: 0,
+  //         FINALGOLD: item.FINEGOLD,
+  //         GROSSWEIGHT: item.GWT,
+  //         GWT: item.GWT,
+  //         HUID1: "-",
+  //         HUID2: "-",
+  //         ITEM_TOTCTS: 1,
+  //         ITEM_TOTGMS: 0,
+  //         ITEM_TOTPCS: 0,
+  //         LOTNO: 2,
+  //         MIX: 0,
+  //         NETWT: item.NWT,
+  //         NWT: item.NWT,
+  //         ORDERITEM: false,
+  //         ORDERNO: ".",
+  //         OTHERS: 0,
+  //         PIECES: item.PIECES,
+  //         PREFIX: item.PREFIX,
+  //         PRODNAME: item.PRODNAME,
+  //         RB: 0,
+  //         RECYCLE: "NO",
+  //         RE_EM: 0,
+  //         SERIALNO: 242,
+  //         SLIPNO: 79,
+  //         SNO: 904,
+  //         SSP: 0,
+  //         SSTATUS: false,
+  //         STONEWT: item.STONEWT,
+  //         TAGDATE: "2025-03-04T00:00:00",
+  //         TAGNO: item.TAGNO,
+  //         TAGTIME: "1900-01-01T06:27:17",
+  //         TAG_PRE: "*",
+  //         TOTGWT: 30.23,
+  //         TOTNWT: 26.13,
+  //         TOTPCS: 2,
+  //         TOTSTONEWT: 4.1,
+  //         TOUCH: item.TOUCH,
+  //         VNO: 0,
+  //         slipdate: "2025-03-04T00:00:00",
+  //         workername: "HIRU - A4",
+  //       }));
+  //       // const stones = data.map((item, index) => ({
+  //       //   TAGNO: item.TAGNO,
+  //       //   ACTGRAMS: item.STDET,
+  //       // }));
+  //       // setStoneMainData(stones);
+  //       // setTableData(updatedData);
+  //       for (const item of updatedData) {
+  //         if (item.TAGNO) {
+  //           await mainAPI(item.TAGNO);
+  //           await stonesAPI(item.TAGNO);
+  //         }
+  //       }
+  //       const total = updatedData.reduce(
+  //         (sum, item) => sum + Number(item.PIECES || 0),
+  //         0
+  //       );
+  //       const totalGross = updatedData.reduce(
+  //         (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
+  //         0
+  //       );
+  //       const totalStones = updatedData.reduce(
+  //         (sum, item) => sum + Number(item.STONEWT || 0),
+  //         0
+  //       );
+  //       const totalNetWt = updatedData.reduce(
+  //         (sum, item) => sum + Number(item.NETWT || 0),
+  //         0
+  //       );
+  //       const totalGold = updatedData.reduce(
+  //         (sum, item) => sum + Number(item.FINALGOLD || 0),
+  //         0
+  //       );
+
+  //       // Set totals
+  //       setTotalPieces(total);
+  //       setTotalGrossWeight(totalGross);
+  //       setTotalStoneWeight(totalStones);
+  //       setTotalNetWeight(totalNetWt);
+  //       setTotalFineGold(totalGold);
+
+  //       setSelectedObject(null);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching estimation count:", error);
+  //   }
+  // };
 
   const estimationNoMastAPI = async (estNo) => {
     try {
@@ -1249,23 +1370,49 @@ const ReturnEstimation = () => {
     }));
   };
 
-const fetchWithRetry = async (url, retries = 3, delay = 100) => {
+const fetchWithRetry = async (url, retries = 3, delay = 300) => {
   for (let i = 0; i < retries; i++) {
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, { mode: "cors" });
       if (res.ok) return res;
     } catch (e) {
       console.warn(`Retry ${i + 1} for ${url}`);
     }
-    if (i < retries - 1) {
-      const backoff = delay * Math.pow(2, i);
-      const jitter = Math.random() * 300; // add randomness (0–300ms)
-      await new Promise(r => setTimeout(r, backoff + jitter));
-    }
+    await new Promise((r) => setTimeout(r, delay));
   }
   throw new Error("Failed after retries: " + url);
 };
 
+// ✅ Helper: resize & convert to base64 (fix for iOS Safari blank PDF)
+const resizeBase64Img = (base64Str, maxWidth = 500, maxHeight = 500) =>
+  new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let canvas = document.createElement("canvas");
+      let ctx = canvas.getContext("2d");
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth || height > maxHeight) {
+        if (width / height > maxWidth / maxHeight) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        } else {
+          width *= maxHeight / height;
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.src = base64Str;
+  });
+
+// ✅ Convert URL → base64 (with resize)
 const urlToBase64 = async (url) => {
   const cleanUrl = decodeURIComponent(url);
   const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`;
@@ -1275,46 +1422,46 @@ const urlToBase64 = async (url) => {
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
+    reader.onloadend = async () => {
+      const resized = await resizeBase64Img(reader.result);
+      resolve(resized);
+    };
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
 };
 
   useEffect(() => {
-    const convertAllImages = async () => {
-      if (!tableData || tableData.length === 0) {
-        setBase64Images({});
-        return;
-      }
+      const convertAllImages = async () => {
+        if (!tableData || tableData.length === 0) {
+          setBase64Images({});
+          return;
+        }
   
-      const imageMap = {};
-  
-      await Promise.all(
-        tableData.map(async (item, index) => {
-          if (item.IMGPATH) {
-            try {
-              // ✅ Use already available base64 (photos) or previously cached (base64Images)
-              if (photos[index]) {
-                imageMap[item.IMGPATH] = photos[index];
-              } else if (base64Images[item.IMGPATH]) {
-                imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
-              } else {
-                const base64 = await urlToBase64(item.IMGPATH);
-                imageMap[item.IMGPATH] = base64;
+        const imageMap = {};
+        await Promise.all(
+          tableData.map(async (item, index) => {
+            if (item.IMGPATH) {
+              try {
+                if (photos[index]) {
+                  imageMap[item.IMGPATH] = photos[index];
+                } else if (base64Images[item.IMGPATH]) {
+                  imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
+                } else {
+                  const base64 = await urlToBase64(item.IMGPATH);
+                  imageMap[item.IMGPATH] = base64;
+                }
+              } catch (err) {
+                console.error("Image conversion failed:", item.IMGPATH, err);
               }
-            } catch (err) {
-              console.error("Image conversion failed:", item.IMGPATH, err);
             }
-          }
-        })
-      );
+          })
+        );
+        setBase64Images(imageMap);
+      };
   
-      setBase64Images(imageMap);
-    };
-  
-    convertAllImages();
-  }, [tableData, photos]);
+      convertAllImages();
+    }, [tableData, photos]);
 
   const handleLandScapePrint = () => {
     let totalPCS = 0;
@@ -1387,18 +1534,18 @@ const urlToBase64 = async (url) => {
     const totalsRow = `
       <tr class="total">
         <td colspan="5">Total</td>
-        <td>${totalPCS}</td>
-        <td>${totalGWT.toFixed(3)}</td>
-        <td>${Number(totalStone)?.toFixed(3)}</td>
-        <td>${Number(totalNWT)?.toFixed(3)}</td>
+        <td class="sub-right">${totalPCS}</td>
+        <td class="sub-right">${totalGWT.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
         <td></td>
-        <td>${Number(totalGold)?.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
       </tr>
     `;
 
     // Stones table if applicable
     const stonesTable =
-      path === "/estimations-model1"
+      path === "/return-estimations-model1"
         ? `
           <div class="table-container">
             <table>
@@ -1472,7 +1619,7 @@ const urlToBase64 = async (url) => {
       perGramValue ? Number(perGramValue).toFixed(2) : 0
     }</td></tr>
           ${
-            path === "/estimations-model1"
+            path === "/return-estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
@@ -1623,7 +1770,7 @@ const urlToBase64 = async (url) => {
           </style>
         </head>
         <body>
-          <div class="header"><h2>ESTIMATION</h2></div>
+          <div class="header"><h2>RETURN ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
               selectEstimationNo
@@ -1666,7 +1813,7 @@ const urlToBase64 = async (url) => {
     html2pdf()
       .set({
         margin: [10, 5, 10, 5],
-        filename: `Estimation_${
+        filename: `Return_Estimation_${
           selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1
@@ -1743,18 +1890,18 @@ const urlToBase64 = async (url) => {
     const totalsRow = `
       <tr class="total">
         <td colspan="4">Total</td>
-        <td>${totalPCS}</td>
-        <td>${totalGWT.toFixed(3)}</td>
-        <td>${Number(totalStone)?.toFixed(3)}</td>
-        <td>${Number(totalNWT)?.toFixed(3)}</td>
+        <td class="sub-right">${totalPCS}</td>
+        <td class="sub-right">${totalGWT.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
         <td></td>
-        <td>${Number(totalGold)?.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
       </tr>
     `;
 
     // Stones table if applicable
     const stonesTable =
-      path === "/estimations-model1"
+      path === "/return-estimations-model1"
         ? `
           <div class="table-container">
             <table>
@@ -1828,7 +1975,7 @@ const urlToBase64 = async (url) => {
       perGramValue ? Number(perGramValue).toFixed(2) : 0
     }</td></tr>
           ${
-            path === "/estimations-model1"
+            path === "/return-estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
@@ -1968,7 +2115,7 @@ const urlToBase64 = async (url) => {
           </style>
         </head>
         <body>
-          <div class="header"><h2>ESTIMATION</h2></div>
+          <div class="header"><h2>RETURN ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
               selectEstimationNo
@@ -2011,7 +2158,7 @@ const urlToBase64 = async (url) => {
     html2pdf()
       .set({
         margin: [10, 5, 10, 5],
-        filename: `Estimation_${
+        filename: `Return_Estimation_${
           selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1
@@ -2086,18 +2233,18 @@ const urlToBase64 = async (url) => {
       const totalsRow = `
       <tr class="total">
         <td colspan="4">Total</td>
-        <td>${totalPCS}</td>
-        <td>${totalGWT.toFixed(3)}</td>
-        <td>${Number(totalStone)?.toFixed(3)}</td>
-        <td>${Number(totalNWT)?.toFixed(3)}</td>
+        <td class="sub-right">${totalPCS}</td>
+        <td class="sub-right">${totalGWT.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
         <td></td>
-        <td>${Number(totalGold)?.toFixed(3)}</td>
+        <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
       </tr>
     `;
   
       // Stones table if applicable
       const stonesTable =
-        path === "/estimations-model1"
+        path === "/return-estimations-model1"
           ? `
           <div class="table-container">
             <table>
@@ -2172,7 +2319,7 @@ const urlToBase64 = async (url) => {
         perGramValue ? Number(perGramValue).toFixed(2) : 0
       }</td></tr>
           ${
-            path === "/estimations-model1"
+            path === "/return-estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
@@ -2318,7 +2465,7 @@ const urlToBase64 = async (url) => {
           </style>
         </head>
         <body>
-          <div class="header"><h2>ESTIMATION</h2></div>
+          <div class="header"><h2>RETURN ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
               selectEstimationNo
@@ -2361,14 +2508,15 @@ const urlToBase64 = async (url) => {
       html2pdf()
         .set({
           margin: [10, 5, 10, 5],
-          filename: `Estimation_${
+          filename: `Return_Estimation_${
             selectEstimationNo
               ? selectEstimationNo?.ESTIMATIONNO
               : estimationCount + 1
           }.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          image: { type: "jpeg", quality: 1 },
+        pagebreak: { mode: ["css", "legacy"], avoid: "tr" },
+        html2canvas: { scale: 4, useCORS: true },
+        jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
         })
         .from(container)
         .save()
@@ -2377,7 +2525,7 @@ const urlToBase64 = async (url) => {
         });
     };
 
-  const handleLandScapDownloadPDF = () => {
+   const handleLandScapDownloadPDF = () => {
     let totalPCS = 0;
     let totalGWT = 0;
     let totalStone = 0;
@@ -2454,7 +2602,7 @@ const urlToBase64 = async (url) => {
   
     // Stones table if applicable
     const stonesTable =
-      path === "/estimations-model1"
+      path === "/return-estimations-model1"
         ? `
           <div class="table-container">
             <table>
@@ -2529,7 +2677,7 @@ const urlToBase64 = async (url) => {
       perGramValue ? Number(perGramValue).toFixed(2) : 0
     }</td></tr>
           ${
-            path === "/estimations-model1"
+            path === "/return-estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
@@ -2719,7 +2867,7 @@ const urlToBase64 = async (url) => {
           </style>
         </head>
         <body>
-          <div class="header"><h2>ESTIMATION</h2></div>
+          <div class="header"><h2>RETURN ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
               selectEstimationNo
@@ -2757,21 +2905,26 @@ const urlToBase64 = async (url) => {
     // Create container for html2pdf
     const container = document.createElement("div");
     container.innerHTML = htmlContent;
-    document.body.appendChild(container);
+    const clone = container.cloneNode(true);
   
     html2pdf()
       .set({
         margin: [10, 5, 10, 5],
-        filename: `Estimation_${
+        filename: `Return_Estimation_${
           selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1
         }.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
+        image: { type: "jpeg", quality: 0.95 },
+        html2canvas: {
+            useCORS: true,
+            allowTaint: true,
+            scale: 2, // clearer text
+          },
         jsPDF: { unit: "pt", format: "a4", orientation: "landscape" },
         pagebreak: { mode: ["avoid-all", "css", "legacy"] }
       })
-      .from(container)
+      .from(clone)
       .save()
       .then(() => {
         document.body.removeChild(container);
@@ -2805,34 +2958,34 @@ const urlToBase64 = async (url) => {
   const handlePdfClick = ({ key }) => {
     if (key === "1") {
       handleLandScapDownloadPDF();
-      if (tableData.length > 0) {
-        if (selectEstimationNo?.ESTIMATIONNO) {
-          estimationDeleteItems();
-          estimationDeleteData();
-          estimationDeleteMast();
-        }
-        if (tableData.length > 0) {
-          createEstimationMast();
-          createEstimationItems();
-          createEstimationData();
-          setSelectEstimationNo(null);
-        }
-      }
+      // if (tableData.length > 0) {
+      //   if (selectEstimationNo?.ESTIMATIONNO) {
+      //     estimationDeleteItems();
+      //     estimationDeleteData();
+      //     estimationDeleteMast();
+      //   }
+      //   if (tableData.length > 0) {
+      //     createEstimationMast();
+      //     createEstimationItems();
+      //     createEstimationData();
+      //     setSelectEstimationNo(null);
+      //   }
+      // }
     } else if (key === "2") {
       handleDownloadPDF();
-      if (tableData.length > 0) {
-        if (selectEstimationNo?.ESTIMATIONNO) {
-          estimationDeleteItems();
-          estimationDeleteData();
-          estimationDeleteMast();
-        }
-        if (tableData.length > 0) {
-          createEstimationMast();
-          createEstimationItems();
-          createEstimationData();
-          setSelectEstimationNo(null);
-        }
-      }
+      // if (tableData.length > 0) {
+      //   if (selectEstimationNo?.ESTIMATIONNO) {
+      //     estimationDeleteItems();
+      //     estimationDeleteData();
+      //     estimationDeleteMast();
+      //   }
+      //   if (tableData.length > 0) {
+      //     createEstimationMast();
+      //     createEstimationItems();
+      //     createEstimationData();
+      //     setSelectEstimationNo(null);
+      //   }
+      // }
     }
   };
 
