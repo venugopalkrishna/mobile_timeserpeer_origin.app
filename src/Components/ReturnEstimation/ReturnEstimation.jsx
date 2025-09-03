@@ -180,7 +180,7 @@ const ReturnEstimation = () => {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO='${
           tagNoValue ? tagNoValue : tagNo
-        }'`,
+        }'  AND RECYCLE='NO'`,
         {
           headers: {
             tenantName: tenantName,
@@ -289,7 +289,7 @@ const ReturnEstimation = () => {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO='${
           tagNoValue ? tagNoValue : tagNo
-        }'`,
+        }'  AND RECYCLE='NO'`,
         {
           headers: {
             tenantName: tenantName,
@@ -520,7 +520,7 @@ const ReturnEstimation = () => {
         const cleanedActGrams = removeUndefinedWrapper(actGrams);
   
         return {
-          estimationtype: "estimation",
+          estimationtype: "SALES",
           estimationno: selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1,
@@ -632,7 +632,7 @@ const ReturnEstimation = () => {
     const totalTouch = Number(touchValue) + Number(wastageValue);
     const requestBody = [
       {
-        estimationtype: "estimation",
+        estimationtype: "SALES",
         estimationno: selectEstimationNo
           ? selectEstimationNo?.ESTIMATIONNO
           : estimationCount + 1,
@@ -3199,7 +3199,7 @@ const urlToBase64 = async (url) => {
             >
               Files
             </Button>
-            {selectedParty && touchValue && wastageValue && (
+            {selectedParty && (
               <div
                 onClick={handleToggleScan}
                 style={{ width: "20px", height: "20px" }}
@@ -3411,7 +3411,7 @@ const urlToBase64 = async (url) => {
                       </span>
                     </p>
                     <p style={{ fontSize: "12px" }}>
-                      Less Wt:{" "}
+                      Stone Wt:{" "}
                       <span
                         style={{
                           color: "red",
@@ -3456,13 +3456,7 @@ const urlToBase64 = async (url) => {
                     <>
                       <hr className={styles.fullWidthLine} />
                       <div className={styles.fullWidthStone}>
-                        <p
-                          style={{
-                            fontSize: "14px",
-                            padding: "0px 8px 0px 8px",
-                            fontWeight: "bold",
-                          }}
-                        >
+                        <p>
                           {(() => {
                             const actGrams =
                               stoneMainData.find(

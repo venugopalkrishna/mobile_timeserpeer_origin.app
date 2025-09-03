@@ -192,7 +192,7 @@ const Estimation = () => {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO='${
           tagNoValue ? tagNoValue : tagNo
-        }'`,
+        }' AND RECYCLE='NO'`,
         {
           headers: {
             tenantName: tenantName,
@@ -301,7 +301,7 @@ const Estimation = () => {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO='${
           tagNoValue ? tagNoValue : tagNo
-        }'`,
+        }' AND RECYCLE='NO'`,
         {
           headers: {
             tenantName: tenantName,
@@ -518,7 +518,7 @@ const Estimation = () => {
       const cleanedActGrams = removeUndefinedWrapper(actGrams);
 
       return {
-        estimationtype: "estimation",
+        estimationtype: "SALES",
         estimationno: selectEstimationNo
           ? selectEstimationNo?.ESTIMATIONNO
           : estimationCount + 1,
@@ -630,7 +630,7 @@ const Estimation = () => {
     const totalTouch = Number(touchValue) + Number(wastageValue);
     const requestBody = [
       {
-        estimationtype: "estimation",
+        estimationtype: "SALES",
         estimationno: selectEstimationNo
           ? selectEstimationNo?.ESTIMATIONNO
           : estimationCount + 1,
@@ -3321,7 +3321,7 @@ ${
             ) : (
               ""
             )}
-            {stonesData.length > 0 ? (
+            {path === "/estimations-model1" && stonesData.length > 0 ? (
               <Button
                 type="primary"
                 htmlType="submit"
@@ -3398,7 +3398,7 @@ ${
             >
               Files
             </Button>
-            {selectedParty && touchValue && wastageValue && (
+            {selectedParty && (
               <div
                 onClick={handleToggleScan}
                 style={{ width: "20px", height: "20px" }}
@@ -3610,7 +3610,7 @@ ${
                       </span>
                     </p>
                     <p style={{ fontSize: "12px" }}>
-                      Less Wt:{" "}
+                      Stone Wt:{" "}
                       <span
                         style={{
                           color: "red",
@@ -3655,13 +3655,7 @@ ${
                     <>
                       <hr className={styles.fullWidthLine} />
                       <div className={styles.fullWidthStone}>
-                        <p
-                          style={{
-                            fontSize: "14px",
-                            padding: "0px 8px 0px 8px",
-                            fontWeight: "bold",
-                          }}
-                        >
+                        <p>
                           {(() => {
                             const actGrams =
                               stoneMainData.find(

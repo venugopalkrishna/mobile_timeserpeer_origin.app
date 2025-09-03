@@ -18,12 +18,13 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import LabelIcon from '@mui/icons-material/Label';
-import LabelOffIcon from '@mui/icons-material/LabelOff';
-import DetailsIcon from '@mui/icons-material/Details';
-import SummarizeIcon from '@mui/icons-material/Summarize';
-import SellIcon from '@mui/icons-material/Sell';
-import StyleIcon from '@mui/icons-material/Style';
+import LabelIcon from "@mui/icons-material/Label";
+import LabelOffIcon from "@mui/icons-material/LabelOff";
+import DetailsIcon from "@mui/icons-material/Details";
+import SummarizeIcon from "@mui/icons-material/Summarize";
+import SellIcon from "@mui/icons-material/Sell";
+import StyleIcon from "@mui/icons-material/Style";
+import ReceiptIcon from "@mui/icons-material/Receipt";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -46,6 +47,7 @@ const SidebarDrawer = ({
     localStorage.removeItem("city");
     localStorage.removeItem("singleImage");
     localStorage.removeItem("tenantName");
+    localStorage.clear();
     window.location.reload();
   };
 
@@ -57,21 +59,21 @@ const SidebarDrawer = ({
         {
           text: "Estimation With Stones",
           path: "/estimations-model1",
-          icon: <LabelIcon sx={{width: "1rem"}}/>,
+          icon: <LabelIcon sx={{ width: "1rem" }} />,
         },
         {
           text: "Estimation With Out Stones",
           path: "/estimations-model2",
-          icon: <LabelOffIcon sx={{width: "1rem"}}/>,
+          icon: <LabelOffIcon sx={{ width: "1rem" }} />,
         },
         {
           text: "Estimation Details",
-          icon: <DetailsIcon sx={{width: "1rem"}}/>,
+          icon: <DetailsIcon sx={{ width: "1rem" }} />,
           path: "/estimation-details",
         },
         {
           text: "Estimation Summary",
-          icon: <SummarizeIcon sx={{width: "1rem"}}/>,
+          icon: <SummarizeIcon sx={{ width: "1rem" }} />,
           path: "/estimation-summary",
         },
       ],
@@ -83,21 +85,21 @@ const SidebarDrawer = ({
         {
           text: "Return Estimation With Stones",
           path: "/return-estimations-model1",
-          icon: <LabelIcon sx={{width: "1rem"}}/>,
+          icon: <LabelIcon sx={{ width: "1rem" }} />,
         },
         {
           text: "Return Estimation With Out Stones",
           path: "/return-estimations-model2",
-          icon: <LabelOffIcon sx={{width: "1rem"}}/>,
+          icon: <LabelOffIcon sx={{ width: "1rem" }} />,
         },
         {
           text: "Return Estimation Details",
-          icon: <DetailsIcon sx={{width: "1rem"}}/>,
+          icon: <DetailsIcon sx={{ width: "1rem" }} />,
           path: "/return-estimation-details",
         },
         {
           text: "Return Estimation Summary",
-          icon: <SummarizeIcon sx={{width: "1rem"}}/>,
+          icon: <SummarizeIcon sx={{ width: "1rem" }} />,
           path: "/return-estimation-summary",
         },
       ],
@@ -109,29 +111,29 @@ const SidebarDrawer = ({
         {
           text: "Tag Details",
           path: "/tag-details",
-          icon: <SellIcon sx={{width: "1rem"}}/>,
+          icon: <SellIcon sx={{ width: "1rem" }} />,
         },
         {
           text: "Tag Stock Summary",
           path: "/tag-stock-summary",
-          icon: <StyleIcon sx={{width: "1rem"}}/>,
+          icon: <StyleIcon sx={{ width: "1rem" }} />,
         },
         {
           text: "Slip Summary",
-          icon: <SummarizeIcon sx={{width: "1rem"}}/>,
+          icon: <SummarizeIcon sx={{ width: "1rem" }} />,
           path: "/slip-summary",
         },
         {
           text: "Tag Check",
           path: "/tag-check",
-          icon: <StyleIcon sx={{width: "1rem"}}/>,
+          icon: <StyleIcon sx={{ width: "1rem" }} />,
         },
-        // {
-        //   text: "Return Estimation Summary",
-        //   icon: <SummarizeIcon sx={{width: "1rem"}}/>,
-        //   path: "/return-estimation-summary",
-        // },
       ],
+    },
+    {
+      text: "Sale",
+      icon: <ReceiptIcon/>,
+      path: "/sale",
     },
   ];
 
@@ -139,6 +141,7 @@ const SidebarDrawer = ({
     <Drawer
       anchor="right"
       open={open}
+      onClose={toggleDrawer}
       sx={{
         "& .MuiDrawer-paper": {
           width: 300,
@@ -256,7 +259,10 @@ const SidebarDrawer = ({
                 }}
               >
                 <ListItemIcon
-                  sx={{ color: isParentActive ? "#52bd91" : "white", fontSize: "22px" }}
+                  sx={{
+                    color: isParentActive ? "#52bd91" : "white",
+                    fontSize: "22px",
+                  }}
                 >
                   {item.icon}
                 </ListItemIcon>
@@ -286,7 +292,10 @@ const SidebarDrawer = ({
                       }}
                     >
                       <ListItemIcon
-                        sx={{ color: isActive ? "#52bd91" : "white", width: "0.7rem" }}
+                        sx={{
+                          color: isActive ? "#52bd91" : "white",
+                          width: "0.7rem",
+                        }}
                       >
                         {subItem.icon}
                       </ListItemIcon>

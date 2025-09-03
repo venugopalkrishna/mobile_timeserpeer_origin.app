@@ -217,6 +217,17 @@
     border-radius: 0 0 5px 5px;
 }
 
+.fullWidthStone p {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0px 8px;
+  margin: 0;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
 .weightDetails {
     display: flex;
     flex-direction: column;
