@@ -38,6 +38,7 @@ const SidebarDrawer = ({
   const location = useLocation();
   const navigate = useNavigate();
   const [expandedMenu, setExpandedMenu] = useState(null);
+  const userType = localStorage.getItem("userType");
 
   const logOut = () => {
     navigate("/");
@@ -47,95 +48,192 @@ const SidebarDrawer = ({
     localStorage.removeItem("city");
     localStorage.removeItem("singleImage");
     localStorage.removeItem("tenantName");
+    localStorage.removeItem("userType");
     localStorage.clear();
     window.location.reload();
   };
 
-  const menuItems = [
-    {
-      text: "Estimation",
-      icon: <ShopOutlined />,
-      children: [
-        {
-          text: "Estimation With Stones",
-          path: "/estimations-model1",
-          icon: <LabelIcon sx={{ width: "1rem" }} />,
-        },
-        {
-          text: "Estimation With Out Stones",
-          path: "/estimations-model2",
-          icon: <LabelOffIcon sx={{ width: "1rem" }} />,
-        },
-        {
-          text: "Estimation Details",
-          icon: <DetailsIcon sx={{ width: "1rem" }} />,
-          path: "/estimation-details",
-        },
-        {
-          text: "Estimation Summary",
-          icon: <SummarizeIcon sx={{ width: "1rem" }} />,
-          path: "/estimation-summary",
-        },
-      ],
-    },
-    {
-      text: "Return Estimation",
-      icon: <LeftSquareOutlined />,
-      children: [
-        {
-          text: "Return Estimation With Stones",
-          path: "/return-estimations-model1",
-          icon: <LabelIcon sx={{ width: "1rem" }} />,
-        },
-        {
-          text: "Return Estimation With Out Stones",
-          path: "/return-estimations-model2",
-          icon: <LabelOffIcon sx={{ width: "1rem" }} />,
-        },
-        {
-          text: "Return Estimation Details",
-          icon: <DetailsIcon sx={{ width: "1rem" }} />,
-          path: "/return-estimation-details",
-        },
-        {
-          text: "Return Estimation Summary",
-          icon: <SummarizeIcon sx={{ width: "1rem" }} />,
-          path: "/return-estimation-summary",
-        },
-      ],
-    },
-    {
-      text: "Inventory",
-      icon: <FileDoneOutlined />,
-      children: [
-        {
-          text: "Tag Details",
-          path: "/tag-details",
-          icon: <SellIcon sx={{ width: "1rem" }} />,
-        },
-        {
-          text: "Tag Stock Summary",
-          path: "/tag-stock-summary",
-          icon: <StyleIcon sx={{ width: "1rem" }} />,
-        },
-        {
-          text: "Slip Summary",
-          icon: <SummarizeIcon sx={{ width: "1rem" }} />,
-          path: "/slip-summary",
-        },
-        {
-          text: "Tag Check",
-          path: "/tag-check",
-          icon: <StyleIcon sx={{ width: "1rem" }} />,
-        },
-      ],
-    },
-    {
-      text: "Sale",
-      icon: <ReceiptIcon/>,
-      path: "/sale",
-    },
-  ];
+  let menuItems = [];
+
+  const estimationMenu = {
+    text: "Estimation",
+    icon: <ShopOutlined />,
+    children: [
+      {
+        text: "Estimation With Stones",
+        path: "/estimations-model1",
+        icon: <LabelIcon sx={{ width: "1rem" }} />,
+      },
+      {
+        text: "Estimation With Out Stones",
+        path: "/estimations-model2",
+        icon: <LabelOffIcon sx={{ width: "1rem" }} />,
+      },
+      {
+        text: "Estimation Details",
+        icon: <DetailsIcon sx={{ width: "1rem" }} />,
+        path: "/estimation-details",
+      },
+      {
+        text: "Estimation Summary",
+        icon: <SummarizeIcon sx={{ width: "1rem" }} />,
+        path: "/estimation-summary",
+      },
+    ],
+  };
+
+  const returnEstimationMenu = {
+    text: "Return Estimation",
+    icon: <LeftSquareOutlined />,
+    children: [
+      {
+        text: "Return Estimation With Stones",
+        path: "/return-estimations-model1",
+        icon: <LabelIcon sx={{ width: "1rem" }} />,
+      },
+      {
+        text: "Return Estimation With Out Stones",
+        path: "/return-estimations-model2",
+        icon: <LabelOffIcon sx={{ width: "1rem" }} />,
+      },
+      {
+        text: "Return Estimation Details",
+        icon: <DetailsIcon sx={{ width: "1rem" }} />,
+        path: "/return-estimation-details",
+      },
+      {
+        text: "Return Estimation Summary",
+        icon: <SummarizeIcon sx={{ width: "1rem" }} />,
+        path: "/return-estimation-summary",
+      },
+    ],
+  };
+
+  const inventoryMenu = {
+    text: "Inventory",
+    icon: <FileDoneOutlined />,
+    children: [
+      {
+        text: "Tag Details",
+        path: "/tag-details",
+        icon: <SellIcon sx={{ width: "1rem" }} />,
+      },
+      {
+        text: "Tag Stock Summary",
+        path: "/tag-stock-summary",
+        icon: <StyleIcon sx={{ width: "1rem" }} />,
+      },
+      {
+        text: "Slip Summary",
+        icon: <SummarizeIcon sx={{ width: "1rem" }} />,
+        path: "/slip-summary",
+      },
+      {
+        text: "Tag Check",
+        path: "/tag-check",
+        icon: <StyleIcon sx={{ width: "1rem" }} />,
+      },
+    ],
+  };
+
+  const saleMenu = {
+    text: "Sale",
+    icon: <ReceiptIcon />,
+    path: "/sale",
+  };
+
+  if (Number(userType) === 1) {
+    menuItems = [estimationMenu, returnEstimationMenu];
+  } else if (Number(userType) === 2) {
+    menuItems = [estimationMenu, returnEstimationMenu, saleMenu];
+  } else {
+    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu];
+  }
+  // const menuItems = [
+  //   {
+  //     text: "Estimation",
+  //     icon: <ShopOutlined />,
+  //     children: [
+  //       {
+  //         text: "Estimation With Stones",
+  //         path: "/estimations-model1",
+  //         icon: <LabelIcon sx={{ width: "1rem" }} />,
+  //       },
+  //       {
+  //         text: "Estimation With Out Stones",
+  //         path: "/estimations-model2",
+  //         icon: <LabelOffIcon sx={{ width: "1rem" }} />,
+  //       },
+  //       {
+  //         text: "Estimation Details",
+  //         icon: <DetailsIcon sx={{ width: "1rem" }} />,
+  //         path: "/estimation-details",
+  //       },
+  //       {
+  //         text: "Estimation Summary",
+  //         icon: <SummarizeIcon sx={{ width: "1rem" }} />,
+  //         path: "/estimation-summary",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     text: "Return Estimation",
+  //     icon: <LeftSquareOutlined />,
+  //     children: [
+  //       {
+  //         text: "Return Estimation With Stones",
+  //         path: "/return-estimations-model1",
+  //         icon: <LabelIcon sx={{ width: "1rem" }} />,
+  //       },
+  //       {
+  //         text: "Return Estimation With Out Stones",
+  //         path: "/return-estimations-model2",
+  //         icon: <LabelOffIcon sx={{ width: "1rem" }} />,
+  //       },
+  //       {
+  //         text: "Return Estimation Details",
+  //         icon: <DetailsIcon sx={{ width: "1rem" }} />,
+  //         path: "/return-estimation-details",
+  //       },
+  //       {
+  //         text: "Return Estimation Summary",
+  //         icon: <SummarizeIcon sx={{ width: "1rem" }} />,
+  //         path: "/return-estimation-summary",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     text: "Inventory",
+  //     icon: <FileDoneOutlined />,
+  //     children: [
+  //       {
+  //         text: "Tag Details",
+  //         path: "/tag-details",
+  //         icon: <SellIcon sx={{ width: "1rem" }} />,
+  //       },
+  //       {
+  //         text: "Tag Stock Summary",
+  //         path: "/tag-stock-summary",
+  //         icon: <StyleIcon sx={{ width: "1rem" }} />,
+  //       },
+  //       {
+  //         text: "Slip Summary",
+  //         icon: <SummarizeIcon sx={{ width: "1rem" }} />,
+  //         path: "/slip-summary",
+  //       },
+  //       {
+  //         text: "Tag Check",
+  //         path: "/tag-check",
+  //         icon: <StyleIcon sx={{ width: "1rem" }} />,
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     text: "Sale",
+  //     icon: <ReceiptIcon/>,
+  //     path: "/sale",
+  //   },
+  // ];
 
   return (
     <Drawer

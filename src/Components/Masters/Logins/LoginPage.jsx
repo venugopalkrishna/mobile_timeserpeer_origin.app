@@ -44,6 +44,28 @@ const LoginPage = ({ onLogin }) => {
     }
   };
 
+  const userConditionAPI = async (values, name) => {
+    const { username, password } = values;
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=LOGINUSER&where=USERNAME='${username}' AND PASSWORD='${password}'`,
+        {
+          headers: {
+            tenantName: name,
+          },
+        }
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        localStorage.setItem("userType", data[0].AUTHORITY_TYPE);
+      }
+    } catch (error) {
+      console.error("Error fetching estimation count:", error);
+    }
+  };
+
   const onFinish = async (values) => {
     const { username, password } = values;
     try {
@@ -56,6 +78,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("tenantName", response?.data);
         onLogin(response?.data);
         userAPI(response?.data);
+        userConditionAPI(values, response?.data);
         navigate("/estimations-model1");
       } else {
         console.log("Invalid username or password");
@@ -133,7 +156,10 @@ const LoginPage = ({ onLogin }) => {
           >
             <Form
               layout="vertical"
-              onFinish={onFinish}
+              onFinish={(values) => {
+                onFinish(values);
+                // userConditionAPI(values);
+              }}
               onFinishFailed={onFinishFailed}
               initialValues={{ remember: true }}
             >
