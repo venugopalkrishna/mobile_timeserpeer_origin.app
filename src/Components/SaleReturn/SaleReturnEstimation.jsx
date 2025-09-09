@@ -4,13 +4,13 @@ import { CREATE_jwel } from "../../Config/Config";
 import axios from "axios";
 import Header from "../Header";
 import SidebarDrawer from "../SidebarDrawer";
-import styles from "./SaleEstimation.module.css";
+import styles from "./SaleReturnEstimation.module.css";
 import { Button, Checkbox, Col, DatePicker, Row, Spin, Typography } from "antd";
-import SaleEstimationDialog from "./SaleEstimationDialog";
+import SaleReturnEstimationDialog from "./SaleReturnEstimationDialog";
+import DeleteSaleReturnEstimationDialog from "./DeleteSaleReturnEstimationDialog";
 import { DeleteOutlined } from "@ant-design/icons";
-import DeleteSaleEstimationDialog from "./DeleteSaleEstimationDialog";
 
-const SaleEstimation = () => {
+const SaleReturnEstimation = () => {
   const [summaryData, setSummaryData] = useState([]);
   const [selectedObject, setSelectedObject] = useState(null);
   const [selectEstimationNo, setSelectEstimationNo] = useState(0);
@@ -63,7 +63,7 @@ const SaleEstimation = () => {
         )}' and ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
       }
       let params = {
-        tableName: "ESTIMATION_MAST",
+        tableName: "RETURN_ESTIMATION_MAST",
         where: whereCondition,
         order: "ESTIMATIONNO",
       };
@@ -185,7 +185,7 @@ const SaleEstimation = () => {
         whereCondition = `ESTIMATIONNO=${estNo}`;
       }
       let params = {
-        tableName: "ESTIMATION_DATA",
+        tableName: "RETURN_ESTIMATION_DATA",
         where: whereCondition,
         order: "SNO",
       };
@@ -369,7 +369,7 @@ const SaleEstimation = () => {
             }}
           >
             <div className={styles.headerContainer}>
-              <h3 className={styles.heading}>Sale</h3>
+              <h3 className={styles.heading}>Sale Return</h3>
             </div>
           </Row>
           <div
@@ -565,12 +565,12 @@ const SaleEstimation = () => {
             ))}
           </div>
         </div>
-        <SaleEstimationDialog
+        <SaleReturnEstimationDialog
           saleOpen={saleOpen}
           handleCancel={handleCancel}
           handleSale={handleSale}
         />
-        <DeleteSaleEstimationDialog
+        <DeleteSaleReturnEstimationDialog
           estOpen={estOpen}
           handleCancel={handleEstCancel}
           handleDelete={handleDelete}
@@ -580,4 +580,4 @@ const SaleEstimation = () => {
   );
 };
 
-export default SaleEstimation;
+export default SaleReturnEstimation;

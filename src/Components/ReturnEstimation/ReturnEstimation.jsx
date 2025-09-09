@@ -180,7 +180,7 @@ const ReturnEstimation = () => {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO='${
           tagNoValue ? tagNoValue : tagNo
-        }'  AND RECYCLE='NO'`,
+        }'  AND RECYCLE='YES'`,
         {
           headers: {
             tenantName: tenantName,
@@ -289,7 +289,7 @@ const ReturnEstimation = () => {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO='${
           tagNoValue ? tagNoValue : tagNo
-        }'  AND RECYCLE='NO'`,
+        }'  AND RECYCLE='YES'`,
         {
           headers: {
             tenantName: tenantName,
@@ -724,7 +724,7 @@ const ReturnEstimation = () => {
           whereCondition = `ESTIMATIONNO=${estNo}`;
         }
         let params = {
-          tableName: "ESTIMATION_DATA",
+          tableName: "RETURN_ESTIMATION_DATA",
           where: whereCondition,
           order: "SNO",
         };
@@ -837,132 +837,6 @@ const ReturnEstimation = () => {
         console.error("Error fetching estimation count:", error);
       }
     };
-
-  // const estimationNoDataAPI = async (estNo) => {
-  //   try {
-  //     let whereCondition = "";
-  //     if (estNo) {
-  //       whereCondition = `ESTIMATIONNO=${estNo}`;
-  //     }
-  //     let params = {
-  //       tableName: "RETURN_ESTIMATION_DATA",
-  //       where: whereCondition,
-  //       order: "SNO",
-  //     };
-
-  //     const response = await axios.get(
-  //       `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder`,
-  //       {
-  //         params,
-  //         headers: {
-  //           tenantName: tenantName,
-  //         },
-  //       }
-  //     );
-
-  //     const data = response.data;
-
-  //     if (Array.isArray(data) && data.length > 0) {
-  //       const updatedData = data.map((item, index) => ({
-  //         ACTPER: item.ACTPER,
-  //         ACTSWT: 0.2,
-  //         BALGWT: 1500,
-  //         BALNWT: 1500,
-  //         BALPIECES: 0,
-  //         BALSTONEWT: 0,
-  //         BRANCHCODE: "",
-  //         BRANCHNAME: "",
-  //         CNAME: "",
-  //         CZ: 0,
-  //         DIFFSWT: 0,
-  //         DIFFWT: 0,
-  //         ENTRYNO: 0,
-  //         FINALGOLD: item.FINEGOLD,
-  //         GROSSWEIGHT: item.GWT,
-  //         GWT: item.GWT,
-  //         HUID1: "-",
-  //         HUID2: "-",
-  //         ITEM_TOTCTS: 1,
-  //         ITEM_TOTGMS: 0,
-  //         ITEM_TOTPCS: 0,
-  //         LOTNO: 2,
-  //         MIX: 0,
-  //         NETWT: item.NWT,
-  //         NWT: item.NWT,
-  //         ORDERITEM: false,
-  //         ORDERNO: ".",
-  //         OTHERS: 0,
-  //         PIECES: item.PIECES,
-  //         PREFIX: item.PREFIX,
-  //         PRODNAME: item.PRODNAME,
-  //         RB: 0,
-  //         RECYCLE: "NO",
-  //         RE_EM: 0,
-  //         SERIALNO: 242,
-  //         SLIPNO: 79,
-  //         SNO: 904,
-  //         SSP: 0,
-  //         SSTATUS: false,
-  //         STONEWT: item.STONEWT,
-  //         TAGDATE: "2025-03-04T00:00:00",
-  //         TAGNO: item.TAGNO,
-  //         TAGTIME: "1900-01-01T06:27:17",
-  //         TAG_PRE: "*",
-  //         TOTGWT: 30.23,
-  //         TOTNWT: 26.13,
-  //         TOTPCS: 2,
-  //         TOTSTONEWT: 4.1,
-  //         TOUCH: item.TOUCH,
-  //         VNO: 0,
-  //         slipdate: "2025-03-04T00:00:00",
-  //         workername: "HIRU - A4",
-  //       }));
-  //       // const stones = data.map((item, index) => ({
-  //       //   TAGNO: item.TAGNO,
-  //       //   ACTGRAMS: item.STDET,
-  //       // }));
-  //       // setStoneMainData(stones);
-  //       // setTableData(updatedData);
-  //       for (const item of updatedData) {
-  //         if (item.TAGNO) {
-  //           await mainAPI(item.TAGNO);
-  //           await stonesAPI(item.TAGNO);
-  //         }
-  //       }
-  //       const total = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.PIECES || 0),
-  //         0
-  //       );
-  //       const totalGross = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
-  //         0
-  //       );
-  //       const totalStones = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.STONEWT || 0),
-  //         0
-  //       );
-  //       const totalNetWt = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.NETWT || 0),
-  //         0
-  //       );
-  //       const totalGold = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.FINALGOLD || 0),
-  //         0
-  //       );
-
-  //       // Set totals
-  //       setTotalPieces(total);
-  //       setTotalGrossWeight(totalGross);
-  //       setTotalStoneWeight(totalStones);
-  //       setTotalNetWeight(totalNetWt);
-  //       setTotalFineGold(totalGold);
-
-  //       setSelectedObject(null);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching estimation count:", error);
-  //   }
-  // };
 
   const estimationNoMastAPI = async (estNo) => {
     try {

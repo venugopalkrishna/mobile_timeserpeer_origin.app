@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { CREATE_jwel } from "../../Config/Config";
 import styles from "./Estimation.module.css";
+import { DeleteOutlined } from "@ant-design/icons";
+import DeleteEstimationDialog from "./DeleteEstimationDialog";
 
 const EstimationDialog = ({
   setOpenDialog,
@@ -22,6 +24,8 @@ const EstimationDialog = ({
   const [fromDate, setFromDate] = useState(dayjs());
   const [toDate, setToDate] = useState(dayjs());
   const [loading, setLoading] = useState(false);
+  const [estNo, setEstNo] = useState();
+  const [estOpen, setEstOpen] = useState(false);
 
   const tenantName = localStorage.getItem("tenantName");
 
@@ -70,6 +74,54 @@ const EstimationDialog = ({
     }
   }, [fromDate, toDate]);
 
+  const estimationDeleteData = async () => {
+    try {
+      const response = await axios.post(
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_DATA&where=ESTIMATIONNO=${estNo}`,
+        {},
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error posting data:", error);
+    }
+  };
+
+  const estimationDeleteMast = async () => {
+    try {
+      const response = await axios.post(
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=ESTIMATIONNO=${estNo}`,
+        {},
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error posting data:", error);
+    }
+  };
+
+  const estimationDeleteItems = async () => {
+    try {
+      const response = await axios.post(
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_ITEMS&where=ESTIMATIONNO=${estNo}`,
+        {},
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error posting data:", error);
+    }
+  };
+
   const handleCheckboxChange = (record) => {
     setSelectedObject(
       selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record
@@ -77,6 +129,26 @@ const EstimationDialog = ({
     setSelectEstimationNo(
       selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record
     );
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await estimationDeleteData();
+      await estimationDeleteMast();
+      await estimationDeleteItems();
+      setEstNo();
+      setEstOpen(false);
+    } catch (error) {
+      console.error("Error during Sale:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setEstOpen(false);
+    setEstNo();
   };
 
   return (
@@ -168,18 +240,10 @@ const EstimationDialog = ({
                   <>
                     <div
                       className={styles.infoBox}
-                      onClick={() => handleCheckboxChange(item)}
+                      // onClick={() => handleCheckboxChange(item)}
                     >
                       {/* Tag No */}
                       <div className={styles.rowTag}>
-                        <p style={{ fontSize: "12px" }}>
-                          Est No:{" "}
-                          <span
-                            style={{ fontWeight: "bold", fontSize: "16px" }}
-                          >
-                            {item.ESTIMATIONNO}
-                          </span>
-                        </p>
                         <Checkbox
                           checked={
                             selectedObject?.ESTIMATIONNO === item.ESTIMATIONNO
@@ -189,6 +253,25 @@ const EstimationDialog = ({
                             selectedObject !== null &&
                             selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO
                           }
+                        />
+                        <p style={{ fontSize: "12px" }}>
+                          Est No:{" "}
+                          <span
+                            style={{ fontWeight: "bold", fontSize: "16px" }}
+                          >
+                            {item.ESTIMATIONNO}
+                          </span>
+                        </p>
+                        <DeleteOutlined
+                          style={{
+                            color: "red",
+                            cursor: "pointer",
+                            fontSize: "20px",
+                          }}
+                          onClick={() => {
+                            setEstOpen(true);
+                            setEstNo(item.ESTIMATIONNO);
+                          }}
                         />
                       </div>
                       <hr className={styles.fullWidthLine} />
@@ -289,6 +372,11 @@ const EstimationDialog = ({
               </>
             ))}
           </div>
+          <DeleteEstimationDialog
+            estOpen={estOpen}
+            handleCancel={handleCancel}
+            handleDelete={handleDelete}
+          />
         </Drawer>
       </Flex>
     </Spin>

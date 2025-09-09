@@ -141,13 +141,19 @@ const SidebarDrawer = ({
     icon: <ReceiptIcon />,
     path: "/sale",
   };
+  
+  const saleReturnMenu = {
+    text: "Sale Return",
+    icon: <ReceiptIcon />,
+    path: "/sale-return",
+  };
 
   if (Number(userType) === 1) {
     menuItems = [estimationMenu, returnEstimationMenu];
   } else if (Number(userType) === 2) {
-    menuItems = [estimationMenu, returnEstimationMenu, saleMenu];
+    menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu];
   } else {
-    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu];
+    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu];
   }
   // const menuItems = [
   //   {
