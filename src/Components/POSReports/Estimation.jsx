@@ -286,7 +286,7 @@ const Estimation = () => {
 
         return mergedData;
       });
-    // }
+      // }
 
       return finalData; // ✅ return processed data
     } catch (error) {
@@ -557,7 +557,7 @@ const Estimation = () => {
         apprtnstatus: false,
         tray: false,
         branchcode: "-",
-        branchname: stone.IMGPATH,
+        branchname: stone.IMGPATH || "-",
         ssp: 0,
         descriptioN1: "-",
         pieces: stone.PIECES || 0,
@@ -859,8 +859,6 @@ const Estimation = () => {
   //     );
 
   //     const data = response.data;
-  //     console.log("data", data);
-      
 
   //     if (Array.isArray(data) && data.length > 0) {
   //       const updatedData = data.map((item, index) => ({
@@ -1340,119 +1338,121 @@ const Estimation = () => {
     }));
   };
 
-const fetchWithRetry = async (url, retries = 3, delay = 300) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(url, { mode: "cors" });
-      if (res.ok) return res;
-    } catch (e) {
-      console.warn(`Retry ${i + 1} for ${url}`);
-    }
-    await new Promise((r) => setTimeout(r, delay));
-  }
-  throw new Error("Failed after retries: " + url);
-};
-
-const resizeBase64Img = (base64Str, maxWidth = 500, maxHeight = 500) =>
-  new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      let canvas = document.createElement("canvas");
-      let ctx = canvas.getContext("2d");
-
-      let width = img.width;
-      let height = img.height;
-
-      if (width > maxWidth || height > maxHeight) {
-        if (width / height > maxWidth / maxHeight) {
-          height *= maxWidth / width;
-          width = maxWidth;
-        } else {
-          width *= maxHeight / height;
-          height = maxHeight;
-        }
+  const fetchWithRetry = async (url, retries = 3, delay = 300) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const res = await fetch(url, { mode: "cors" });
+        if (res.ok) return res;
+      } catch (e) {
+        console.warn(`Retry ${i + 1} for ${url}`);
       }
+      await new Promise((r) => setTimeout(r, delay));
+    }
+    throw new Error("Failed after retries: " + url);
+  };
 
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL("image/jpeg", 0.85));
-    };
-    img.src = base64Str;
-  });
+  const resizeBase64Img = (base64Str, maxWidth = 500, maxHeight = 500) =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        let canvas = document.createElement("canvas");
+        let ctx = canvas.getContext("2d");
 
-const urlToBase64 = async (url) => {
-  const cleanUrl = decodeURIComponent(url);
-  const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`;
+        let width = img.width;
+        let height = img.height;
 
-  const response = await fetchWithRetry(proxyUrl, 3, 800);
-  const blob = await response.blob();
+        if (width > maxWidth || height > maxHeight) {
+          if (width / height > maxWidth / maxHeight) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          } else {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const resized = await resizeBase64Img(reader.result);
-      resolve(resized);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-};
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.src = base64Str;
+    });
 
-//   const urlToBase64 = async (url) => {
-//   const cleanUrl = decodeURIComponent(url);
-//   const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`;
-  
-//   const response = await fetch(proxyUrl);
-//   if (!response.ok) {
-//     throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`);
-//   }
+  const urlToBase64 = async (url) => {
+    const cleanUrl = decodeURIComponent(url);
+    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(
+      cleanUrl
+    )}`;
 
-//   const blob = await response.blob();
-//   return new Promise((resolve, reject) => {
-//     const reader = new FileReader();
-//     reader.onloadend = () => resolve(reader.result);
-//     reader.onerror = reject;
-//     reader.readAsDataURL(blob);
-//   });
-// };
+    const response = await fetchWithRetry(proxyUrl, 3, 800);
+    const blob = await response.blob();
 
-// useEffect(() => {
-//   const convertAllImages = async () => {
-//     if (!tableData || tableData.length === 0) {
-//       setBase64Images({});
-//       return;
-//     }
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const resized = await resizeBase64Img(reader.result);
+        resolve(resized);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
 
-//     const imageMap = {};
+  //   const urlToBase64 = async (url) => {
+  //   const cleanUrl = decodeURIComponent(url);
+  //   const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`;
 
-//     await Promise.all(
-//       tableData.map(async (item, index) => {
-//         if (item.IMGPATH) {
-//           try {
-//             // ✅ Use already available base64 (photos) or previously cached (base64Images)
-//             if (photos[index]) {
-//               imageMap[item.IMGPATH] = photos[index];
-//             } else if (base64Images[item.IMGPATH]) {
-//               imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
-//             } else {
-//               const base64 = await urlToBase64(item.IMGPATH);
-//               imageMap[item.IMGPATH] = base64;
-//             }
-//           } catch (err) {
-//             console.error("Image conversion failed:", item.IMGPATH, err);
-//           }
-//         }
-//       })
-//     );
+  //   const response = await fetch(proxyUrl);
+  //   if (!response.ok) {
+  //     throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`);
+  //   }
 
-//     setBase64Images(imageMap);
-//   };
+  //   const blob = await response.blob();
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => resolve(reader.result);
+  //     reader.onerror = reject;
+  //     reader.readAsDataURL(blob);
+  //   });
+  // };
 
-//   convertAllImages();
-// }, [tableData, photos]);
+  // useEffect(() => {
+  //   const convertAllImages = async () => {
+  //     if (!tableData || tableData.length === 0) {
+  //       setBase64Images({});
+  //       return;
+  //     }
 
-useEffect(() => {
+  //     const imageMap = {};
+
+  //     await Promise.all(
+  //       tableData.map(async (item, index) => {
+  //         if (item.IMGPATH) {
+  //           try {
+  //             // ✅ Use already available base64 (photos) or previously cached (base64Images)
+  //             if (photos[index]) {
+  //               imageMap[item.IMGPATH] = photos[index];
+  //             } else if (base64Images[item.IMGPATH]) {
+  //               imageMap[item.IMGPATH] = base64Images[item.IMGPATH];
+  //             } else {
+  //               const base64 = await urlToBase64(item.IMGPATH);
+  //               imageMap[item.IMGPATH] = base64;
+  //             }
+  //           } catch (err) {
+  //             console.error("Image conversion failed:", item.IMGPATH, err);
+  //           }
+  //         }
+  //       })
+  //     );
+
+  //     setBase64Images(imageMap);
+  //   };
+
+  //   convertAllImages();
+  // }, [tableData, photos]);
+
+  useEffect(() => {
     const convertAllImages = async () => {
       if (!tableData || tableData.length === 0) {
         setBase64Images({});
@@ -1483,8 +1483,7 @@ useEffect(() => {
 
     convertAllImages();
   }, [tableData, photos]);
-  
-  
+
   const handleLandScapePrint = () => {
     let totalPCS = 0;
     let totalGWT = 0;
@@ -2287,12 +2286,14 @@ ${
                       const amount = stone.ACTGRAMS * Number(rate);
                       totalAmount += amount;
                       totalStoneWeight += stone.ACTGRAMS;
-                      totalStonePieces += stone.PCS
+                      totalStonePieces += stone.PCS;
                       return `
                       <tr>
                         <td class="sub-stone-name">${stone.MAINTYPE}</td>
                         <td class="stone-pieces">${stone.PCS}</td>
-                        <td class="stone-weight">${stone.ACTGRAMS.toFixed(3)}</td>
+                        <td class="stone-weight">${stone.ACTGRAMS.toFixed(
+                          3
+                        )}</td>
                         <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
                         <td class="stone-amount">${amount.toFixed(2)}</td>
                       </tr>
@@ -2544,40 +2545,44 @@ ${
   };
 
   const handleLandScapDownloadPDF = () => {
-  let totalPCS = 0;
-  let totalGWT = 0;
-  let totalStone = 0;
-  let totalNWT = 0;
-  let totalGold = 0;
+    let totalPCS = 0;
+    let totalGWT = 0;
+    let totalStone = 0;
+    let totalNWT = 0;
+    let totalGold = 0;
 
-  // Build table rows
-  const tableRows = tableData
-    .map((item, index) => {
-      const actGrams =
-        stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
-        "";
-      const removeUndefinedWrapper = (str) => {
-        let prevStr;
-        do {
-          prevStr = str;
-          str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
-        } while (prevStr !== str);
-        return str;
-      };
-      const cleanedActGrams = removeUndefinedWrapper(actGrams);
+    // Build table rows
+    const tableRows = tableData
+      .map((item, index) => {
+        const actGrams =
+          stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+          "";
+        const removeUndefinedWrapper = (str) => {
+          let prevStr;
+          do {
+            prevStr = str;
+            str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+          } while (prevStr !== str);
+          return str;
+        };
+        const cleanedActGrams = removeUndefinedWrapper(actGrams);
 
-      totalPCS += item.PIECES;
-      totalGWT += item.GWT;
-      totalStone += Number(item.STONEWT);
-      totalNWT += Number(item.NETWT);
-      totalGold += Number(item?.FINALGOLD);
-      const imgPath = item.IMGPATH || photos[index] || "";
-      const base64Img = base64Images[imgPath] || "";
+        totalPCS += item.PIECES;
+        totalGWT += item.GWT;
+        totalStone += Number(item.STONEWT);
+        totalNWT += Number(item.NETWT);
+        totalGold += Number(item?.FINALGOLD);
+        const imgPath = item.IMGPATH || photos[index] || "";
+        const base64Img = base64Images[imgPath] || "";
 
-      return `
+        return `
         <tr>
-          <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${index + 1}</strong></td>
-          <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${item.TAGNO}</strong></td>
+          <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+          index + 1
+        }</strong></td>
+          <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
+          item.TAGNO
+        }</strong></td>
           <td rowspan="${cleanedActGrams ? 2 : 1}">
             ${
               base64Img
@@ -2602,11 +2607,11 @@ ${
             : ""
         }
       `;
-    })
-    .join("");
+      })
+      .join("");
 
-  // Totals row
-  const totalsRow = `
+    // Totals row
+    const totalsRow = `
     <tr class="total">
       <td colspan="5">Total</td>
       <td class="sub-right">${totalPCS}</td>
@@ -2618,10 +2623,10 @@ ${
     </tr>
   `;
 
-  // Stones table if applicable
-  const stonesTable =
-    path === "/estimations-model1"
-      ? `
+    // Stones table if applicable
+    const stonesTable =
+      path === "/estimations-model1"
+        ? `
         <div class="table-container">
           <table>
             <thead>
@@ -2650,7 +2655,9 @@ ${
                       <tr>
                         <td class="sub-stone-name">${stone.MAINTYPE}</td>
                         <td class="stone-pieces">${stone.PCS}</td>
-                        <td class="stone-weight">${stone.ACTGRAMS.toFixed(3)}</td>
+                        <td class="stone-weight">${stone.ACTGRAMS.toFixed(
+                          3
+                        )}</td>
                         <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
                         <td class="stone-amount">${amount.toFixed(2)}</td>
                       </tr>
@@ -2670,10 +2677,10 @@ ${
           </table>
         </div>
       `
-      : "";
+        : "";
 
-  // Summary table
-  const summaryTable = `
+    // Summary table
+    const summaryTable = `
     <div class="summary-container">
       <table>
         <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
@@ -2692,8 +2699,8 @@ ${
         <tr><td class="stone-name">Making ${
           makingValue || 0
         } /g</td><td class="sub-right">${
-    perGramValue ? Number(perGramValue).toFixed(2) : 0
-  }</td></tr>
+      perGramValue ? Number(perGramValue).toFixed(2) : 0
+    }</td></tr>
         ${
           path === "/estimations-model1"
             ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
@@ -2719,8 +2726,8 @@ ${
     </div>
   `;
 
-  // Build full HTML content
-  const htmlContent = `
+    // Build full HTML content
+    const htmlContent = `
     <html>
       <head>
         <style>
@@ -2920,202 +2927,202 @@ ${
     </html>
   `;
 
-  // Create container for html2pdf
-  const container = document.createElement("div");
-  container.innerHTML = htmlContent;
-  const clone = container.cloneNode(true);
+    // Create container for html2pdf
+    const container = document.createElement("div");
+    container.innerHTML = htmlContent;
+    const clone = container.cloneNode(true);
 
-  html2pdf()
-    .set({
-      margin: [10, 5, 10, 5],
-      filename: `Estimation_${
-        selectEstimationNo
-          ? selectEstimationNo?.ESTIMATIONNO
-          : estimationCount + 1
-      }.pdf`,
-      image: { type: "jpeg", quality: 0.95 },
-      html2canvas: {
+    html2pdf()
+      .set({
+        margin: [10, 5, 10, 5],
+        filename: `Estimation_${
+          selectEstimationNo
+            ? selectEstimationNo?.ESTIMATIONNO
+            : estimationCount + 1
+        }.pdf`,
+        image: { type: "jpeg", quality: 0.95 },
+        html2canvas: {
           useCORS: true,
           allowTaint: true,
           scale: 2, // clearer text
         },
-      jsPDF: { unit: "pt", format: "a4", orientation: "landscape" },
-      pagebreak: { mode: ["avoid-all", "css", "legacy"] }
-    })
-    .from(clone)
-    .save()
-    .then(() => {
-      document.body.removeChild(container);
-    });
-};
+        jsPDF: { unit: "pt", format: "a4", orientation: "landscape" },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      })
+      .from(clone)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+      });
+  };
 
-// const handleDownloadExcel = async () => {
-//   const workbook = new ExcelJS.Workbook();
-//   const worksheet = workbook.addWorksheet("Estimation");
+  // const handleDownloadExcel = async () => {
+  //   const workbook = new ExcelJS.Workbook();
+  //   const worksheet = workbook.addWorksheet("Estimation");
 
-//   // --- HEADER ROW ---
-//   worksheet.columns = [
-//     { header: "SNo", key: "SNo", width: 6 },
-//     { header: "TAG NO", key: "TAGNO", width: 12 },
-//     { header: "Image", key: "Image", width: 15 },
-//     { header: "PARTICULARS", key: "PRODUCT", width: 25 },
-//     { header: "Purity", key: "Purity", width: 10 },
-//     { header: "Pieces", key: "Pieces", width: 8 },
-//     { header: "Gross.Wt", key: "GrossWt", width: 12 },
-//     { header: "Less.Wt", key: "StoneWt", width: 12 },
-//     { header: "Net.Wt", key: "NetWt", width: 12 },
-//     { header: "Touch", key: "Touch", width: 10 },
-//     { header: "Fine Gold", key: "FineGold", width: 14 }
-//   ];
+  //   // --- HEADER ROW ---
+  //   worksheet.columns = [
+  //     { header: "SNo", key: "SNo", width: 6 },
+  //     { header: "TAG NO", key: "TAGNO", width: 12 },
+  //     { header: "Image", key: "Image", width: 15 },
+  //     { header: "PARTICULARS", key: "PRODUCT", width: 25 },
+  //     { header: "Purity", key: "Purity", width: 10 },
+  //     { header: "Pieces", key: "Pieces", width: 8 },
+  //     { header: "Gross.Wt", key: "GrossWt", width: 12 },
+  //     { header: "Less.Wt", key: "StoneWt", width: 12 },
+  //     { header: "Net.Wt", key: "NetWt", width: 12 },
+  //     { header: "Touch", key: "Touch", width: 10 },
+  //     { header: "Fine Gold", key: "FineGold", width: 14 }
+  //   ];
 
-//   worksheet.getRow(1).eachCell((cell) => {
-//     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
-//     cell.alignment = { horizontal: "center", vertical: "middle" };
-//     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF52BD91" } };
-//     cell.border = {
-//       top: { style: "thin" },
-//       left: { style: "thin" },
-//       bottom: { style: "thin" },
-//       right: { style: "thin" }
-//     };
-//   });
+  //   worksheet.getRow(1).eachCell((cell) => {
+  //     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  //     cell.alignment = { horizontal: "center", vertical: "middle" };
+  //     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF52BD91" } };
+  //     cell.border = {
+  //       top: { style: "thin" },
+  //       left: { style: "thin" },
+  //       bottom: { style: "thin" },
+  //       right: { style: "thin" }
+  //     };
+  //   });
 
-//   // --- TABLE ROWS ---
-//   let totalPCS = 0, totalGWT = 0, totalStone = 0, totalNWT = 0, totalGold = 0;
+  //   // --- TABLE ROWS ---
+  //   let totalPCS = 0, totalGWT = 0, totalStone = 0, totalNWT = 0, totalGold = 0;
 
-//   for (let index = 0; index < tableData.length; index++) {
-//     const item = tableData[index];
+  //   for (let index = 0; index < tableData.length; index++) {
+  //     const item = tableData[index];
 
-//     const actGrams =
-//       stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS || "";
+  //     const actGrams =
+  //       stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS || "";
 
-//     totalPCS += item.PIECES;
-//     totalGWT += item.GWT;
-//     totalStone += Number(item.STONEWT || 0);
-//     totalNWT += Number(item.NETWT || 0);
-//     totalGold += Number(item.FINALGOLD || 0);
+  //     totalPCS += item.PIECES;
+  //     totalGWT += item.GWT;
+  //     totalStone += Number(item.STONEWT || 0);
+  //     totalNWT += Number(item.NETWT || 0);
+  //     totalGold += Number(item.FINALGOLD || 0);
 
-//     const row = worksheet.addRow({
-//       SNo: index + 1,
-//       TAGNO: item.TAGNO,
-//       PRODUCT: item.PRODNAME,
-//       Purity: item.PREFIX,
-//       Pieces: item.PIECES,
-//       GrossWt: item.GWT?.toFixed(3),
-//       StoneWt: item.STONEWT,
-//       NetWt: item.NETWT,
-//       Touch: `${item.TOUCH}%`,
-//       FineGold: item.FINALGOLD
-//     });
+  //     const row = worksheet.addRow({
+  //       SNo: index + 1,
+  //       TAGNO: item.TAGNO,
+  //       PRODUCT: item.PRODNAME,
+  //       Purity: item.PREFIX,
+  //       Pieces: item.PIECES,
+  //       GrossWt: item.GWT?.toFixed(3),
+  //       StoneWt: item.STONEWT,
+  //       NetWt: item.NETWT,
+  //       Touch: `${item.TOUCH}%`,
+  //       FineGold: item.FINALGOLD
+  //     });
 
-//     // 🔹 Add Image if available
-//     const imgPath = item.IMGPATH || photos[index] || "";
-//     const base64Img = base64Images[imgPath] || "";
-//     if (base64Img) {
-//       const imageId = workbook.addImage({
-//         base64: base64Img,
-//         extension: "png", // or "jpeg"
-//       });
-//       worksheet.addImage(imageId, {
-//         tl: { col: 2, row: row.number - 1 }, // put inside "Image" column
-//         ext: { width: 50, height: 50 }
-//       });
-//       row.height = 60; // increase row height for image
-//     }
+  //     // 🔹 Add Image if available
+  //     const imgPath = item.IMGPATH || photos[index] || "";
+  //     const base64Img = base64Images[imgPath] || "";
+  //     if (base64Img) {
+  //       const imageId = workbook.addImage({
+  //         base64: base64Img,
+  //         extension: "png", // or "jpeg"
+  //       });
+  //       worksheet.addImage(imageId, {
+  //         tl: { col: 2, row: row.number - 1 }, // put inside "Image" column
+  //         ext: { width: 50, height: 50 }
+  //       });
+  //       row.height = 60; // increase row height for image
+  //     }
 
-//     // 🔹 Add ActGrams row if exists
-//     if (actGrams) {
-//       const subRow = worksheet.addRow({
-//         PRODUCT: actGrams
-//       });
-//       subRow.font = { italic: true, bold: true };
-//       worksheet.mergeCells(`D${subRow.number}:K${subRow.number}`); // merge across columns
-//     }
-//   }
+  //     // 🔹 Add ActGrams row if exists
+  //     if (actGrams) {
+  //       const subRow = worksheet.addRow({
+  //         PRODUCT: actGrams
+  //       });
+  //       subRow.font = { italic: true, bold: true };
+  //       worksheet.mergeCells(`D${subRow.number}:K${subRow.number}`); // merge across columns
+  //     }
+  //   }
 
-//   // --- TOTALS ROW ---
-//   const totalsRow = worksheet.addRow({
-//     PRODUCT: "Total",
-//     Pieces: totalPCS,
-//     GrossWt: totalGWT.toFixed(3),
-//     StoneWt: totalStone.toFixed(3),
-//     NetWt: totalNWT.toFixed(3),
-//     FineGold: totalGold.toFixed(3)
-//   });
+  //   // --- TOTALS ROW ---
+  //   const totalsRow = worksheet.addRow({
+  //     PRODUCT: "Total",
+  //     Pieces: totalPCS,
+  //     GrossWt: totalGWT.toFixed(3),
+  //     StoneWt: totalStone.toFixed(3),
+  //     NetWt: totalNWT.toFixed(3),
+  //     FineGold: totalGold.toFixed(3)
+  //   });
 
-//   totalsRow.eachCell((cell) => {
-//     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
-//     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF162566" } };
-//   });
+  //   totalsRow.eachCell((cell) => {
+  //     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  //     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF162566" } };
+  //   });
 
-//   // --- OPTIONAL: Stones table in another sheet ---
-//   if (path === "/estimations-model1") {
-//     const stoneSheet = workbook.addWorksheet("Stones");
-//     stoneSheet.columns = [
-//       { header: "STONE NAME", key: "name", width: 20 },
-//       { header: "PIECES", key: "pcs", width: 12 },
-//       { header: "WEIGHT", key: "weight", width: 12 },
-//       { header: "COST", key: "cost", width: 12 },
-//       { header: "AMOUNT", key: "amount", width: 14 }
-//     ];
+  //   // --- OPTIONAL: Stones table in another sheet ---
+  //   if (path === "/estimations-model1") {
+  //     const stoneSheet = workbook.addWorksheet("Stones");
+  //     stoneSheet.columns = [
+  //       { header: "STONE NAME", key: "name", width: 20 },
+  //       { header: "PIECES", key: "pcs", width: 12 },
+  //       { header: "WEIGHT", key: "weight", width: 12 },
+  //       { header: "COST", key: "cost", width: 12 },
+  //       { header: "AMOUNT", key: "amount", width: 14 }
+  //     ];
 
-//     let totalStoneWeight = 0, totalAmount = 0, totalStonePieces = 0;
-//     stonesData.forEach((stone, idx) => {
-//       const rate = stoneRate[idx] || 0;
-//       const amount = stone.ACTGRAMS * rate;
-//       totalAmount += amount;
-//       totalStoneWeight += stone.ACTGRAMS;
-//       totalStonePieces += stone.PCS;
+  //     let totalStoneWeight = 0, totalAmount = 0, totalStonePieces = 0;
+  //     stonesData.forEach((stone, idx) => {
+  //       const rate = stoneRate[idx] || 0;
+  //       const amount = stone.ACTGRAMS * rate;
+  //       totalAmount += amount;
+  //       totalStoneWeight += stone.ACTGRAMS;
+  //       totalStonePieces += stone.PCS;
 
-//       stoneSheet.addRow({
-//         name: stone.MAINTYPE,
-//         pcs: stone.PCS,
-//         weight: stone.ACTGRAMS.toFixed(3),
-//         cost: Number(rate).toFixed(2),
-//         amount: Number(amount).toFixed(2)
-//       });
-//     });
+  //       stoneSheet.addRow({
+  //         name: stone.MAINTYPE,
+  //         pcs: stone.PCS,
+  //         weight: stone.ACTGRAMS.toFixed(3),
+  //         cost: Number(rate).toFixed(2),
+  //         amount: Number(amount).toFixed(2)
+  //       });
+  //     });
 
-//     stoneSheet.addRow({
-//       name: "Total",
-//       pcs: totalStonePieces,
-//       weight: totalStoneWeight.toFixed(3),
-//       amount: totalAmount.toFixed(2)
-//     }).font = { bold: true };
-//   }
+  //     stoneSheet.addRow({
+  //       name: "Total",
+  //       pcs: totalStonePieces,
+  //       weight: totalStoneWeight.toFixed(3),
+  //       amount: totalAmount.toFixed(2)
+  //     }).font = { bold: true };
+  //   }
 
-//   // --- OPTIONAL: Summary table in another sheet ---
-//   const summarySheet = workbook.addWorksheet("Summary");
-//   summarySheet.addRow(["Fine Gold", totalFineGold.toFixed(3)]);
-//   if (rateCut === true) {
-//     summarySheet.addRow([
-//       `Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-`,
-//       amountValue ? Number(amountValue).toFixed(2) : 0
-//     ]);
-//   }
-//   summarySheet.addRow([`Making ${makingValue || 0}/g`, perGramValue ? Number(perGramValue).toFixed(2) : 0]);
+  //   // --- OPTIONAL: Summary table in another sheet ---
+  //   const summarySheet = workbook.addWorksheet("Summary");
+  //   summarySheet.addRow(["Fine Gold", totalFineGold.toFixed(3)]);
+  //   if (rateCut === true) {
+  //     summarySheet.addRow([
+  //       `Fine ${fineGoldValue || 0} @${Number(rateValue || 0)}/-`,
+  //       amountValue ? Number(amountValue).toFixed(2) : 0
+  //     ]);
+  //   }
+  //   summarySheet.addRow([`Making ${makingValue || 0}/g`, perGramValue ? Number(perGramValue).toFixed(2) : 0]);
 
-//   if (path === "/estimations-model1") {
-//     summarySheet.addRow(["Other Charges", rodiumChargeValue || 0]);
-//     summarySheet.addRow(["Stone Cost", totalStoneCost?.toFixed(2)]);
-//   } else {
-//     summarySheet.addRow([`Stone Cost ${stoneMakingValue || 0}/g`, stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0]);
-//   }
+  //   if (path === "/estimations-model1") {
+  //     summarySheet.addRow(["Other Charges", rodiumChargeValue || 0]);
+  //     summarySheet.addRow(["Stone Cost", totalStoneCost?.toFixed(2)]);
+  //   } else {
+  //     summarySheet.addRow([`Stone Cost ${stoneMakingValue || 0}/g`, stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0]);
+  //   }
 
-//   summarySheet.addRow(["Metal Balance", metalBalanceValue.toFixed(3)]);
-//   summarySheet.addRow(["Cash Balance", cashBalanceValue.toFixed(2)]);
+  //   summarySheet.addRow(["Metal Balance", metalBalanceValue.toFixed(3)]);
+  //   summarySheet.addRow(["Cash Balance", cashBalanceValue.toFixed(2)]);
 
-//   // --- EXPORT FILE ---
-//   const buffer = await workbook.xlsx.writeBuffer();
-//   saveAs(
-//     new Blob([buffer], {
-//       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-//     }),
-//     `Estimation_${
-//       selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : estimationCount + 1
-//     }.xlsx`
-//   );
-// };
+  //   // --- EXPORT FILE ---
+  //   const buffer = await workbook.xlsx.writeBuffer();
+  //   saveAs(
+  //     new Blob([buffer], {
+  //       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  //     }),
+  //     `Estimation_${
+  //       selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : estimationCount + 1
+  //     }.xlsx`
+  //   );
+  // };
 
   const handlePrintClick = ({ key }) => {
     if (key === "1") {
@@ -3170,7 +3177,7 @@ ${
       //     createEstimationItems();
       //     createEstimationData();
       //     setSelectEstimationNo(null);
-          
+
       //   }
       // }
     }
@@ -3526,11 +3533,19 @@ ${
                             border: "2px solid #52bd91",
                           }}
                           onClick={() => {
-                            handleImageOk(photos[index] || base64Images[item?.IMGPATH] || item?.IMGPATH);
+                            handleImageOk(
+                              photos[index] ||
+                                base64Images[item?.IMGPATH] ||
+                                item?.IMGPATH
+                            );
                           }}
                         >
                           <img
-                            src={photos[index] || base64Images[item?.IMGPATH] || item?.IMGPATH}
+                            src={
+                              photos[index] ||
+                              base64Images[item?.IMGPATH] ||
+                              item?.IMGPATH
+                            }
                             alt="img"
                             style={{
                               width: "100%",
