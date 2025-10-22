@@ -46,6 +46,7 @@ const ReturnEstimationDrawer = ({
   cashBalanceValue,
   printMenu,
   pdfMenu,
+  admin,
 }) => {
   const onClose = () => {
     setDrawerOpen(false);
@@ -420,7 +421,7 @@ const ReturnEstimationDrawer = ({
           ""
         )}
         <>
-          {path === "/return-estimations-model2" ? (
+          {path === "/return-estimations-model2" || Number(admin) === 2 ? (
             <div
               style={{
                 display: "flex",

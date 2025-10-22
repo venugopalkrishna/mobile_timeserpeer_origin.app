@@ -46,6 +46,7 @@ const EstimationDrawer = ({
   cashBalanceValue,
   printMenu,
   pdfMenu,
+  admin,
 }) => {
   const onClose = () => {
     setDrawerOpen(false);
@@ -420,7 +421,7 @@ const EstimationDrawer = ({
           ""
         )}
         <>
-          {path === "/estimations-model2" ? (
+          {path === "/estimations-model2" || Number(admin) === 2 ? (
             <div
               style={{
                 display: "flex",

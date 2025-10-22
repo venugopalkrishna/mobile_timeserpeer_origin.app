@@ -2,9 +2,9 @@ import React, { useState, useEffect, forwardRef } from "react";
 import { Row, Col, Table, Input, Select } from "antd";
 import axios from "axios";
 import moment from "moment";
-import { FaCalendarAlt } from 'react-icons/fa';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { FaCalendarAlt } from "react-icons/fa";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const { Option } = Select;
 
@@ -20,7 +20,7 @@ const Dashboard = () => {
     fromDate: new Date(),
     toDate: new Date(),
     billNo: "",
-    jewelType: ""
+    jewelType: "",
   });
 
   const [tableData, setTableData] = useState([]);
@@ -28,31 +28,31 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fromDate = moment(filters.fromDate).format('YYYY-MM-DD');
-        const toDate = moment(filters.toDate).format('YYYY-MM-DD');
-        
-        // Log filters for debugging
-        console.log("Fetching data with filters:", { fromDate, toDate, ...filters });
-  
-        const response = await axios.get(`http://www.jewelerp.timeserasoftware.in/api/Erp/GetBillMast`, {
-          params: {
-            fromDate,
-            toDate,
-            billNo: filters.billNo || "", // Ensure empty strings are sent instead of undefined
-            jewelType: filters.jewelType || "",
-          },
-        });
-  
+        const fromDate = moment(filters.fromDate).format("YYYY-MM-DD");
+        const toDate = moment(filters.toDate).format("YYYY-MM-DD");
+
+        const response = await axios.get(
+          `http://www.jewelerp.timeserasoftware.in/api/Erp/GetBillMast`,
+          {
+            params: {
+              fromDate,
+              toDate,
+              billNo: filters.billNo || "", // Ensure empty strings are sent instead of undefined
+              jewelType: filters.jewelType || "",
+            },
+          }
+        );
+
         // Ensure response is valid
         if (response.data) {
           const data = response.data
-            .map(item => ({
+            .map((item) => ({
               ...item,
-              BillDate: moment(item.BillDate).format('YYYY-MM-DD'),
+              BillDate: moment(item.BillDate).format("YYYY-MM-DD"),
             }))
-            .filter(item => {
+            .filter((item) => {
               const billDate = moment(item.BillDate);
-              return billDate.isBetween(fromDate, toDate, null, '[]');
+              return billDate.isBetween(fromDate, toDate, null, "[]");
             });
           setTableData(data);
         } else {
@@ -64,15 +64,14 @@ const Dashboard = () => {
         setTableData([]); // Reset table data on error
       }
     };
-  
+
     fetchData(); // Call the function immediately
-  
   }, [filters]); // Fetch data when filters change
 
   const handleFilterChange = (key, value) => {
-    setFilters(prevFilters => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -80,7 +79,7 @@ const Dashboard = () => {
     {
       title: "S.No",
       key: "sno",
-      className: 'blue-background-column', 
+      className: "blue-background-column",
       render: (text, record, index) => index + 1,
       width: 50,
     },
@@ -88,23 +87,25 @@ const Dashboard = () => {
       title: "Inv Date",
       dataIndex: "BillDate",
       key: "BillDate",
-      render: (date) => moment(date).format('DD/MM/YYYY'),
+      render: (date) => moment(date).format("DD/MM/YYYY"),
     },
     {
       title: "Inv No",
       dataIndex: "BillNo",
       key: "BillNo",
-      align: 'center',
+      align: "center",
       render: (text, record, index) => (
-        <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{index + 1}</span>
+        <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+          {index + 1}
+        </span>
       ),
     },
-    
+
     {
       title: "Jewel Type",
       dataIndex: "JewelType",
       key: "JewelType",
-      width:100,
+      width: 100,
     },
     {
       title: "Customer Name",
@@ -115,12 +116,12 @@ const Dashboard = () => {
       title: "Pcs",
       dataIndex: "TotPieces",
       key: "TotPieces",
-      align: 'right',
+      align: "right",
     },
     {
       title: "Weight",
       key: "Weight",
-      align: 'right',
+      align: "right",
       render: (text, record) => (
         <>
           <div>Gwt: {record.TotGwt.toFixed(3)}</div>
@@ -132,13 +133,13 @@ const Dashboard = () => {
       title: "Gross Amt",
       dataIndex: "BillAmt",
       key: "BillAmt",
-      align: 'right',
+      align: "right",
       render: (value) => value.toFixed(2),
     },
     {
       title: "Tax",
       key: "Tax",
-      align: 'right',
+      align: "right",
       render: (text, record) => {
         const totalTax = (record.CGST + record.SGST + record.IGST).toFixed(2);
         return (
@@ -152,7 +153,7 @@ const Dashboard = () => {
       title: "Amount",
       dataIndex: "NetAmt",
       key: "NetAmt",
-      align: 'right',
+      align: "right",
       render: (value) => value.toFixed(2),
     },
   ];

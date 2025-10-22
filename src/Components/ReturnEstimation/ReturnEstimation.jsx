@@ -49,6 +49,7 @@ const ReturnEstimation = () => {
   const pathName = useLocation();
   const path = pathName?.pathname;
   const pathModel2 = path === "/return-estimations-model2";
+  const admin = localStorage.getItem("admin");
 
   const [open, setOpen] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
@@ -175,7 +176,7 @@ const ReturnEstimation = () => {
   };
 
   // Stones API
-  const stonesAPI = async (tagNo) => {
+  const stonesAPI = async (tagNo, data) => {
     try {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO='${
@@ -229,23 +230,43 @@ const ReturnEstimation = () => {
           }
         });
 
+        const diffWtSubtractedMap = {};
+
         validNewData.forEach((item) => {
+          const matchedItem = data?.find((d) => d.TAGNO === item.TAGNO);
           const tagNo = item.TAGNO;
           const type = item.MAINTYPE;
+          const diffWt = matchedItem ? Number(matchedItem.DIFFWT) || 0 : 0;
           const grams = Number(item.ACTGRAMS) || 0;
+
+          // Initialize tracking for this TAGNO + MAINTYPE
+          if (!diffWtSubtractedMap[tagNo]) diffWtSubtractedMap[tagNo] = {};
+          if (diffWtSubtractedMap[tagNo][type] === undefined)
+            diffWtSubtractedMap[tagNo][type] = false;
+
+          let finalGrams = grams;
+
+          if (
+            type === "STONES" &&
+            Number(admin) === 3 &&
+            !diffWtSubtractedMap[tagNo][type]
+          ) {
+            finalGrams = grams - diffWt;
+            diffWtSubtractedMap[tagNo][type] = true;
+          }
 
           if (!mergedMap[tagNo]) {
             mergedMap[tagNo] = { TAGNO: tagNo, MAINTYPES: {} };
           }
 
           if (mergedMap[tagNo].MAINTYPES[type]) {
-            mergedMap[tagNo].MAINTYPES[type] += grams;
+            mergedMap[tagNo].MAINTYPES[type] += finalGrams;
           } else {
-            mergedMap[tagNo].MAINTYPES[type] = grams;
+            mergedMap[tagNo].MAINTYPES[type] = finalGrams;
           }
         });
 
-        finalData = Object.values(mergedMap).map((item) => ({
+        const finalData = Object.values(mergedMap).map((item) => ({
           TAGNO: item.TAGNO,
           ACTGRAMS: Object.entries(item.MAINTYPES)
             .map(([key, value]) => `${key}(${(value || 0).toFixed(3)})`)
@@ -255,24 +276,53 @@ const ReturnEstimation = () => {
         return finalData;
       });
 
-      // Merge into setStonesData
-      // if(!selectEstimationNo?.ESTIMATIONNO) {
       setStonesData((prevData) => {
         const combinedData = [...prevData, ...newData];
 
         const mergedData = combinedData.reduce((acc, item) => {
           const existingItem = acc.find((el) => el.MAINTYPE === item.MAINTYPE);
+          const matchedItem = data?.find((d) => d.TAGNO === item.TAGNO);
+
+          const grams = Number(item.ACTGRAMS) || 0;
+          const diffWt = matchedItem ? Number(matchedItem.DIFFWT) || 0 : 0;
+
           if (existingItem) {
-            existingItem.PCS += item.PCS;
-            existingItem.ACTGRAMS += item.ACTGRAMS;
-            existingItem.CTS += item.CTS;
+            existingItem.ACTGRAMS = (existingItem.ACTGRAMS || 0) + grams;
+
+            if (
+              !existingItem._diffWtSubtracted &&
+              item.MAINTYPE === "STONES" &&
+              Number(admin) === 3
+            ) {
+              existingItem.ACTGRAMS -= diffWt;
+              existingItem._diffWtSubtracted = true;
+            }
+
+            existingItem.PCS =
+              (existingItem.PCS || 0) + (Number(item.PCS) || 0);
+            existingItem.CTS =
+              (existingItem.CTS || 0) + (Number(item.CTS) || 0);
           } else {
-            acc.push({ ...item });
+            let initialGrams = grams;
+            let diffWtSubtracted = false;
+
+            if (item.MAINTYPE === "STONES" && Number(admin) === 3) {
+              initialGrams -= diffWt;
+              diffWtSubtracted = true;
+            }
+
+            acc.push({
+              ...item,
+              PCS: Number(item.PCS) || 0,
+              CTS: Number(item.CTS) || 0,
+              ACTGRAMS: initialGrams,
+              _diffWtSubtracted: diffWtSubtracted,
+            });
           }
+
           return acc;
         }, []);
-
-        return mergedData;
+        return mergedData.map(({ _diffWtSubtracted, ...rest }) => rest);
       });
       // }
 
@@ -315,7 +365,7 @@ const ReturnEstimation = () => {
         message.warning("Tag Not existed");
         return;
       }
-
+      stonesAPI(data[0]?.TAGNO, data);
       setTableData((prevData) => {
         const existingTag = prevData.some(
           (item) => item.TAGNO === (tagNoValue || tagNo)
@@ -331,6 +381,13 @@ const ReturnEstimation = () => {
           const finalGold = (Number(obj?.NWT) * totalTouch) / 100;
           const actPer = (Number(finalGold || 0) / Number(obj?.GWT || 0)) * 100;
 
+          const diffSwt = obj?.DIFFWT;
+          const gwt = obj?.GWT;
+          const lessWt = obj?.STONEWT;
+
+          const diffStone = lessWt - diffSwt;
+          const diffNwt = gwt - diffStone;
+
           const stoneEntry = stoneData?.find((s) => s.TAGNO === obj.TAGNO);
 
           return {
@@ -340,8 +397,9 @@ const ReturnEstimation = () => {
             ACTPER: actPer?.toFixed(3),
             PIECES: obj?.PIECES || 0,
             GROSSWEIGHT: obj?.GWT?.toFixed(3) || 0,
-            STONEWT: obj?.STONEWT?.toFixed(3) || 0,
-            NETWT: obj?.NWT?.toFixed(3) || 0,
+            STONEWT:
+              Number(admin) === 3 ? diffStone : obj?.STONEWT?.toFixed(3) || 0,
+            NETWT: Number(admin) === 3 ? diffNwt : obj?.NWT?.toFixed(3) || 0,
             ACTGRAMS: stoneEntry?.ACTGRAMS || "", // ✅ use passed stone data
           };
         });
@@ -990,6 +1048,19 @@ const ReturnEstimation = () => {
     }
   };
 
+  // const createImagePathAPI = async (imgUrl, tagNo) => {
+  //   try {
+  //     await axios.get(
+  //       `${CREATE_jwel}/api/Wholesal/UpdateTagGenerationImagePath?tagNo=${tagNo}&path=${
+  //         imgUrl || ""
+  //       }`,
+  //       { headers: { tenantName } }
+  //     );
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
   const createImagePathAPI = async (imgUrl, tagNo) => {
     try {
       await axios.get(
@@ -998,8 +1069,16 @@ const ReturnEstimation = () => {
         }`,
         { headers: { tenantName } }
       );
+
+      setTableData((prevData) =>
+        prevData.map((item) =>
+          item.TAGNO === tagNo
+            ? { ...item, IMGPATH: imgUrl } // update image path
+            : item
+        )
+      );
     } catch (error) {
-      console.error(error);
+      console.error("Failed to update image path:", error);
     }
   };
 
@@ -1037,6 +1116,13 @@ const ReturnEstimation = () => {
       if (response.status === 200) {
         const imgUrl = `https://image.timeserasoftware.in/${userName}/${renamedFileName}`;
         createImagePathAPI(imgUrl, tagNo);
+        setTableData((prevData) =>
+          prevData.map((item) =>
+            item.TAGNO === tagNo
+              ? { ...item, IMGPATH: imgUrl } // update image path
+              : item
+          )
+        );
         alert("Image uploaded successfully!");
       }
     } catch (error) {
@@ -2080,28 +2166,30 @@ const ReturnEstimation = () => {
         totalGold += Number(item?.FINALGOLD);
 
         return `
-          <tr>
-            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          index + 1
-        }</strong></td>
-            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          item.TAGNO
-        }</strong></td>
-            <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
-            <td>${item.PREFIX}</td>
-            <td class="sub-right"><strong>${item.PIECES}</strong></td>
-            <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
-            <td class="sub-right">${item.STONEWT}</td>
-            <td class="sub-right">${item.NETWT}</td>
-            <td class="sub-right">${item.TOUCH}%</td>
-            <td class="sub-gold">${item.FINALGOLD}</td>
-          </tr>
-          ${
-            cleanedActGrams
-              ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
-              : ""
-          }
-        `;
+        <tr>
+          <td rowspan="${
+            cleanedActGrams && Number(admin) !== 2 ? 2 : 1
+          }"><strong>${index + 1}</strong></td>
+          <td class="sub-tag" rowspan="${
+            cleanedActGrams && Number(admin) !== 2 ? 2 : 1
+          }"><strong>${item.TAGNO}</strong></td>
+          <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+          <td>${item.PREFIX}</td>
+          <td class="sub-right"><strong>${item.PIECES}</strong></td>
+          <td class="sub-right"><strong>${Number(item.GWT)?.toFixed(
+            3
+          )}</strong></td>
+            <td class="sub-right">${Number(item.STONEWT)?.toFixed(3)}</td>
+          <td class="sub-right">${Number(item.NETWT)?.toFixed(3)}</td>
+          <td class="sub-right">${item.TOUCH}%</td>
+          <td class="sub-gold">${item.FINALGOLD}</td>
+        </tr>
+        ${
+          cleanedActGrams && Number(admin) !== 2
+            ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+            : ""
+        }
+      `;
       })
       .join("");
 
@@ -2120,7 +2208,7 @@ const ReturnEstimation = () => {
 
     // Stones table if applicable
     const stonesTable =
-      path === "/return-estimations-model1"
+      path === "/return-estimations-model1" && Number(admin) !== 2
         ? `
           <div class="table-container">
             <table>
@@ -2201,7 +2289,7 @@ const ReturnEstimation = () => {
       perGramValue ? Number(perGramValue).toFixed(2) : 0
     }</td></tr>
           ${
-            path === "/return-estimations-model1"
+            path === "/return-estimations-model1" && Number(admin) !== 2
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
@@ -2215,12 +2303,16 @@ const ReturnEstimation = () => {
                    stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
                  }</td></tr>`
           }
-          <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-            3
-          )}</strong></td></tr>
+          ${
+            Number(admin) !== 2
+              ? `<tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+                  3
+                )}</strong></td></tr>
           <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
             2
-          )}</strong></td></tr>
+          )}</strong></td></tr>`
+              : ""
+          }
         </table>
       </div>
     `;
@@ -2230,124 +2322,37 @@ const ReturnEstimation = () => {
       <html>
         <head>
           <style>
-             body {
+            body {
               font-family: Arial, sans-serif;
               margin: 20px;
               font-size: 12px;
-          }
-          .header {
-              text-align: center;
-              margin-bottom: 18px;
-          }
-          .header h2 {
-              margin: 0;
-              font-size: 16px;
-              font-weight: bold;
-              display: inline-block;
-      text-decoration: underline;
-      text-underline-offset: 4px;
-          }
-          .sub-header {
-              display: flex;
-              justify-content: space-between;
-              font-size: 12px;
-              font-weight: bold;
-              margin-bottom: 10px;
-              padding-bottom: 5px;
-          }
-               .sub-est {
-            font-weight : bold;
-            font-size: 18px;
-            color : red;
-          }
-            .sub-party {
-            font-weight : bold;
-            font-size: 14px;
-            color : #162566;
-          }
-          table {
-              width: 100%;
-              border-collapse: collapse;
-              font-size: 12px;
-              margin-top: 5px;
-          }
-          th, td {
-              border: 1px solid black;
-              padding: 5px;
-              text-align: center;
-          }
-          th {
-              background-color: #52bd91;
-              font-weight: bold;
-          }
-          .total {
-              font-weight: bold;
-              background-color: #162566;
-              color: white;
-          }
-          .summary {
-              display: flex;
-              justify-content: space-between;
-              margin-top: 15px;
-          }
-          .summary-box {
-              width: 48%;
-              border: 1px solid black;
-              padding: 10px;
-              font-size: 12px;
-          }
-          .summary-box table {
-              width: 100%;
-              border: none;
-          }
-          .summary-box td {
-              border: none;
-              text-align: left;
-              padding: 3px 0;
-          }
-          .footer {
-              margin-top: 15px;
-              font-size: 12px;
-          }
-            .sub {
-              text-align: left;
-              width: 300px;
-          }
-              .sub-pro {
-                text-align: left;
-                width: 500;
-                background-color: #BCF2F6;
             }
-              .sub-tag {
-              text-align: center;
-              width: 100;
-          }
-          .sub-right {
-              text-align: right;
-              width: 80;
-          }
-              .sub-gold {
-              text-align: right;
-              width: 130;
-          }
+            .header { text-align: center; margin-bottom: 18px; }
+            .header h2 { margin: 0; font-size: 16px; font-weight: bold; display: inline-block; text-decoration: underline; text-underline-offset: 4px; }
+            .sub-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; margin-bottom: 10px; padding-bottom: 5px; }
+            .sub-est { font-weight : bold; font-size: 18px; color : red; }
+            .sub-party { font-weight : bold; font-size: 14px; color : #162566; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 5px; }
+            th, td { border: 1px solid black; padding: 5px; text-align: center; }
+            th { background-color: #52bd91; font-weight: bold; }
+            .total { font-weight: bold; background-color: #162566; color: white; }
+            .sub { text-align: left; width: 300px; }
+            .sub-pro { text-align: left; width: 500px; background-color: #BCF2F6; }
+            .sub-tag { text-align: center; width: 100px; }
+            .sub-right { text-align: right; width: 80px; }
+            .sub-gold { text-align: right; width: 130px; }
             .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
             .sub-row td { border-top: none; text-align: left; }
-            .container { display: flex; justify-content: space-between; margin-top: 10px; }
-            .table-container { width: 55%; }
-            .summary-container { width: 35%; }
+            .container { display: flex; justify-content: flex-start; margin-top: 10px; }
+            .summary-container { width: 35%; margin-left: auto; }
             .stone-name { text-align: left; }
             .sub-final { background-color: #f26d14ff; font-weight: bold; }
             .sub-right-bold { text-align: right; font-weight: bold; }
             .stone-name-bold { text-align: left; font-weight: bold; }
-            .sub-stone-name { text-align: left;  width: 100px}
-            .stone-pieces { text-align: center; font-weight: bold; width: 60px }
-            .stone-weight { text-align: right; width: 60px }
-            .stone-cost { text-align: right; width: 60px }
-            .stone-amount { text-align: right; width: 60px }
           </style>
         </head>
         <body>
-          <div class="header"><h2>RETURN ESTIMATION</h2></div>
+          <div class="header"><h2>ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
               selectEstimationNo
@@ -2375,14 +2380,13 @@ const ReturnEstimation = () => {
             </tbody>
           </table>
           <div class="container">
-            ${stonesTable}
-            ${summaryTable}
+          ${stonesTable}
+            ${summaryTable} <!-- Only summary table fixed right -->
           </div>
         </body>
       </html>
     `;
 
-    // Create container for html2pdf
     const container = document.createElement("div");
     container.innerHTML = htmlContent;
     document.body.appendChild(container);
@@ -2390,7 +2394,7 @@ const ReturnEstimation = () => {
     html2pdf()
       .set({
         margin: [10, 5, 10, 5],
-        filename: `Return_Estimation_${
+        filename: `Estimation_${
           selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1
@@ -2458,9 +2462,11 @@ const ReturnEstimation = () => {
             <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
             <td>${item.PREFIX}</td>
             <td class="sub-right"><strong>${item.PIECES}</strong></td>
-            <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
-            <td class="sub-right">${item.STONEWT}</td>
-            <td class="sub-right">${item.NETWT}</td>
+            <td class="sub-right"><strong>${Number(item.GWT)?.toFixed(
+              3
+            )}</strong></td>
+            <td class="sub-right">${Number(item.STONEWT)?.toFixed(3)}</td>
+          <td class="sub-right">${Number(item.NETWT)?.toFixed(3)}</td>
             <td class="sub-right">${item.TOUCH}%</td>
             <td class="sub-gold">${item.FINALGOLD}</td>
           </tr>
@@ -2759,7 +2765,7 @@ const ReturnEstimation = () => {
           </style>
         </head>
         <body>
-          <div class="header"><h2>RETURN ESTIMATION</h2></div>
+          <div class="header"><h2>ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
               selectEstimationNo
@@ -2802,7 +2808,7 @@ const ReturnEstimation = () => {
     html2pdf()
       .set({
         margin: [10, 5, 10, 5],
-        filename: `Return_Estimation_${
+        filename: `Estimation_${
           selectEstimationNo
             ? selectEstimationNo?.ESTIMATIONNO
             : estimationCount + 1
@@ -2881,19 +2887,30 @@ const ReturnEstimation = () => {
     }
   };
 
+  const pdfMenuItems =
+    Number(admin) === 2
+      ? [
+          {
+            key: "2",
+            icon: <FilePdfOutlined />,
+            label: "PDF Without Image",
+          },
+        ]
+      : [
+          {
+            key: "1",
+            icon: <FilePdfOutlined />,
+            label: "PDF With Image",
+          },
+          {
+            key: "2",
+            icon: <FilePdfOutlined />,
+            label: "PDF Without Image",
+          },
+        ];
+
   const pdfMenu = {
-    items: [
-      {
-        key: "1",
-        icon: <FilePdfOutlined />,
-        label: "PDF With Image",
-      },
-      {
-        key: "2",
-        icon: <FilePdfOutlined />,
-        label: "PDF With Out Image",
-      },
-    ],
+    items: pdfMenuItems,
     onClick: handlePdfClick,
   };
 
@@ -3014,7 +3031,9 @@ const ReturnEstimation = () => {
             ) : (
               ""
             )}
-            {stonesData.length > 0 ? (
+            {path === "/return-estimations-model1" &&
+            stonesData.length > 0 &&
+            Number(admin) !== 2 ? (
               <Button
                 type="primary"
                 htmlType="submit"
@@ -3344,7 +3363,8 @@ const ReturnEstimation = () => {
                       </span>
                     </p>
                   </div>
-                  {path === "/return-estimations-model1" ? (
+                  {path === "/return-estimations-model1" &&
+                  Number(admin) !== 2 ? (
                     <>
                       <hr className={styles.fullWidthLine} />
                       <div className={styles.fullWidthStone}>
@@ -3479,6 +3499,7 @@ const ReturnEstimation = () => {
         cashBalanceValue={cashBalanceValue}
         printMenu={printMenu}
         pdfMenu={pdfMenu}
+        admin={admin}
       />
       <ReturnEstimationDialog
         setOpenDialog={setOpenDialog}

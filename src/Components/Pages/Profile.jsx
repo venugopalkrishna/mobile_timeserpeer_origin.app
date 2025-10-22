@@ -11,7 +11,9 @@ const FirmConfigure = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://www.jewelerp.timeserasoftware.in/api/Erp/GetFirmConfihure");
+        const response = await axios.get(
+          "http://www.jewelerp.timeserasoftware.in/api/Erp/GetFirmConfihure"
+        );
         const data = response.data[0];
         form.setFieldsValue({
           firmName: data.FIRMNAME,
@@ -45,7 +47,6 @@ const FirmConfigure = () => {
   };
 
   const handleSubmit = (values) => {
-    console.log("Form Submitted:", values);
     setIsEditing(false); // Disable editing after submission
   };
 
@@ -75,7 +76,7 @@ const FirmConfigure = () => {
       />
 
       <h2 style={{ textAlign: "center", marginBottom: 10 }}>FIRM CONFIGURE</h2>
-<DropdownSearch/>
+      <DropdownSearch />
       <Form
         form={form}
         layout="horizontal"
@@ -138,13 +139,8 @@ const FirmConfigure = () => {
             </Button>
           </Col>
         </Row>
-        
       </Form>
     </div>
-
-
-
-
   );
 };
 

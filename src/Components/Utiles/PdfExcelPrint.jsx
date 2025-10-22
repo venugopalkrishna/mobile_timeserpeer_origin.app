@@ -39,7 +39,6 @@ const PdfExcelPrint = ({ data, columns, fileName }) => {
     data.forEach((item) => {
       printWindow.document.write("<tr>");
       columns.forEach((col) => {
-        // console.log(item[col.dataIndex], "index");
         const value = item[col.dataIndex] ?? "";
         const align = col.align || "left";
         printWindow.document.write(

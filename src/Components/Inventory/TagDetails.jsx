@@ -38,7 +38,6 @@ const TagDetails = () => {
   const [totalGwt, setTotalGwt] = useState(0);
   const [totalNwt, setTotalNwt] = useState(0);
   const [totalSwt, setTotalSwt] = useState(0);
-  console.log(tagDetailsData, "tagDetailsData");
 
   const imageUrls = localStorage.getItem("images")?.split(",");
   const imagesData = imageUrls?.length > 0 ? imageUrls : [];

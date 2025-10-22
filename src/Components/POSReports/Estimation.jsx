@@ -61,6 +61,7 @@ const Estimation = () => {
   const pathName = useLocation();
   const path = pathName?.pathname;
   const pathModel2 = path === "/estimations-model2";
+  const admin = localStorage.getItem("admin");
 
   const [open, setOpen] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
@@ -186,8 +187,7 @@ const Estimation = () => {
     // }
   };
 
-  // Stones API
-  const stonesAPI = async (tagNo) => {
+  const stonesAPI = async (tagNo, data) => {
     try {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO='${
@@ -208,6 +208,112 @@ const Estimation = () => {
       }
 
       let finalData = [];
+
+      // setStoneMainData((prevData) => {
+      //   const existingTag = prevData.some(
+      //     (item) => item.TAGNO === (tagNoValue || tagNo)
+      //   );
+
+      //   if (existingTag) {
+      //     return prevData;
+      //   }
+
+      //   const validNewData = newData.filter(
+      //     (item) => item?.TAGNO && item?.MAINTYPE && item?.ACTGRAMS
+      //   );
+
+      //   const mergedMap = {};
+
+      //   prevData.forEach((item) => {
+      //     mergedMap[item.TAGNO] = { TAGNO: item.TAGNO, MAINTYPES: {} };
+
+      //     if (typeof item.ACTGRAMS === "string") {
+      //       item.ACTGRAMS.split(",").forEach((entry) => {
+      //         const match = entry.trim().match(/^(.+?)\(([\d.]+)\)$/);
+      //         if (match) {
+      //           const type = match[1].trim();
+      //           const grams = parseFloat(match[2]);
+      //           if (type && !isNaN(grams)) {
+      //             mergedMap[item.TAGNO].MAINTYPES[type] = grams;
+      //           }
+      //         }
+      //       });
+      //     }
+      //   });
+
+      //   validNewData.forEach((item) => {
+      //     const matchedItem = data?.find((d) => d.TAGNO === item.TAGNO);
+      //     const tagNo = item.TAGNO;
+      //     const type = item.MAINTYPE;
+      //     const diffWt = matchedItem ? Number(matchedItem.DIFFWT) || 0 : 0;
+      //     const grams = Number(item.ACTGRAMS) || 0;
+
+      //     const diffSwt = grams - diffWt;
+
+      //     const finalGrams =
+      //       type === "STONES" && Number(admin) === 3 ? diffSwt : grams;
+
+      //     if (!mergedMap[tagNo]) {
+      //       mergedMap[tagNo] = { TAGNO: tagNo, MAINTYPES: {} };
+      //     }
+
+      //     if (mergedMap[tagNo].MAINTYPES[type]) {
+      //       mergedMap[tagNo].MAINTYPES[type] += finalGrams;
+      //     } else {
+      //       mergedMap[tagNo].MAINTYPES[type] = finalGrams;
+      //     }
+      //   });
+
+      //   const finalData = Object.values(mergedMap).map((item) => ({
+      //     TAGNO: item.TAGNO,
+      //     ACTGRAMS: Object.entries(item.MAINTYPES)
+      //       .map(([key, value]) => `${key}(${(value || 0).toFixed(3)})`)
+      //       .join(", "),
+      //   }));
+
+      //   return finalData;
+      // });
+
+      // Merge into setStonesData
+      // if(!selectEstimationNo?.ESTIMATIONNO) {
+      // setStonesData((prevData) => {
+      //   const combinedData = [...prevData, ...newData];
+
+      //   const mergedData = combinedData.reduce((acc, item) => {
+      //     const existingItem = acc.find((el) => el.MAINTYPE === item.MAINTYPE);
+
+      //     const matchedItem = data?.find((d) => d.TAGNO === item.TAGNO);
+
+      //     const grams = Number(item.ACTGRAMS) || 0;
+      //     const diffWt = matchedItem ? Number(matchedItem.DIFFWT) || 0 : 0;
+      //     const diffSwt = grams - diffWt;
+
+      //     const finalGrams =
+      //       item.MAINTYPE === "STONES" && Number(admin) === 3 ? diffSwt : grams;
+
+      //     if (existingItem) {
+      //       let updatedGrams = (existingItem.ACTGRAMS || 0) + grams;
+
+      //       // Step 2: subtract diffWt
+      //       if (item.MAINTYPE === "STONES" && Number(admin) === 3) {
+      //         updatedGrams -= diffWt;
+      //       }
+
+      //       existingItem.PCS += Number(item.PCS) || 0;
+      //       existingItem.ACTGRAMS = updatedGrams;
+      //       existingItem.CTS += Number(item.CTS) || 0;
+      //     } else {
+      //       acc.push({
+      //         ...item,
+      //         // ACTGRAMS: finalGrams,
+      //       });
+      //     }
+
+      //     return acc;
+      //   }, []);
+
+      //   return mergedData;
+      // });
 
       setStoneMainData((prevData) => {
         const existingTag = prevData.some(
@@ -241,23 +347,43 @@ const Estimation = () => {
           }
         });
 
+        const diffWtSubtractedMap = {};
+
         validNewData.forEach((item) => {
+          const matchedItem = data?.find((d) => d.TAGNO === item.TAGNO);
           const tagNo = item.TAGNO;
           const type = item.MAINTYPE;
+          const diffWt = matchedItem ? Number(matchedItem.DIFFWT) || 0 : 0;
           const grams = Number(item.ACTGRAMS) || 0;
+
+          // Initialize tracking for this TAGNO + MAINTYPE
+          if (!diffWtSubtractedMap[tagNo]) diffWtSubtractedMap[tagNo] = {};
+          if (diffWtSubtractedMap[tagNo][type] === undefined)
+            diffWtSubtractedMap[tagNo][type] = false;
+
+          let finalGrams = grams;
+
+          if (
+            type === "STONES" &&
+            Number(admin) === 3 &&
+            !diffWtSubtractedMap[tagNo][type]
+          ) {
+            finalGrams = grams - diffWt;
+            diffWtSubtractedMap[tagNo][type] = true;
+          }
 
           if (!mergedMap[tagNo]) {
             mergedMap[tagNo] = { TAGNO: tagNo, MAINTYPES: {} };
           }
 
           if (mergedMap[tagNo].MAINTYPES[type]) {
-            mergedMap[tagNo].MAINTYPES[type] += grams;
+            mergedMap[tagNo].MAINTYPES[type] += finalGrams;
           } else {
-            mergedMap[tagNo].MAINTYPES[type] = grams;
+            mergedMap[tagNo].MAINTYPES[type] = finalGrams;
           }
         });
 
-        finalData = Object.values(mergedMap).map((item) => ({
+        const finalData = Object.values(mergedMap).map((item) => ({
           TAGNO: item.TAGNO,
           ACTGRAMS: Object.entries(item.MAINTYPES)
             .map(([key, value]) => `${key}(${(value || 0).toFixed(3)})`)
@@ -267,28 +393,58 @@ const Estimation = () => {
         return finalData;
       });
 
-      // Merge into setStonesData
-      // if(!selectEstimationNo?.ESTIMATIONNO) {
       setStonesData((prevData) => {
         const combinedData = [...prevData, ...newData];
 
         const mergedData = combinedData.reduce((acc, item) => {
           const existingItem = acc.find((el) => el.MAINTYPE === item.MAINTYPE);
+          const matchedItem = data?.find((d) => d.TAGNO === item.TAGNO);
+
+          const grams = Number(item.ACTGRAMS) || 0;
+          const diffWt = matchedItem ? Number(matchedItem.DIFFWT) || 0 : 0;
+
           if (existingItem) {
-            existingItem.PCS += item.PCS;
-            existingItem.ACTGRAMS += item.ACTGRAMS;
-            existingItem.CTS += item.CTS;
+            existingItem.ACTGRAMS = (existingItem.ACTGRAMS || 0) + grams;
+
+            if (
+              !existingItem._diffWtSubtracted &&
+              item.MAINTYPE === "STONES" &&
+              Number(admin) === 3
+            ) {
+              existingItem.ACTGRAMS -= diffWt;
+              existingItem._diffWtSubtracted = true;
+            }
+
+            existingItem.PCS =
+              (existingItem.PCS || 0) + (Number(item.PCS) || 0);
+            existingItem.CTS =
+              (existingItem.CTS || 0) + (Number(item.CTS) || 0);
           } else {
-            acc.push({ ...item });
+            let initialGrams = grams;
+            let diffWtSubtracted = false;
+
+            if (item.MAINTYPE === "STONES" && Number(admin) === 3) {
+              initialGrams -= diffWt;
+              diffWtSubtracted = true;
+            }
+
+            acc.push({
+              ...item,
+              PCS: Number(item.PCS) || 0,
+              CTS: Number(item.CTS) || 0,
+              ACTGRAMS: initialGrams,
+              _diffWtSubtracted: diffWtSubtracted,
+            });
           }
+
           return acc;
         }, []);
-
-        return mergedData;
+        return mergedData.map(({ _diffWtSubtracted, ...rest }) => rest);
       });
+
       // }
 
-      return finalData; // ✅ return processed data
+      return finalData;
     } catch (error) {
       console.error("Error fetching TAG_ITEMS:", error);
       return null;
@@ -337,7 +493,7 @@ const Estimation = () => {
         message.warning("Tag Not existed");
         return;
       }
-
+      stonesAPI(data[0]?.TAGNO, data);
       setTableData((prevData) => {
         const existingTag = prevData.some(
           (item) => item.TAGNO === (tagNoValue || tagNo)
@@ -353,6 +509,13 @@ const Estimation = () => {
           const finalGold = (Number(obj?.NWT) * totalTouch) / 100;
           const actPer = (Number(finalGold || 0) / Number(obj?.GWT || 0)) * 100;
 
+          const diffSwt = obj?.DIFFWT;
+          const gwt = obj?.GWT;
+          const lessWt = obj?.STONEWT;
+
+          const diffStone = lessWt - diffSwt;
+          const diffNwt = gwt - diffStone;
+
           const stoneEntry = stoneData?.find((s) => s.TAGNO === obj.TAGNO);
 
           return {
@@ -362,8 +525,9 @@ const Estimation = () => {
             ACTPER: actPer?.toFixed(3),
             PIECES: obj?.PIECES || 0,
             GROSSWEIGHT: obj?.GWT?.toFixed(3) || 0,
-            STONEWT: obj?.STONEWT?.toFixed(3) || 0,
-            NETWT: obj?.NWT?.toFixed(3) || 0,
+            STONEWT:
+              Number(admin) === 3 ? diffStone : obj?.STONEWT?.toFixed(3) || 0,
+            NETWT: Number(admin) === 3 ? diffNwt : obj?.NWT?.toFixed(3) || 0,
             ACTGRAMS: stoneEntry?.ACTGRAMS || "", // ✅ use passed stone data
           };
         });
@@ -1084,6 +1248,19 @@ const Estimation = () => {
     }
   };
 
+  // const createImagePathAPI = async (imgUrl, tagNo) => {
+  //   try {
+  //     await axios.get(
+  //       `${CREATE_jwel}/api/Wholesal/UpdateTagGenerationImagePath?tagNo=${tagNo}&path=${
+  //         imgUrl || ""
+  //       }`,
+  //       { headers: { tenantName } }
+  //     );
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
   const createImagePathAPI = async (imgUrl, tagNo) => {
     try {
       await axios.get(
@@ -1092,8 +1269,16 @@ const Estimation = () => {
         }`,
         { headers: { tenantName } }
       );
+
+      setTableData((prevData) =>
+        prevData.map((item) =>
+          item.TAGNO === tagNo
+            ? { ...item, IMGPATH: imgUrl } // update image path
+            : item
+        )
+      );
     } catch (error) {
-      console.error(error);
+      console.error("Failed to update image path:", error);
     }
   };
 
@@ -1131,6 +1316,13 @@ const Estimation = () => {
       if (response.status === 200) {
         const imgUrl = `https://image.timeserasoftware.in/${userName}/${renamedFileName}`;
         createImagePathAPI(imgUrl, tagNo);
+        setTableData((prevData) =>
+          prevData.map((item) =>
+            item.TAGNO === tagNo
+              ? { ...item, IMGPATH: imgUrl } // update image path
+              : item
+          )
+        );
         alert("Image uploaded successfully!");
       }
     } catch (error) {
@@ -2191,6 +2383,367 @@ ${
       });
   };
 
+  // const handleDownloadPDF = () => {
+  //   let totalPCS = 0;
+  //   let totalGWT = 0;
+  //   let totalStone = 0;
+  //   let totalNWT = 0;
+  //   let totalGold = 0;
+
+  //   // Build table rows
+  //   const tableRows = tableData
+  //     .map((item, index) => {
+  //       const actGrams =
+  //         stoneMainData.find((stone) => stone.TAGNO === item.TAGNO)?.ACTGRAMS ||
+  //         "";
+  //       const removeUndefinedWrapper = (str) => {
+  //         let prevStr;
+  //         do {
+  //           prevStr = str;
+  //           str = str.replace(/undefined\(\s*(.*?)\s*\)/g, "$1").trim();
+  //         } while (prevStr !== str);
+  //         return str;
+  //       };
+  //       const cleanedActGrams = removeUndefinedWrapper(actGrams);
+
+  //       totalPCS += item.PIECES;
+  //       totalGWT += item.GWT;
+  //       totalStone += Number(item.STONEWT);
+  //       totalNWT += Number(item.NETWT);
+  //       totalGold += Number(item?.FINALGOLD);
+
+  //       return `
+  //     <tr>
+  //       <td rowspan="${
+  //         cleanedActGrams && Number(admin) !== 2 ? 2 : 1
+  //       }"><strong>${index + 1}</strong></td>
+  //       <td class="sub-tag" rowspan="${
+  //         cleanedActGrams && Number(admin) !== 2 ? 2 : 1
+  //       }"><strong>${item.TAGNO}</strong></td>
+  //       <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+  //       <td>${item.PREFIX}</td>
+  //       <td class="sub-right"><strong>${item.PIECES}</strong></td>
+  //       <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
+  //       <td class="sub-right">${item.STONEWT}</td>
+  //       <td class="sub-right">${item.NETWT}</td>
+  //       <td class="sub-right">${item.TOUCH}%</td>
+  //       <td class="sub-gold">${item.FINALGOLD}</td>
+  //     </tr>
+  //     ${
+  //       cleanedActGrams && Number(admin) !== 2
+  //         ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+  //         : ""
+  //     }
+  //   `;
+  //     })
+  //     .join("");
+
+  //   // Totals row
+  //   const totalsRow = `
+  //   <tr class="total">
+  //     <td colspan="4">Total</td>
+  //     <td class="sub-right">${totalPCS}</td>
+  //     <td class="sub-right">${totalGWT.toFixed(3)}</td>
+  //     <td class="sub-right">${Number(totalStone)?.toFixed(3)}</td>
+  //     <td class="sub-right">${Number(totalNWT)?.toFixed(3)}</td>
+  //     <td></td>
+  //     <td class="sub-right">${Number(totalGold)?.toFixed(3)}</td>
+  //   </tr>
+  // `;
+
+  //   // Stones table if applicable
+  //   const stonesTable =
+  //     (path === "/estimations-model1" && Number(admin) === 1) ||
+  //     Number(admin) === 3 ||
+  //     Number(admin) === 0
+  //       ? `
+  //       <div class="table-container">
+  //         <table>
+  //           <thead>
+  //             <tr>
+  //               <th class="sub-stone-name">STONE NAME</th>
+  //               <th class="stone-pieces">PIECES</th>
+  //               <th class="stone-weight">WEIGHT</th>
+  //               <th class="stone-cost">COST</th>
+  //               <th class="stone-amount">AMOUNT</th>
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //             ${(() => {
+  //               let totalStoneWeight = 0;
+  //               let totalAmount = 0;
+  //               let totalStonePieces = 0;
+  //               return (
+  //                 stonesData
+  //                   .map((stone, index) => {
+  //                     const rate = stoneRate[index] || 0;
+  //                     const amount = stone.ACTGRAMS * Number(rate);
+  //                     totalAmount += amount;
+  //                     totalStoneWeight += stone.ACTGRAMS;
+  //                     totalStonePieces += stone.PCS;
+  //                     return `
+  //                     <tr>
+  //                       <td class="sub-stone-name">${stone.MAINTYPE}</td>
+  //                       <td class="stone-pieces">${stone.PCS}</td>
+  //                       <td class="stone-weight">${stone.ACTGRAMS.toFixed(
+  //                         3
+  //                       )}</td>
+  //                       <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
+  //                       <td class="stone-amount">${amount.toFixed(2)}</td>
+  //                     </tr>
+  //                   `;
+  //                   })
+  //                   .join("") +
+  //                 `<tr class="total">
+  //                   <td colspan="1">Total</td>
+  //                   <td class="stone-pieces">${totalStonePieces}</td>
+  //                   <td class="stone-weight">${totalStoneWeight.toFixed(3)}</td>
+  //                   <td class="stone-cost"></td>
+  //                   <td class="stone-amount">${totalAmount.toFixed(2)}</td>
+  //                 </tr>`
+  //               );
+  //             })()}
+  //           </tbody>
+  //         </table>
+  //       </div>
+  //     `
+  //       : "";
+
+  //   // Summary table
+  //   const summaryTable = `
+  //   <div class="summary-container">
+  //     <table>
+  //       <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
+  //         3
+  //       )}</td></tr>
+  //       ${
+  //         rateCut === true
+  //           ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+  //               rateValue || 0
+  //             )}/-</td>
+  //               <td class="sub-right">${
+  //                 amountValue ? Number(amountValue).toFixed(2) : 0
+  //               }</td></tr>`
+  //           : ""
+  //       }
+  //       <tr><td class="stone-name">Making ${
+  //         makingValue || 0
+  //       } /g</td><td class="sub-right">${
+  //     perGramValue ? Number(perGramValue).toFixed(2) : 0
+  //   }</td></tr>
+  //       ${
+  //         (path === "/estimations-model1" && Number(admin) === 1) ||
+  //         Number(admin) === 3 ||
+  //         Number(admin) === 0
+  //           ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
+  //               rodiumChargeValue || 0
+  //             }</td></tr>
+  //              <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
+  //                2
+  //              )}</td></tr>`
+  //           : `<tr><td class="stone-name">Stone Cost ${
+  //               stoneMakingValue || 0
+  //             } /g</td>
+  //              <td class="sub-right">${
+  //                stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
+  //              }</td></tr>`
+  //       }
+  //       ${
+  //         Number(admin) === 1 || Number(admin) === 3 || Number(admin) === 0
+  //           ? `<tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+  //               3
+  //             )}</strong></td></tr>
+  //       <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
+  //         2
+  //       )}</strong></td></tr>`
+  //           : ""
+  //       }
+  //     </table>
+  //   </div>
+  // `;
+
+  //   // Build full HTML content
+  //   const htmlContent = `
+  //   <html>
+  //     <head>
+  //       <style>
+  //          body {
+  //           font-family: Arial, sans-serif;
+  //           margin: 20px;
+  //           font-size: 12px;
+  //       }
+  //       .header {
+  //           text-align: center;
+  //           margin-bottom: 18px;
+  //       }
+  //       .header h2 {
+  //           margin: 0;
+  //           font-size: 16px;
+  //           font-weight: bold;
+  //           display: inline-block;
+  //   text-decoration: underline;
+  //   text-underline-offset: 4px;
+  //       }
+  //       .sub-header {
+  //           display: flex;
+  //           justify-content: space-between;
+  //           font-size: 12px;
+  //           font-weight: bold;
+  //           margin-bottom: 10px;
+  //           padding-bottom: 5px;
+  //       }
+  //            .sub-est {
+  //         font-weight : bold;
+  //         font-size: 18px;
+  //         color : red;
+  //       }
+  //         .sub-party {
+  //         font-weight : bold;
+  //         font-size: 14px;
+  //         color : #162566;
+  //       }
+  //       table {
+  //           width: 100%;
+  //           border-collapse: collapse;
+  //           font-size: 12px;
+  //           margin-top: 5px;
+  //       }
+  //       th, td {
+  //           border: 1px solid black;
+  //           padding: 5px;
+  //           text-align: center;
+  //       }
+  //       th {
+  //           background-color: #52bd91;
+  //           font-weight: bold;
+  //       }
+  //       .total {
+  //           font-weight: bold;
+  //           background-color: #162566;
+  //           color: white;
+  //       }
+  //       .summary {
+  //           display: flex;
+  //           justify-content: space-between;
+  //           margin-top: 15px;
+  //       }
+  //       .summary-box {
+  //           width: 48%;
+  //           border: 1px solid black;
+  //           padding: 10px;
+  //           font-size: 12px;
+  //       }
+  //       .summary-box table {
+  //           width: 100%;
+  //           border: none;
+  //       }
+  //       .summary-box td {
+  //           border: none;
+  //           text-align: left;
+  //           padding: 3px 0;
+  //       }
+  //       .footer {
+  //           margin-top: 15px;
+  //           font-size: 12px;
+  //       }
+  //         .sub {
+  //           text-align: left;
+  //           width: 300px;
+  //       }
+  //           .sub-pro {
+  //             text-align: left;
+  //             width: 500;
+  //             background-color: #BCF2F6;
+  //         }
+  //           .sub-tag {
+  //           text-align: center;
+  //           width: 100;
+  //       }
+  //       .sub-right {
+  //           text-align: right;
+  //           width: 80;
+  //       }
+  //           .sub-gold {
+  //           text-align: right;
+  //           width: 130;
+  //       }
+  //         .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
+  //         .sub-row td { border-top: none; text-align: left; }
+  //         .container { display: flex; justify-content: space-between; margin-top: 10px; align-items: flex-start; }
+  //         .table-container { width: 55%; min-width: 400px;}
+  //         .summary-container { width: 35%; min-width: 250px; text-align: right; }
+  //         .stone-name { text-align: left; }
+  //         .sub-final { background-color: #f26d14ff; font-weight: bold; }
+  //         .sub-right-bold { text-align: right; font-weight: bold; }
+  //         .stone-name-bold { text-align: left; font-weight: bold; }
+  //         .sub-stone-name { text-align: left;  width: 100px}
+  //         .stone-pieces { text-align: center; font-weight: bold; width: 60px }
+  //         .stone-weight { text-align: right; width: 60px }
+  //         .stone-cost { text-align: right; width: 60px }
+  //         .stone-amount { text-align: right; width: 60px }
+  //       </style>
+  //     </head>
+  //     <body>
+  //       <div class="header"><h2>ESTIMATION</h2></div>
+  //       <div class="sub-header">
+  //         <span>ESTIMATION NO. : <span class="sub-est">${
+  //           selectEstimationNo
+  //             ? selectEstimationNo?.ESTIMATIONNO
+  //             : estimationCount + 1
+  //         }</span></span>
+  //         <span>DATE : ${new Date().toLocaleDateString("en-GB", {
+  //           day: "2-digit",
+  //           month: "short",
+  //           year: "numeric",
+  //         })}</span>
+  //         <span>PARTY NAME : <span class="sub-party">${selectedParty}</span></span>
+  //       </div>
+  //       <table>
+  //         <thead>
+  //           <tr>
+  //             <th>SNo</th><th class="sub-tag">TAG NO</th><th class="sub">PARTICULARS</th><th>Purity</th>
+  //             <th>Pieces</th><th class="sub-right">Gross.Wt</th><th class="sub-right">Less.Wt</th>
+  //             <th class="sub-right">Net.Wt</th><th class="sub-right">Touch</th><th class="sub-gold">Fine Gold</th>
+  //           </tr>
+  //         </thead>
+  //         <tbody>
+  //           ${tableRows}
+  //           ${totalsRow}
+  //         </tbody>
+  //       </table>
+  //       <div class="container">
+  //         ${stonesTable}
+  //         ${summaryTable}
+  //       </div>
+  //     </body>
+  //   </html>
+  // `;
+
+  //   // Create container for html2pdf
+  //   const container = document.createElement("div");
+  //   container.innerHTML = htmlContent;
+  //   document.body.appendChild(container);
+
+  //   html2pdf()
+  //     .set({
+  //       margin: [10, 5, 10, 5],
+  //       filename: `Estimation_${
+  //         selectEstimationNo
+  //           ? selectEstimationNo?.ESTIMATIONNO
+  //           : estimationCount + 1
+  //       }.pdf`,
+  //       image: { type: "jpeg", quality: 1 },
+  //       pagebreak: { mode: ["css", "legacy"], avoid: "tr" },
+  //       html2canvas: { scale: 4, useCORS: true },
+  //       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+  //     })
+  //     .from(container)
+  //     .save()
+  //     .then(() => {
+  //       document.body.removeChild(container);
+  //     });
+  // };
+
   const handleDownloadPDF = () => {
     let totalPCS = 0;
     let totalGWT = 0;
@@ -2221,28 +2774,30 @@ ${
         totalGold += Number(item?.FINALGOLD);
 
         return `
-        <tr>
-          <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          index + 1
-        }</strong></td>
-          <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          item.TAGNO
-        }</strong></td>
-          <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
-          <td>${item.PREFIX}</td>
-          <td class="sub-right"><strong>${item.PIECES}</strong></td>
-          <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
-          <td class="sub-right">${item.STONEWT}</td>
-          <td class="sub-right">${item.NETWT}</td>
-          <td class="sub-right">${item.TOUCH}%</td>
-          <td class="sub-gold">${item.FINALGOLD}</td>
-        </tr>
-        ${
-          cleanedActGrams
-            ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
-            : ""
-        }
-      `;
+      <tr>
+        <td rowspan="${
+          cleanedActGrams && Number(admin) !== 2 ? 2 : 1
+        }"><strong>${index + 1}</strong></td>
+        <td class="sub-tag" rowspan="${
+          cleanedActGrams && Number(admin) !== 2 ? 2 : 1
+        }"><strong>${item.TAGNO}</strong></td>
+        <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+        <td>${item.PREFIX}</td>
+        <td class="sub-right"><strong>${item.PIECES}</strong></td>
+        <td class="sub-right"><strong>${Number(item.GWT)?.toFixed(
+          3
+        )}</strong></td>
+          <td class="sub-right">${Number(item.STONEWT)?.toFixed(3)}</td>
+        <td class="sub-right">${Number(item.NETWT)?.toFixed(3)}</td>
+        <td class="sub-right">${item.TOUCH}%</td>
+        <td class="sub-gold">${item.FINALGOLD}</td>
+      </tr>
+      ${
+        cleanedActGrams && Number(admin) !== 2
+          ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
+          : ""
+      }
+    `;
       })
       .join("");
 
@@ -2261,7 +2816,7 @@ ${
 
     // Stones table if applicable
     const stonesTable =
-      path === "/estimations-model1"
+      path === "/estimations-model1" && Number(admin) !== 2
         ? `
         <div class="table-container">
           <table>
@@ -2338,7 +2893,7 @@ ${
       perGramValue ? Number(perGramValue).toFixed(2) : 0
     }</td></tr>
         ${
-          path === "/estimations-model1"
+          path === "/estimations-model1" && Number(admin) !== 2
             ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                 rodiumChargeValue || 0
               }</td></tr>
@@ -2352,12 +2907,16 @@ ${
                  stonePerGramValue ? Number(stonePerGramValue).toFixed(2) : 0
                }</td></tr>`
         }
-        <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-          3
-        )}</strong></td></tr>
+        ${
+          Number(admin) !== 2
+            ? `<tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
+                3
+              )}</strong></td></tr>
         <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
           2
-        )}</strong></td></tr>
+        )}</strong></td></tr>`
+            : ""
+        }
       </table>
     </div>
   `;
@@ -2367,120 +2926,33 @@ ${
     <html>
       <head>
         <style>
-           body {
+          body {
             font-family: Arial, sans-serif;
             margin: 20px;
             font-size: 12px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 18px;
-        }
-        .header h2 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: bold;
-            display: inline-block;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-        }
-        .sub-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-        }
-             .sub-est {
-          font-weight : bold;
-          font-size: 18px;
-          color : red;
-        }
-          .sub-party {
-          font-weight : bold;
-          font-size: 14px;
-          color : #162566;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 5px;
-            text-align: center;
-        }
-        th {
-            background-color: #52bd91;
-            font-weight: bold;
-        }
-        .total {
-            font-weight: bold;
-            background-color: #162566;
-            color: white;
-        }
-        .summary {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        .summary-box {
-            width: 48%;
-            border: 1px solid black;
-            padding: 10px;
-            font-size: 12px;
-        }
-        .summary-box table {
-            width: 100%;
-            border: none;
-        }
-        .summary-box td {
-            border: none;
-            text-align: left;
-            padding: 3px 0;
-        }
-        .footer {
-            margin-top: 15px;
-            font-size: 12px;
-        }
-          .sub {
-            text-align: left;
-            width: 300px;
-        }
-            .sub-pro {
-              text-align: left;
-              width: 500;
-              background-color: #BCF2F6;
           }
-            .sub-tag {
-            text-align: center;
-            width: 100;
-        }
-        .sub-right {
-            text-align: right;
-            width: 80;
-        }
-            .sub-gold {
-            text-align: right;
-            width: 130;
-        }
+          .header { text-align: center; margin-bottom: 18px; }
+          .header h2 { margin: 0; font-size: 16px; font-weight: bold; display: inline-block; text-decoration: underline; text-underline-offset: 4px; }
+          .sub-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; margin-bottom: 10px; padding-bottom: 5px; }
+          .sub-est { font-weight : bold; font-size: 18px; color : red; }
+          .sub-party { font-weight : bold; font-size: 14px; color : #162566; }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 5px; }
+          th, td { border: 1px solid black; padding: 5px; text-align: center; }
+          th { background-color: #52bd91; font-weight: bold; }
+          .total { font-weight: bold; background-color: #162566; color: white; }
+          .sub { text-align: left; width: 300px; }
+          .sub-pro { text-align: left; width: 500px; background-color: #BCF2F6; }
+          .sub-tag { text-align: center; width: 100px; }
+          .sub-right { text-align: right; width: 80px; }
+          .sub-gold { text-align: right; width: 130px; }
           .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
           .sub-row td { border-top: none; text-align: left; }
-          .container { display: flex; justify-content: space-between; margin-top: 10px; }
-          .table-container { width: 55%; }
-          .summary-container { width: 35%; }
+          .container { display: flex; justify-content: flex-start; margin-top: 10px; }
+          .summary-container { width: 35%; margin-left: auto; }
           .stone-name { text-align: left; }
           .sub-final { background-color: #f26d14ff; font-weight: bold; }
           .sub-right-bold { text-align: right; font-weight: bold; }
           .stone-name-bold { text-align: left; font-weight: bold; }
-          .sub-stone-name { text-align: left;  width: 100px}
-          .stone-pieces { text-align: center; font-weight: bold; width: 60px }
-          .stone-weight { text-align: right; width: 60px }
-          .stone-cost { text-align: right; width: 60px }
-          .stone-amount { text-align: right; width: 60px }
         </style>
       </head>
       <body>
@@ -2512,14 +2984,13 @@ ${
           </tbody>
         </table>
         <div class="container">
-          ${stonesTable}
-          ${summaryTable}
+        ${stonesTable}
+          ${summaryTable} <!-- Only summary table fixed right -->
         </div>
       </body>
     </html>
   `;
 
-    // Create container for html2pdf
     const container = document.createElement("div");
     container.innerHTML = htmlContent;
     document.body.appendChild(container);
@@ -2595,9 +3066,11 @@ ${
           <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
           <td>${item.PREFIX}</td>
           <td class="sub-right"><strong>${item.PIECES}</strong></td>
-          <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
-          <td class="sub-right">${item.STONEWT}</td>
-          <td class="sub-right">${item.NETWT}</td>
+          <td class="sub-right"><strong>${Number(item.GWT)?.toFixed(
+            3
+          )}</strong></td>
+          <td class="sub-right">${Number(item.STONEWT)?.toFixed(3)}</td>
+        <td class="sub-right">${Number(item.NETWT)?.toFixed(3)}</td>
           <td class="sub-right">${item.TOUCH}%</td>
           <td class="sub-gold">${item.FINALGOLD}</td>
         </tr>
@@ -3183,19 +3656,30 @@ ${
     }
   };
 
+  const pdfMenuItems =
+    Number(admin) === 2
+      ? [
+          {
+            key: "2",
+            icon: <FilePdfOutlined />,
+            label: "PDF Without Image",
+          },
+        ]
+      : [
+          {
+            key: "1",
+            icon: <FilePdfOutlined />,
+            label: "PDF With Image",
+          },
+          {
+            key: "2",
+            icon: <FilePdfOutlined />,
+            label: "PDF Without Image",
+          },
+        ];
+
   const pdfMenu = {
-    items: [
-      {
-        key: "1",
-        icon: <FilePdfOutlined />,
-        label: "PDF With Image",
-      },
-      {
-        key: "2",
-        icon: <FilePdfOutlined />,
-        label: "PDF With Out Image",
-      },
-    ],
+    items: pdfMenuItems,
     onClick: handlePdfClick,
   };
 
@@ -3328,7 +3812,9 @@ ${
             ) : (
               ""
             )}
-            {path === "/estimations-model1" && stonesData.length > 0 ? (
+            {path === "/estimations-model1" &&
+            stonesData.length > 0 &&
+            Number(admin) !== 2 ? (
               <Button
                 type="primary"
                 htmlType="submit"
@@ -3378,8 +3864,8 @@ ${
                   mainAPI();
                   setTagNoValue("");
                 } else {
-                  stonesAPI();
                   mainAPI();
+                  // stonesAPI();
                   setTagNoValue("");
                 }
               }}
@@ -3666,7 +4152,7 @@ ${
                       </span>
                     </p>
                   </div>
-                  {path === "/estimations-model1" ? (
+                  {path === "/estimations-model1" && Number(admin) !== 2 ? (
                     <>
                       <hr className={styles.fullWidthLine} />
                       <div className={styles.fullWidthStone}>
@@ -3801,6 +4287,7 @@ ${
         cashBalanceValue={cashBalanceValue}
         printMenu={printMenu}
         pdfMenu={pdfMenu}
+        admin={admin}
       />
       <EstimationDialog
         setOpenDialog={setOpenDialog}

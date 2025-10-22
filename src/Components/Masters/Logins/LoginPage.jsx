@@ -1,4 +1,4 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import axios from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +38,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("userName", data[0]?.FIRMNAME);
         localStorage.setItem("city", data[0]?.CITY);
         localStorage.setItem("singleImage", data[0]?.EPASS2);
+        localStorage.setItem("admin", data[0]?.COMPDLRTAX);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
@@ -81,7 +82,7 @@ const LoginPage = ({ onLogin }) => {
         userConditionAPI(values, response?.data);
         navigate("/estimations-model1");
       } else {
-        console.log("Invalid username or password");
+        message.error("Invalid username or password");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -89,7 +90,7 @@ const LoginPage = ({ onLogin }) => {
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
+    console.error("Failed:", errorInfo);
   };
 
   return (

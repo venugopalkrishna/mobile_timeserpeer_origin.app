@@ -29,16 +29,12 @@ const TagCheck = () => {
   const [imageOpen, setImageOpen] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
 
-  console.log(stonesData, "stonesData");
-  
-
   const imageUrls = localStorage.getItem("images")?.split(",");
   const imagesData = imageUrls?.length > 0 ? imageUrls : [];
   const userArea = localStorage.getItem("city");
   const userName = localStorage.getItem("userName");
   const singleImage = localStorage.getItem("singleImage");
   const tenantName = localStorage.getItem("tenantName");
-
 
   const mainAPI = async () => {
     setLoading(true);
@@ -102,7 +98,6 @@ const TagCheck = () => {
           },
         }
       );
-
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -110,69 +105,77 @@ const TagCheck = () => {
     }
   };
 
-  const createImagePathAPI = async (imgUrl) => {
+  const createImagePathAPI = async (imgUrl, tagNo) => {
     try {
-      const response = await axios.get(
+      await axios.get(
         `${CREATE_jwel}/api/Wholesal/UpdateTagGenerationImagePath?tagNo=${tagNo}&path=${
-          imgUrl ? imgUrl : imageUrl
+          imgUrl || ""
         }`,
-        {
-          headers: {
-            tenantName: tenantName,
-          },
-        }
+        { headers: { tenantName } }
       );
+
+      // ✅ Update IMGPATH inside the single object in array
+      setTagDetailsData((prevData) => {
+        if (!prevData.length) return prevData; // safety check
+
+        const updated = { ...prevData[0], IMGPATH: imgUrl || "" };
+        return [updated];
+      });
+
       handleReset();
     } catch (error) {
-      console.error(error);
+      console.error("Error updating image path:", error);
     }
   };
 
   const fetchWithRetry = async (url, retries = 3, delay = 500) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(url);
-      if (res.ok) return res;
-    } catch (e) {
-      console.warn(`Retry ${i + 1} for ${url}`);
+    for (let i = 0; i < retries; i++) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) return res;
+      } catch (e) {
+        console.warn(`Retry ${i + 1} for ${url}`);
+      }
+      await new Promise((r) => setTimeout(r, delay));
     }
-    await new Promise(r => setTimeout(r, delay));
-  }
-  throw new Error("Failed after retries: " + url);
-};
-
-const urlToBase64 = async (url) => {
-  const cleanUrl = decodeURIComponent(url);
-  const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`;
-
-  const response = await fetchWithRetry(proxyUrl, 3, 800);
-  const blob = await response.blob();
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-};
-
-useEffect(() => {
-  const test = async () => {
-    const base64 = await urlToBase64("https://image.timeserasoftware.in/LAKSHMI%20VYSHNAVI%20JEWELLERS/86_1.jpg");
-    console.log("Base64:", base64);
+    throw new Error("Failed after retries: " + url);
   };
-  test();
-}, []);
+
+  const urlToBase64 = async (url) => {
+    const cleanUrl = decodeURIComponent(url);
+    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(
+      cleanUrl
+    )}`;
+
+    const response = await fetchWithRetry(proxyUrl, 3, 800);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  useEffect(() => {
+    const test = async () => {
+      const base64 = await urlToBase64(
+        "https://image.timeserasoftware.in/LAKSHMI%20VYSHNAVI%20JEWELLERS/86_1.jpg"
+      );
+    };
+    test();
+  }, []);
 
   const getBase64Data = (dataUri) => {
     return dataUri.replace(/^data:image\/\w+;base64,/, "");
   };
 
-    const generateFileName = (tagNo) => {
-  const timestamp = Date.now();
-  const safeTagNo = tagNo.replace(/\//g, "_"); // replace all '/' with '_'
-  return `${safeTagNo}.jpg`;
-};
+  const generateFileName = (tagNo) => {
+    const timestamp = Date.now();
+    const safeTagNo = tagNo.replace(/\//g, "_"); // replace all '/' with '_'
+    return `${safeTagNo}.jpg`;
+  };
 
   const imageUploadAPI = async () => {
     const base64Str = getBase64Data(photo);
