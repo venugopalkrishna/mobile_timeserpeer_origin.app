@@ -138,6 +138,7 @@ const ReturnEstimationDialog = ({
       await estimationDeleteMast();
       await estimationDeleteItems();
       setEstNo();
+      EstimationSummaryAPI();
       setEstOpen(false);
     } catch (error) {
       console.error("Error during Sale:", error);

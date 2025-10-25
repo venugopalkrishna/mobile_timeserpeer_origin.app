@@ -202,10 +202,10 @@ const Estimation = () => {
 
       let newData = response.data;
 
-      if (!Array.isArray(newData) || newData.length === 0) {
-        message.warning("Tag Not existed");
-        return null;
-      }
+      // if (!Array.isArray(newData) || newData.length === 0) {
+      //   message.warning("Tag Not existed");
+      //   return null;
+      // }
 
       let finalData = [];
 
@@ -581,13 +581,16 @@ const Estimation = () => {
     }
     if (selectEstimationNo?.RCHARGES) {
       setRodiumChargeValue(selectEstimationNo?.RCHARGES);
-      setStoneMakingValue(selectEstimationNo?.RCHARGES);
+      // setStoneMakingValue(selectEstimationNo?.RCHARGES);
+    }
+    if (selectEstimationNo?.STGMRATE) {
+      setStoneMakingValue(Number(selectEstimationNo?.STGMRATE));
     }
     if (selectEstimationNo?.TOUCHPER) {
       setTouchValue(selectEstimationNo?.TOUCHPER);
     }
-    if (selectEstimationNo?.WASTAGE) {
-      setWastageValue(selectEstimationNo?.WASTAGE);
+    if (selectEstimationNo?.WASTPER) {
+      setWastageValue(selectEstimationNo?.WASTPER);
     }
     if (selectEstimationNo?.DESCRIPTION) {
       const matchedParty = partyNames.find(
@@ -840,7 +843,7 @@ const Estimation = () => {
         beadsrate: Number(Number(metalBalanceValue)?.toFixed(3)),
         othersrate: 0,
         mixrate: 0,
-        wastper: 0,
+        wastper: Number(wastageValue),
         wastage: Number(wastageValue),
         wt: 0,
         touchper: Number(touchValue),
@@ -852,10 +855,8 @@ const Estimation = () => {
           ? Number(Number(totalStoneCost).toFixed(2))
           : Number(Number(stonePerGramValue).toFixed(2)) || 0,
         totcash: Number(Number(cashBalanceValue).toFixed(2)),
-        stgmrate: "-",
-        rcharges: rodiumChargeValue
-          ? Number(rodiumChargeValue)
-          : Number(stoneMakingValue) || 0,
+        stgmrate: String(stoneMakingValue) || "0",
+        rcharges: Number(rodiumChargeValue) || 0,
       },
     ];
 
@@ -4005,7 +4006,7 @@ ${
                         {item.TAGNO}
                       </span>
                     </p>
-                    {item?.IMGPATH || photos[index] ? (
+                    {/* {item?.IMGPATH || photos[index] ? (
                       <div>
                         <Box
                           sx={{
@@ -4043,7 +4044,47 @@ ${
                       </div>
                     ) : (
                       ""
-                    )}
+                    )} */}
+                    {(item?.IMGPATH &&
+                      item.IMGPATH !== "-" &&
+                      item.IMGPATH !== "") ||
+                    photos[index] ? (
+                      <div>
+                        <Box
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: "50%",
+                            backgroundColor: "black",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            border: "2px solid #52bd91",
+                          }}
+                          onClick={() => {
+                            handleImageOk(
+                              photos[index] ||
+                                base64Images[item?.IMGPATH] ||
+                                item?.IMGPATH
+                            );
+                          }}
+                        >
+                          <img
+                            src={
+                              photos[index] ||
+                              base64Images[item?.IMGPATH] ||
+                              item?.IMGPATH
+                            }
+                            alt="img"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              borderRadius: "50%",
+                            }}
+                          />
+                        </Box>
+                      </div>
+                    ) : null}
                     <PhotoCameraIcon
                       style={{ color: "#000000" }}
                       onClick={() =>
