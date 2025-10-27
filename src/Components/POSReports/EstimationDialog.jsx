@@ -19,6 +19,7 @@ const EstimationDialog = ({
   setStonesData,
   setTableData,
   setStoneMainData,
+  estimationCountAPI,
 }) => {
   const [summaryData, setSummaryData] = useState([]);
   const [fromDate, setFromDate] = useState(dayjs());
@@ -139,6 +140,7 @@ const EstimationDialog = ({
       await estimationDeleteItems();
       setEstNo();
       EstimationSummaryAPI();
+      estimationCountAPI();
       setEstOpen(false);
     } catch (error) {
       console.error("Error during Sale:", error);

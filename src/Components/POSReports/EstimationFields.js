@@ -93,10 +93,22 @@ const EstimationFields = ({
             style={{ width: "100px", height: 30 }}
             onKeyDown={(e) => handleKeyDown(e, wastRef)}
             value={touchValue}
+            // onChange={(e) => {
+            //   const value = e.target.value;
+            //   // if (value.length <= 2) {
+            //   //   setTouchValue(value);
+            //   // }
+            // }}
+            onFocus={(e) => {
+              e.target.select();
+            }}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 2) {
+              const value = e.target.value;
+
+              // ✅ Allow only float numbers (digits + one optional dot)
+              if (/^\d*\.?\d{0,2}$/.test(value) && value.length <= 6) {
                 setTouchValue(value);
+                // setNwtValue(value);
               }
             }}
           />
@@ -107,10 +119,22 @@ const EstimationFields = ({
             style={{ width: "100px", height: 30 }}
             onKeyDown={(e) => handleKeyDown(e, tagNoRef)}
             value={wastageValue}
+            // onChange={(e) => {
+            //   const value = e.target.value.replace(/\D/g, "");
+            //   if (value.length <= 2) {
+            //     setWastageValue(value);
+            //   }
+            // }}
+            onFocus={(e) => {
+              e.target.select();
+            }}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 2) {
+              const value = e.target.value;
+
+              // ✅ Allow only float numbers (digits + one optional dot)
+              if (/^\d*\.?\d{0,2}$/.test(value) && value.length <= 6) {
                 setWastageValue(value);
+                // setNwtValue(value);
               }
             }}
           />

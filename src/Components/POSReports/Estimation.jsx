@@ -803,9 +803,9 @@ const Estimation = () => {
           : estimationCount + 1,
         estimationdate: formattedDate,
         description: selectedParty,
-        gwt: Number(Number(totalGrossWeight).toFixed(3)),
-        stonewt: Number(Number(totalStoneWeight).toFixed(3)),
-        nwt: Number(Number(totalNetWeight).toFixed(3)),
+        gwt: Number(Number(totalGrossWeight).toFixed(3)) || 0,
+        stonewt: Number(Number(totalStoneWeight).toFixed(3)) || 0,
+        nwt: Number(Number(totalNetWeight).toFixed(3)) || 0,
         mix: 0,
         rE_EM: 0,
         rb: 0,
@@ -833,28 +833,28 @@ const Estimation = () => {
         tray: false,
         branchcode: "-",
         branchname: "-",
-        totpcs: Number(totalPieces),
+        totpcs: Number(totalPieces) || 0,
         ssp: 0,
         appno: 0,
         appdate: formattedDate,
         rbrate: Number(Number(fineGoldValue)?.toFixed(3)) || 0,
         czrate: Number(Number(rateValue)?.toFixed(2)) || 0,
-        ssprate: Number(Number(amountValue)?.toFixed(2)),
-        beadsrate: Number(Number(metalBalanceValue)?.toFixed(3)),
+        ssprate: Number(Number(amountValue)?.toFixed(2)) || 0,
+        beadsrate: Number(Number(metalBalanceValue)?.toFixed(3)) || 0,
         othersrate: 0,
         mixrate: 0,
-        wastper: Number(wastageValue),
-        wastage: Number(wastageValue),
+        wastper: Number(wastageValue) || 0,
+        wastage: Number(wastageValue) || 0,
         wt: 0,
-        touchper: Number(touchValue),
-        touch: Number(totalTouch),
-        purewt: Number(Number(totalFineGold)?.toFixed(3)),
+        touchper: Number(touchValue) || 0,
+        touch: Number(totalTouch) || 0,
+        purewt: Number(Number(totalFineGold)?.toFixed(3)) || 0,
         mcper: Number(Number(makingValue)) || 0,
         mcamt: Number(Number(perGramValue).toFixed(3)) || 0,
         stcharges: totalStoneCost
           ? Number(Number(totalStoneCost).toFixed(2))
           : Number(Number(stonePerGramValue).toFixed(2)) || 0,
-        totcash: Number(Number(cashBalanceValue).toFixed(2)),
+        totcash: Number(Number(cashBalanceValue).toFixed(2)) || 0,
         stgmrate: String(stoneMakingValue) || "0",
         rcharges: Number(rodiumChargeValue) || 0,
       },
@@ -4342,6 +4342,7 @@ ${
         setStonesData={setStonesData}
         setTableData={setTableData}
         setStoneMainData={setStoneMainData}
+        estimationCountAPI={estimationCountAPI}
       />
       <EstimationStonesDrawer
         stonesDrawerOpen={stonesDrawerOpen}
