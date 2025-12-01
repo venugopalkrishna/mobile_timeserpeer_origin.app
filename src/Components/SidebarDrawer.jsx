@@ -4,6 +4,8 @@ import {
   HomeOutlined,
   LeftSquareOutlined,
   ShopOutlined,
+  BgColorsOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import {
@@ -148,12 +150,24 @@ const SidebarDrawer = ({
     path: "/sale-return",
   };
 
+    const VoucherMenu = {
+    text: "Smith Transaction",
+    icon: <BgColorsOutlined />,
+    children: [
+      {
+        text: "Voucher",
+        path: "/voucher",
+        icon: <WalletOutlined sx={{ width: "1rem" }} />,
+      },
+    ]
+  }
+
   if (Number(userType) === 1) {
     menuItems = [estimationMenu, returnEstimationMenu];
   } else if (Number(userType) === 2) {
     menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu];
   } else {
-    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu];
+    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu,VoucherMenu];
   }
   // const menuItems = [
   //   {

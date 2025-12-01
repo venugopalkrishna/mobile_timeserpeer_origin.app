@@ -1,0 +1,340 @@
+.mainCard {
+    width: 100%;
+    border-radius: 8px;
+    /* padding: 10px; */
+}
+
+.filterContainer {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 10px;
+}
+
+.filterButton {
+    border-radius: 8px;
+}
+
+.topPanel {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 5px;
+}
+
+.invBox {
+    display: flex;
+    padding: 8px;
+    gap: 8px;
+    align-items: center;
+    background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247));
+    color: white;
+    border-radius: 8px;
+    margin-top: 10px;
+    justify-content: center;
+    width: 93%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.invno {
+    color: black;
+    font-weight: 500;
+}
+
+.selectRow {
+    display: flex;
+    gap: 10px;
+    padding: 5px;
+}
+
+.selectInput {
+    width: 50%;
+}
+
+.actionButtons {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 10px;
+    /* padding: 6px; */
+}
+
+.tabButton {
+    background-color: #9a9b9bff;
+    border-radius: 10px;
+    /* padding: 8px 12px; */
+    font-weight: bold;
+}
+
+.tabButton:hover {
+    color: #ffffff !important;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+
+.activeTab {
+    background-color: green !important;
+    color: white;
+}
+
+.bodyContainer {
+    padding: 8px;
+    gap: 6px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sectionHeader {
+    background: rgb(210, 240, 250);
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.descriptionBox {
+    display: flex;
+    padding: 5px;
+    gap: 10px;
+    align-items: center;
+}
+
+.descInput {
+    width: 100%;
+}
+
+
+.container {
+    background-color: #fffccc;
+    border-radius: 10px;
+    /* padding: 15px; */
+    /* margin-top: 2px; */
+    border: 1px solid #cfcfcf;
+    width: 97%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* .headerTitle {
+    margin-top: 20px;
+} */
+
+.rateHeader {
+    margin-top: 5px;
+    display: flex;
+    background-color: rgb(183, 230, 247);
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    padding: 8px 15px;
+    margin-bottom: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+}
+
+ .checkButton {
+    --ant-checkbox-color: green;
+}
+
+/* shared layout */
+.metalCashContainer {
+    display: flex;
+    gap: 8px;
+    width: 97%;
+    margin-left: auto;
+    margin-right: auto;
+    flex-direction: column;
+}
+
+.boxYellow {
+    display: flex;
+    flex-direction: column;
+    background-color: #ceebf4;
+    padding: 12px;
+    border-radius: 5px;
+    width: 93%;
+}
+
+.boxBlue {
+    display: flex;
+    flex-direction: column;
+    background-color: #D6F5FF;
+    padding: 12px;
+    border-radius: 5px;
+    width: 93%;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 7px;
+    width: 90%;
+    /* height: 30px; */
+}
+
+.rowLabel {
+    width: 100px;
+    font-size: 12px;
+    font-weight: 450;
+}
+
+.paymentTitle {
+    font-weight: 500;
+}
+
+.paymentCentered {
+    margin-top: 5px;
+    display: flex;
+    background-color: rgb(183, 230, 247);
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    padding: 8px 15px;
+    margin-bottom: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+}
+
+.receiptTitle {
+    font-weight: 500;
+    /* margin-top: 5px; */
+}
+
+.receiptCentered {
+    margin-top: 5px;
+    display: flex;
+    background-color: lightblue;
+    align-items: center;
+    border-radius: 5px;
+    padding: 8px;
+    justify-content: center;
+    margin-bottom: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 93%;
+}
+
+.sectionTitle {
+    margin-bottom: 5px;
+}
+
+.descriptionRow {
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3px;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.descriptionTextArea {
+    width: 50%;
+    height: 40px;
+    resize: none;
+}
+
+/* utility classes */
+.boldLabel {
+    font-weight: bold;
+}
+
+.checkboxBold {
+    font-weight: 500;
+}
+
+.flexRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input150 {
+    width: 150px;
+}
+
+.footerBar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #051156;
+    /* padding: 5px; */
+    /* border-top: 1px solid #cfcfcf; */
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* margin: 5px; */
+
+}
+
+.balancesModule {
+    background: #f6f6ff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid #dcdcdc;
+    width: 85%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    /* <== This centers inner content */
+}
+
+.footerFields {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.footerFields label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    width: 100px;
+    text-align: left;
+}
+
+.values {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+}
+
+.footerButtons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.saveBtn {
+    background: green !important;
+    border-radius: 6px;
+    margin: 5px;
+    color: white;
+    width: 100px;
+    height: 40px;
+    font-size: 18px;
+}
+
+.cancelBtn {
+    border-radius: 6px;
+    margin: 5px;
+    width: 100px;
+    height: 40px;
+    font-size: 18px;
+
+}

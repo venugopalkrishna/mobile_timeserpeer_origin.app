@@ -17,6 +17,7 @@ import TagStockSummary from "./Components/Inventory/TagStockSummary";
 import TagCheck from "./Components/Inventory/TagCheck";
 import SaleEstimation from "./Components/Sale/SaleEstimation";
 import SaleReturnEstimation from "./Components/SaleReturn/SaleReturnEstimation";
+import Voucher from "./Components/SmithTransaction/Voucher";
 const App = () => {
    const tenantName = localStorage.getItem("tenantName");
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -56,6 +57,7 @@ const App = () => {
                   <Route path="/tag-check" element={<TagCheck />} />
                   <Route path="/sale" element={<SaleEstimation />} />
                   <Route path="/sale-return" element={<SaleReturnEstimation />} />
+                  <Route path="/voucher" element={<Voucher />} />
                 </Routes>
             ) : (
               <Navigate to="/" />

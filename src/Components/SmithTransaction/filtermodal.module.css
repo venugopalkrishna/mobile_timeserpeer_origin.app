@@ -1,0 +1,70 @@
+.modalPopup {
+    max-width: 480px;
+    width: 100%;
+}
+
+/* Each row container */
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    width: 100%;
+    gap: 10px;
+}
+
+/* Default label width */
+.row label {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Bold label */
+.boldLabel {
+    font-weight: 600;
+}
+
+/* Input and Select sizing */
+.input {
+    flex: 2;
+    min-width: 0;
+}
+
+/* Mobile Screens */
+@media (max-width: 600px) {
+    .row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .row label {
+        width: 100%;
+        text-align: left;
+        font-size: 14px;
+    }
+
+    .input,
+    .row :global(.ant-input),
+    .row :global(.ant-select) {
+        width: 100% !important;
+    }
+
+    .modalPopup {
+        width: 94% !important;
+        margin: 0 auto;
+    }
+}
+
+/* Tablet view */
+@media (min-width: 600px) and (max-width: 992px) {
+    .modalPopup {
+        width: 80%;
+        max-width: 600px;
+    }
+
+    .row label {
+        font-size: 15px;
+    }
+}
