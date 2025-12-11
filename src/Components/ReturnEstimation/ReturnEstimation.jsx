@@ -277,6 +277,14 @@ const ReturnEstimation = () => {
       });
 
       setStonesData((prevData) => {
+        const currentTag = tagNoValue || tagNo;
+
+        // ✅ Check if TAGNO already exists → Don't add again
+        const tagExists = prevData.some((item) => item.TAGNO === currentTag);
+
+        if (tagExists) {
+          return prevData; // ❌ Do NOT add duplicates
+        }
         const combinedData = [...prevData, ...newData];
 
         const mergedData = combinedData.reduce((acc, item) => {

@@ -202,118 +202,7 @@ const Estimation = () => {
 
       let newData = response.data;
 
-      // if (!Array.isArray(newData) || newData.length === 0) {
-      //   message.warning("Tag Not existed");
-      //   return null;
-      // }
-
       let finalData = [];
-
-      // setStoneMainData((prevData) => {
-      //   const existingTag = prevData.some(
-      //     (item) => item.TAGNO === (tagNoValue || tagNo)
-      //   );
-
-      //   if (existingTag) {
-      //     return prevData;
-      //   }
-
-      //   const validNewData = newData.filter(
-      //     (item) => item?.TAGNO && item?.MAINTYPE && item?.ACTGRAMS
-      //   );
-
-      //   const mergedMap = {};
-
-      //   prevData.forEach((item) => {
-      //     mergedMap[item.TAGNO] = { TAGNO: item.TAGNO, MAINTYPES: {} };
-
-      //     if (typeof item.ACTGRAMS === "string") {
-      //       item.ACTGRAMS.split(",").forEach((entry) => {
-      //         const match = entry.trim().match(/^(.+?)\(([\d.]+)\)$/);
-      //         if (match) {
-      //           const type = match[1].trim();
-      //           const grams = parseFloat(match[2]);
-      //           if (type && !isNaN(grams)) {
-      //             mergedMap[item.TAGNO].MAINTYPES[type] = grams;
-      //           }
-      //         }
-      //       });
-      //     }
-      //   });
-
-      //   validNewData.forEach((item) => {
-      //     const matchedItem = data?.find((d) => d.TAGNO === item.TAGNO);
-      //     const tagNo = item.TAGNO;
-      //     const type = item.MAINTYPE;
-      //     const diffWt = matchedItem ? Number(matchedItem.DIFFWT) || 0 : 0;
-      //     const grams = Number(item.ACTGRAMS) || 0;
-
-      //     const diffSwt = grams - diffWt;
-
-      //     const finalGrams =
-      //       type === "STONES" && Number(admin) === 3 ? diffSwt : grams;
-
-      //     if (!mergedMap[tagNo]) {
-      //       mergedMap[tagNo] = { TAGNO: tagNo, MAINTYPES: {} };
-      //     }
-
-      //     if (mergedMap[tagNo].MAINTYPES[type]) {
-      //       mergedMap[tagNo].MAINTYPES[type] += finalGrams;
-      //     } else {
-      //       mergedMap[tagNo].MAINTYPES[type] = finalGrams;
-      //     }
-      //   });
-
-      //   const finalData = Object.values(mergedMap).map((item) => ({
-      //     TAGNO: item.TAGNO,
-      //     ACTGRAMS: Object.entries(item.MAINTYPES)
-      //       .map(([key, value]) => `${key}(${(value || 0).toFixed(3)})`)
-      //       .join(", "),
-      //   }));
-
-      //   return finalData;
-      // });
-
-      // Merge into setStonesData
-      // if(!selectEstimationNo?.ESTIMATIONNO) {
-      // setStonesData((prevData) => {
-      //   const combinedData = [...prevData, ...newData];
-
-      //   const mergedData = combinedData.reduce((acc, item) => {
-      //     const existingItem = acc.find((el) => el.MAINTYPE === item.MAINTYPE);
-
-      //     const matchedItem = data?.find((d) => d.TAGNO === item.TAGNO);
-
-      //     const grams = Number(item.ACTGRAMS) || 0;
-      //     const diffWt = matchedItem ? Number(matchedItem.DIFFWT) || 0 : 0;
-      //     const diffSwt = grams - diffWt;
-
-      //     const finalGrams =
-      //       item.MAINTYPE === "STONES" && Number(admin) === 3 ? diffSwt : grams;
-
-      //     if (existingItem) {
-      //       let updatedGrams = (existingItem.ACTGRAMS || 0) + grams;
-
-      //       // Step 2: subtract diffWt
-      //       if (item.MAINTYPE === "STONES" && Number(admin) === 3) {
-      //         updatedGrams -= diffWt;
-      //       }
-
-      //       existingItem.PCS += Number(item.PCS) || 0;
-      //       existingItem.ACTGRAMS = updatedGrams;
-      //       existingItem.CTS += Number(item.CTS) || 0;
-      //     } else {
-      //       acc.push({
-      //         ...item,
-      //         // ACTGRAMS: finalGrams,
-      //       });
-      //     }
-
-      //     return acc;
-      //   }, []);
-
-      //   return mergedData;
-      // });
 
       setStoneMainData((prevData) => {
         const existingTag = prevData.some(
@@ -394,6 +283,14 @@ const Estimation = () => {
       });
 
       setStonesData((prevData) => {
+        const currentTag = tagNoValue || tagNo;
+
+        // ✅ Check if TAGNO already exists → Don't add again
+        const tagExists = prevData.some((item) => item.TAGNO === currentTag);
+
+        if (tagExists) {
+          return prevData; // ❌ Do NOT add duplicates
+        }
         const combinedData = [...prevData, ...newData];
 
         const mergedData = combinedData.reduce((acc, item) => {
