@@ -365,7 +365,7 @@ const ReturnEstimation = () => {
         message.warning("Tag Not existed");
         return;
       }
-      stonesAPI(data[0]?.TAGNO, data);
+      // stonesAPI(data[0]?.TAGNO, data);
       setTableData((prevData) => {
         const existingTag = prevData.some(
           (item) => item.TAGNO === (tagNoValue || tagNo)

@@ -143,14 +143,14 @@ const SidebarDrawer = ({
     icon: <ReceiptIcon />,
     path: "/sale",
   };
-  
+
   const saleReturnMenu = {
     text: "Sale Return",
     icon: <ReceiptIcon />,
     path: "/sale-return",
   };
 
-    const VoucherMenu = {
+  const VoucherMenu = {
     text: "Smith Transaction",
     icon: <BgColorsOutlined />,
     children: [
@@ -159,15 +159,26 @@ const SidebarDrawer = ({
         path: "/voucher",
         icon: <WalletOutlined sx={{ width: "1rem" }} />,
       },
-    ]
-  }
+    ],
+  };
 
   if (Number(userType) === 1) {
     menuItems = [estimationMenu, returnEstimationMenu];
   } else if (Number(userType) === 2) {
-    menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu];
+    menuItems = [
+      estimationMenu,
+      returnEstimationMenu,
+      saleMenu,
+      saleReturnMenu,
+    ];
   } else {
-    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu,VoucherMenu];
+    menuItems = [
+      estimationMenu,
+      returnEstimationMenu,
+      inventoryMenu,
+      saleMenu,
+      saleReturnMenu,
+    ];
   }
   // const menuItems = [
   //   {
