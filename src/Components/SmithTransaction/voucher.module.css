@@ -21,6 +21,59 @@
     gap: 5px;
 }
 
+/* Main DatePicker */
+.datePicker {
+    width: 115px;
+    height: 30px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Ant Design internal picker */
+.datePicker :global(.ant-picker) {
+    width: 70%;
+    height: 36px;
+    border: 1px solid #d9d9d9;
+    display: flex;
+    align-items: center;
+    transition: all 0.25s ease;
+}
+
+/* Input text */
+.datePicker :global(.ant-picker-input > input) {
+    text-align: center;
+    font-weight: 500;
+    color: #000;
+    cursor: pointer;
+}
+
+/* Hover effect */
+.datePicker:hover :global(.ant-picker) {
+    border-color: #1677ff;
+}
+
+/* Focus effect */
+.datePicker :global(.ant-picker-focused) {
+    border-color: #1677ff;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+}
+
+/* Remove default input outline */
+.datePicker :global(.ant-picker-input > input:focus) {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Calendar icon */
+.datePicker :global(.ant-picker-suffix) {
+    color: #555;
+}
+
+/* Remove mobile tap highlight */
+.datePicker {
+    -webkit-tap-highlight-color: transparent;
+}
+
 .invBox {
     display: flex;
     padding: 8px;
@@ -29,7 +82,7 @@
     background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247));
     color: white;
     border-radius: 8px;
-    margin-top: 10px;
+    margin-top: 5px;
     justify-content: center;
     width: 93%;
     margin-left: auto;
@@ -39,6 +92,11 @@
 .invno {
     color: black;
     font-weight: 500;
+}
+
+.vocNo {
+    font-weight: bold;
+    font-size: 25px;
 }
 
 .selectRow {
@@ -51,31 +109,129 @@
     width: 50%;
 }
 
+.partyWrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    align-items: center;
+}
+
+.partyLabel {
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 90px;
+}
+
+.partySelect {
+    width: 60%;
+    border-color: #1677ff;
+}
+
+/* Ant Design Select enhancements */
+.partySelect :global(.ant-select-selector) {
+    border-radius: 6px;
+    min-height: 32px;
+}
+
+.partySelect :global(.ant-select-selection-item) {
+    font-weight: 500;
+}
+
+.partySelect :global(.ant-select-selection-search-input) {
+    font-weight: 500;
+}
+
+/* Focus highlight */
+.partySelect :global(.ant-select-focused .ant-select-selector) {
+    border-color: #1677ff;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
+}
+
+/* Dropdown item hover */
+:global(.ant-select-item-option-active) {
+    background-color: #e6f4ff;
+}
+
+/* Selected option */
+:global(.ant-select-item-option-selected) {
+    font-weight: 600;
+    background-color: #bae0ff;
+}
+
+.rateContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+    margin-bottom: 2px;
+    gap: 5px;
+}
+
+/* container */
 .actionButtons {
     display: flex;
-    justify-content: center;
     gap: 5px;
-    margin-top: 10px;
-    /* padding: 6px; */
+    /* padding: 1px; */
+    /* background: #f5f6fa; */
+    border-radius: 8px;
+    /* padding: 10px 10px 2px 25px; */
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
 }
 
+/* base tab button */
 .tabButton {
-    background-color: #9a9b9bff;
-    border-radius: 10px;
-    /* padding: 8px 12px; */
+    display: flex;
+    /* 🔑 REQUIRED */
+    align-items: center;
+    /* vertical center */
+    justify-content: center;
+    /* horizontal center */
+
+    appearance: none;
+    border: none;
+    outline: none;
+
+    /* padding: 10px 0px 10px; */
+    font-size: 15px;
     font-weight: bold;
-}
-
-.tabButton:hover {
-    color: #ffffff !important;
-    background-color: transparent;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 35px;
+    color: white;
+    background-color: gray;
     cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-
+/* remove browser focus & click highlight */
+.tabButton:focus,
+.tabButton:active {
+    outline: none;
+    box-shadow: none;
+}
+/* hover effect */
+.tabButton:hover {
+    background-color: #7a7a7a;
+    color: white;
+}
+/* active tab */
 .activeTab {
     background-color: green !important;
     color: white;
+    box-shadow: 0 4px 12px rgba(0, 128, 0, 0.3);
+}
+/* active hover stays solid */
+.activeTab:hover {
+    background-color: green;
 }
 
 .bodyContainer {
@@ -103,6 +259,12 @@
     width: 100%;
 }
 
+/* .MainContainer {
+    display: flex;
+    max-height: 400px;
+
+} */
+
 
 .container {
     background-color: #fffccc;
@@ -113,7 +275,7 @@
     width: 97%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 5px;
+    margin-top: 3px;
     max-height: 400px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -124,27 +286,27 @@
 } */
 
 .rateHeader {
-    margin-top: 5px;
+    margin-top: 2px;
     display: flex;
     background-color: rgb(183, 230, 247);
     align-items: center;
     justify-content: center;
     border-radius: 5px;
     padding: 8px 15px;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
     margin-left: auto;
     margin-right: auto;
     width: 90%;
 }
 
- .checkButton {
+.checkButton {
     --ant-checkbox-color: green;
 }
 
 /* shared layout */
 .metalCashContainer {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     width: 97%;
     margin-left: auto;
     margin-right: auto;
@@ -155,7 +317,7 @@
     display: flex;
     flex-direction: column;
     background-color: #ceebf4;
-    padding: 12px;
+    padding: 8px;
     border-radius: 5px;
     width: 93%;
 }
@@ -164,7 +326,7 @@
     display: flex;
     flex-direction: column;
     background-color: #D6F5FF;
-    padding: 12px;
+    padding: 8px;
     border-radius: 5px;
     width: 93%;
 }
@@ -172,7 +334,7 @@
 .row {
     display: flex;
     align-items: center;
-    margin-bottom: 7px;
+    margin-bottom: 3px;
     width: 90%;
     /* height: 30px; */
 }
@@ -202,41 +364,51 @@
 }
 
 .receiptTitle {
-    font-weight: 500;
+    font-weight: bold;
     /* margin-top: 5px; */
 }
 
 .receiptCentered {
-    margin-top: 5px;
+    margin-top: 2px;
     display: flex;
     background-color: lightblue;
     align-items: center;
     border-radius: 5px;
     padding: 8px;
     justify-content: center;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
     margin-left: auto;
     margin-right: auto;
     width: 93%;
 }
 
 .sectionTitle {
-    margin-bottom: 5px;
+    margin-bottom: 3px;
 }
 
 .descriptionRow {
-    margin-bottom: 5px;
+    margin-bottom: 3px;
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 3px;
     justify-content: center;
-    margin-top: 5px;
+    margin-top: 3px;
+}
+
+.discountInput {
+    width: 50%;
+    height: 38px;
+    border-radius: 6px;
+    border: 1px solid #d9d9d9;
+    padding: 4px 10px;
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
 .descriptionTextArea {
-    width: 50%;
-    height: 40px;
+    width: 60%;
+    height: 50px;
     resize: none;
 }
 
@@ -262,17 +434,18 @@
 .footerBar {
     position: fixed;
     bottom: 0;
-    width: 100%;
+    width: 97%;
     background: #051156;
     /* padding: 5px; */
     /* border-top: 1px solid #cfcfcf; */
-
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 5px;
     /* margin: 5px; */
-
 }
 
 .balancesModule {
@@ -281,7 +454,6 @@
     border-radius: 8px;
     border: 1px solid #dcdcdc;
     width: 85%;
-
     display: flex;
     flex-direction: column;
     justify-content: center;

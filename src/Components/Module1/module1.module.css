@@ -1,0 +1,336 @@
+.vocContainer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: antiquewhite;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    margin-top: 7px;
+    border-radius: 8px;
+    font-weight: 500;
+    align-items: center;
+}
+
+.vocNo {
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.datePicker :global(.ant-picker-input > input) {
+    font-weight: 500;
+    width: 90px;
+}
+
+.partyWrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    align-items: center;
+}
+
+.partyLabel {
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 90px;
+}
+
+.partySelect {
+    width: 60%;
+    border-color: #1677ff;
+}
+
+/* Ant Design Select enhancements */
+.partySelect :global(.ant-select-selector) {
+    border-radius: 6px;
+    min-height: 32px;
+}
+
+.partySelect :global(.ant-select-selection-item) {
+    font-weight: 500;
+}
+
+.partySelect :global(.ant-select-selection-search-input) {
+    font-weight: 500;
+}
+
+/* Focus highlight */
+.partySelect :global(.ant-select-focused .ant-select-selector) {
+    border-color: #1677ff;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
+}
+
+/* Dropdown item hover */
+:global(.ant-select-item-option-active) {
+    background-color: #e6f4ff;
+}
+
+/* Selected option */
+:global(.ant-select-item-option-selected) {
+    font-weight: 600;
+    background-color: #bae0ff;
+}
+
+/* Container stays same */
+.container {
+    background-color: #dbe9fc;
+    margin-left: auto;
+    margin-right: auto;
+    width: 95%;
+    border-radius: 7px;
+}
+
+/* Main layout */
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+
+}
+
+/* All rows */
+.subContainer,
+.subContainer2,
+.subContainer3,
+.subContainer4 {
+    display: flex;
+    align-items: center;
+    padding: 7px;
+    gap: 5px;
+}
+
+/* Label fixed width (left column) */
+.spantext {
+    font-weight: 500;
+    width: 80px;
+    /* fixed label column */
+    text-align: left;
+    font-size: 14px;
+}
+
+/* Inputs aligned to same middle column */
+.inputfield {
+    width: 50%;
+    border-color: #d0e0f7;
+    font-weight: 500;
+    text-align: center;
+    background-color: rgb(245, 245, 245);
+    height: 35px;
+    font-size: 15px;
+}
+
+/* St.Cost inline alignment */
+.stCost {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+/* St.Cost input */
+.stInputField {
+    width: 70%;
+    background-color: rgb(245, 245, 245);
+    border-color: #d0e0f7;
+    height: 35px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 15px;
+
+}
+
+/* Description */
+.description {
+    display: flex;
+    flex-direction: column;
+    padding: 7px;
+    font-weight: 500;
+}
+
+.descrInput {
+    width: 60%;
+    margin-left: 40px;
+    /* aligns with other inputs */
+    background-color: rgb(248, 246, 246);
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    gap: 10px;
+}
+
+.saveButton {
+    width: 80px;
+    height: 40px;
+    font-size: 18px;
+    background-color: rgb(3, 101, 3);
+    color: white;
+}
+
+.cancleButton {
+    width: 80px;
+    height: 40px;
+    font-size: 18px;
+    background-color: rgb(250, 122, 122);
+    color: white;
+}
+
+.cancleButton:hover,
+.cancleButton:focus,
+.cancleButton:active {
+    background-color: transparent !important;
+    border-color: #ccc !important;
+    background-color: rgb(250, 122, 122) !important;
+    box-shadow: none !important;
+    color: white !important;
+}
+
+/* =========================
+   TABLET VIEW (768px – 1024px)
+   ========================= */
+@media (min-width: 786px) {
+
+    /* Voc container */
+    .vocContainer {
+        width: 95%;
+        padding: 15px;
+        font-size: 32px;
+    }
+
+    .vocNo {
+        font-size: 44px;
+    }
+
+    .datePicker {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        font-size: 30px;
+    }
+
+    .datePicker :global(.ant-picker-input > input) {
+        font-size: 30px;
+        font-weight: 500;
+        height: 36px;
+        padding: 4px 10px;
+        width: 200px;
+    }
+
+    /* Optional: change the border and background */
+    .datePicker :global(.ant-picker) {
+        border-radius: 10px;
+        border: 1px solid #d0e0f7;
+        background-color: aliceblue;
+    }
+
+    /* Party section */
+    .partyWrapper {
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .partyLabel {
+        min-width: 80px;
+        font-size: 32px;
+    }
+
+    .partySelect {
+        width: 70%;
+        height: 70px;
+        font-size: 50px;
+        font-weight: 600;
+    }
+
+    .selectOptions {
+        font-size: 50px;
+    }
+
+    /* Select input text */
+    .partySelect :global(.ant-select-selection-item) {
+        font-size: 30px;
+        /* increase font size here */
+        font-weight: 500;
+    }
+
+    /* Dropdown input search box */
+    .partySelect :global(.ant-select-selection-search-input) {
+        font-size: 30px;
+        font-weight: 500;
+    }
+
+    /* Dropdown menu items */
+    .selectOptions :global(.ant-select-item-option-content) {
+        font-size: 35px;
+        font-weight: 500;
+    }
+
+    /* Optional: placeholder */
+    .partySelect :global(.ant-select-selection-placeholder) {
+        font-size: 35px;
+    }
+
+
+    /* Main input container */
+    .container {
+        width: 98%;
+        border-radius: 10px;
+    }
+
+    /* Rows */
+    .subContainer,
+    .subContainer2,
+    .subContainer3,
+    .subContainer4 {
+        padding: 8px;
+        gap: 120px;
+    }
+
+    /* Labels */
+    .spantext {
+        width: 75px;
+        font-size: 32px;
+    }
+
+    /* Inputs */
+    .inputfield {
+        width: 40%;
+        height: 65px;
+        font-size: 40px;
+        border-radius: 10px;
+    }
+
+    /* St.Cost section */
+    .stCost {
+        gap: 30px;
+    }
+
+    .stInputField {
+        width: 60%;
+        height: 65px;
+        font-size: 35px;
+        border-radius: 10px;
+    }
+
+    /* Description */
+    .descrInput {
+        width: 70%;
+        margin-left: 30px;
+    }
+
+    /* Buttons */
+    .buttons {
+        gap: 8px;
+    }
+
+    .saveButton,
+    .cancleButton {
+        width: 170px;
+        height: 80px;
+        font-size: 32px;
+        border-radius: 10px;
+    }
+        
+}

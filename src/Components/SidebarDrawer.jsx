@@ -162,12 +162,18 @@ const SidebarDrawer = ({
     ]
   }
 
+  const saleModule1 = {
+    text: "Sale Module-1",
+    icon: <ReceiptIcon />,
+    path: "/module1",
+  };
+
   if (Number(userType) === 1) {
     menuItems = [estimationMenu, returnEstimationMenu];
   } else if (Number(userType) === 2) {
-    menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu];
+    menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu,saleModule1];
   } else {
-    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu,VoucherMenu];
+    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu,VoucherMenu,saleModule1];
   }
   // const menuItems = [
   //   {
