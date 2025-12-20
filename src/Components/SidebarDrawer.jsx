@@ -6,6 +6,7 @@ import {
   ShopOutlined,
   BgColorsOutlined,
   WalletOutlined,
+  FileSearchOutlined
 } from "@ant-design/icons";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import {
@@ -168,12 +169,26 @@ const SidebarDrawer = ({
     path: "/module1",
   };
 
+   const saleRegister = {
+    text: "Sale Register",
+    icon: <ReceiptIcon />,
+    path: "/sale-register",
+  };
+
+  const voucherRegister = {
+    text: "Voucher Register",
+    icon: <FileSearchOutlined />,
+    path: "/voucher-register",
+  };
+
   if (Number(userType) === 1) {
     menuItems = [estimationMenu, returnEstimationMenu];
   } else if (Number(userType) === 2) {
-    menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu,saleModule1];
+    menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu,saleModule1,saleRegister,
+      voucherRegister];
   } else {
-    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu,VoucherMenu,saleModule1];
+    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu,VoucherMenu,
+      saleModule1,saleRegister,voucherRegister];
   }
   // const menuItems = [
   //   {

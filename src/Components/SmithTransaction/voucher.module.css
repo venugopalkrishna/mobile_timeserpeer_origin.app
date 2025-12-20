@@ -99,6 +99,31 @@
     font-size: 25px;
 }
 
+.deleteBtn {
+    background: white;
+    border-color: white;
+}
+
+.deleteIcon {
+    color: #ea1f22;
+    /* AntD danger red */
+    font-size: 22px;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.15s ease;
+}
+
+/* Hover effect */
+.deleteIcon:hover {
+    color: #ff7875;
+    transform: scale(1.1);
+}
+
+/* Active (click) effect */
+.deleteIcon:active {
+    color: #d9363e;
+    transform: scale(0.95);
+}
+
 .selectRow {
     display: flex;
     gap: 10px;
@@ -112,8 +137,15 @@
 .partyWrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
     padding: 5px;
+    align-items: center;
+}
+.partyWrapper2 {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding: 2px;
     align-items: center;
 }
 
@@ -218,17 +250,20 @@
     outline: none;
     box-shadow: none;
 }
+
 /* hover effect */
 .tabButton:hover {
     background-color: #7a7a7a;
     color: white;
 }
+
 /* active tab */
 .activeTab {
     background-color: green !important;
     color: white;
     box-shadow: 0 4px 12px rgba(0, 128, 0, 0.3);
 }
+
 /* active hover stays solid */
 .activeTab:hover {
     background-color: green;

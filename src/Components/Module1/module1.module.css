@@ -187,6 +187,27 @@
     color: white !important;
 }
 
+.deleteIcon {
+    color: #ea1f22;
+    /* AntD danger red */
+    font-size: 22px;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.15s ease;
+}
+
+/* Hover effect */
+.deleteIcon:hover {
+    color: #ff7875;
+    transform: scale(1.1);
+}
+
+/* Active (click) effect */
+.deleteIcon:active {
+    color: #d9363e;
+    transform: scale(0.95);
+}
+
+
 /* =========================
    TABLET VIEW (768px – 1024px)
    ========================= */
@@ -332,5 +353,5 @@
         font-size: 32px;
         border-radius: 10px;
     }
-        
+
 }

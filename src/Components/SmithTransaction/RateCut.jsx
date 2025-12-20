@@ -6,15 +6,12 @@ import { CREATE_jwel } from "../../Config/Config";
 import dayjs from "dayjs";
 
 const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty }) => {
-
     /* -------- STATES -------- */
     const [selectedType, setSelectedType] = useState("");
     const [rateValue, setRateValue] = useState("");
-
     // Metal → Cash
     const [metalValue, setMetalValue] = useState("");
     const [cashValue, setCashValue] = useState("");
-
     // Cash → Metal
     const [cashValue2, setCashValue2] = useState("");
     const [metalValue2, setMetalValue2] = useState("");
@@ -31,25 +28,20 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
     const billNoDate = new Date(
         dayjs(selectedDate).startOf("day").format("YYYY-MM-DD")
     ).toISOString();
-
     /* -------- CHECKBOX HANDLER -------- */
     const handleCheck = (type) => {
         if (!rateValue || Number(rateValue) <= 0) {
             message.warning("Enter valid Rate first");
             return;
         }
-
         setSelectedType(type);
-
         // Clear opposite side values
         setMetalValue("");
         setCashValue("");
         setCashValue2("");
         setMetalValue2("");
     };
-
     /* -------- AUTO CALCULATIONS -------- */
-
     // Metal → Cash
     const handleMetalChange = (val) => {
         setMetalValue(val);
@@ -61,7 +53,6 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
             setCashValue("");
         }
     };
-
     // Metal → Cash (Cash edited)
     const handleCashChange = (val) => {
         setCashValue(val);
@@ -73,7 +64,6 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
             setMetalValue("");
         }
     };
-
     // Cash → Metal (Cash entered)
     const handleCashChange2 = (val) => {
         setCashValue2(val);
@@ -85,7 +75,6 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
             setMetalValue2("");
         }
     };
-
     // Cash → Metal (Metal edited)
     const handleMetalChange2 = (val) => {
         setMetalValue2(val);
@@ -97,7 +86,6 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
             setCashValue2("");
         }
     };
-
     /* -------- SAVE HANDLER -------- */
     const handleSave = async (vn) => {
 
@@ -119,7 +107,6 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 message.warning("Enter Metal value");
                 return;
             }
-
             payload.push({
                 sdate: selectedDate ? billNoDate : date.toISOString(),
                 entryno: vn,
@@ -169,13 +156,12 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 message.warning("Enter Cash value");
                 return;
             }
-
             payload.push({
                 sdate: selectedDate ? billNoDate : date.toISOString(),
                 entryno: vn,
                 groupname: "CUSTOMER",
                 lname: selectedParty,
-                particulars: `RATE CUT ${cashValue2} ÷ ${rateValue} (Cash To Metal)`,
+                particulars: `RATE CUT ${cashValue2} / ${rateValue} (Cash To Metal)`,
                 gjama: 0,
                 gnama: Number(metalValue2),
                 touch: 0,
@@ -212,17 +198,14 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 invno: String(vn)
             });
         }
-
         try {
             setLoading(true);
-
             await axios.post(API_URL, payload, {
                 headers: {
                     "Content-Type": "application/json",
                     tenantName
                 }
             });
-
             message.success("Rate Cut Entry Saved");
             /* -------- RESET -------- */
             setSelectedType("");
@@ -266,7 +249,6 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                     onChange={(e) => setRateValue(e.target.value)}
                 />
             </div>
-
             <div className={styles.metalCashContainer}>
                 {/* METAL TO CASH */}
                 <div className={styles.boxYellow}>
@@ -301,7 +283,7 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                         />
                     </div>
                 </div>
-
+                
                 {/* CASH TO METAL */}
                 <div className={styles.boxBlue}>
                     <Checkbox

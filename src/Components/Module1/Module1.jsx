@@ -6,6 +6,9 @@ import styles from "./module1.module.css";
 import axios from "axios";
 import dayjs from "dayjs";
 import { CREATE_jwel } from "../../Config/Config";
+import DeleteEntryModal from "./DeleteSaleModule";
+import { ReloadOutlined, FilterOutlined, DeleteOutlined } from "@ant-design/icons";
+
 
 
 const Module1 = () => {
@@ -29,6 +32,15 @@ const Module1 = () => {
     const [stCost, setStCost] = useState();
     const [vNo, setVNo] = useState(null);
     const toggleDrawer = () => setOpen(false);
+    const [openDelete, setOpenDelete] = useState(false);
+
+
+    const date = new Date();
+    const billNoDate = new Date(
+        dayjs(selectedDate).startOf("day").format("YYYY-MM-DD")
+    ).toISOString();
+    date.setUTCHours(0, 0, 0, 0);
+    console.log(billNoDate, "date");
 
     const partyNamesAPI = async () => {
         try {
@@ -58,9 +70,9 @@ const Module1 = () => {
         }
     };
 
-    const date = new Date();
-    const billNoDate = dayjs(selectedDate);
-    date.setUTCHours(0, 0, 0, 0);
+    // const date = new Date();
+    // const billNoDate = dayjs(selectedDate);
+    // date.setUTCHours(0, 0, 0, 0);
 
     useEffect(() => {
         partyNamesAPI();
@@ -107,7 +119,7 @@ const Module1 = () => {
         }
         const payload = [
             {
-                sdate: selectedDate ? billNoDate.toISOString() : date.toISOString(),
+                sdate: selectedDate ? billNoDate : date.toISOString(),
                 entryno: vNo,
                 groupname: "CUSTOMER",
                 lname: selectedParty,
@@ -199,6 +211,10 @@ const Module1 = () => {
                         format="DD/MMM/YYYY"
                     />
                 </span>
+                <DeleteOutlined
+                    className={styles.deleteIcon}
+                    onClick={() => setOpenDelete(true)}
+                />
             </div>
             <div className={styles.partyWrapper}>
                 <div className={styles.partyLabel}>Party Name:</div>
@@ -384,6 +400,10 @@ const Module1 = () => {
                 <Button className={styles.saveButton} onClick={handleSave}>Save</Button>
                 <Button className={styles.cancleButton} onClick={handleReset}>Cancle</Button>
             </div>
+            <DeleteEntryModal
+                open={openDelete}
+                onClose={() => setOpenDelete(false)}
+            />
         </>
     );
 };

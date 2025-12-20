@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Input, Select, DatePicker, Checkbox } from "antd";
-import { ReloadOutlined, FilterOutlined } from "@ant-design/icons";
+import { ReloadOutlined, FilterOutlined, DeleteOutlined, DeleteFilled } from "@ant-design/icons";
 import styles from "./voucher.module.css";
 import Header from "../Header";
 import SidebarDrawer from "../SidebarDrawer";
@@ -11,6 +11,7 @@ import PaymentEntry from "./Payment";
 import RateCutEntry from "./RateCut";
 import ReceiptEntry from "./Recepit";
 import dayjs from "dayjs";
+import DeleteEntryModal from "./DeleteVoc";
 
 
 const Voucher = () => {
@@ -30,6 +31,10 @@ const Voucher = () => {
     const [partyNames, setPartyNames] = useState([]);
     const [selectedParty, setSelectedParty] = useState(null);
     const [selectedDate, setSelectedDate] = useState(dayjs());
+    const [openDelete, setOpenDelete] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState(null);
+    const [ledgerNames, setLedgerNames] = useState([]);
+    const [selectedLedger, setSelectedLedger] = useState(null);
 
 
     const toggleDrawer = () => {
@@ -82,6 +87,31 @@ const Voucher = () => {
         }
     };
 
+
+    const fetchLedgerNamesByGroup = async (custType) => {
+        try {
+            const response = await axios.get(
+                `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder?tableName=DEALER_MASTER&where=CUSTTYPE%3D%27${custType}%27&order=DEALERNAME`,
+                { headers: { tenantName } }
+            );
+            setLedgerNames(response.data || []);
+        } catch (error) {
+            console.error("Ledger fetch error:", error);
+            setLedgerNames([]);
+        }
+    };
+
+    /* 🔹 Group Change */
+    const handleGroupChange = (value) => {
+        setSelectedGroup(value);
+        setSelectedLedger(null);
+        setLedgerNames([]);
+
+        if (value) {
+            fetchLedgerNamesByGroup(value);
+        }
+    };
+
     const vNoAPI = async () => {
         try {
             const response = await axios.get(
@@ -128,13 +158,32 @@ const Voucher = () => {
                     className={styles.datePicker}
 
                 />
-
                 <Button icon={<ReloadOutlined />} shape="circle" onClick={reset} />
                 {/* <Button
                     icon={<FilterOutlined />}
                     onClick={() => setModalOpen(true)}
                     className={styles.filterButton}
                 /> */}
+                <DeleteOutlined
+                    className={styles.deleteIcon}
+                    onClick={() => setOpenDelete(true)}
+                />
+            </div>
+            <div className={styles.partyWrapper2}>
+                <div className={styles.partyLabel}>Group Name:</div>
+                <Select
+                    // ref={partyRef}
+                    showSearch
+                    allowClear
+                    className={styles.partySelect}
+                    placeholder="Select Dealer Name"
+                    value={selectedGroup}
+                    onChange={handleGroupChange}
+                >
+                    <Option value="CUSTOMER">CUSTOMER</Option>
+                    <Option value="WORKER">WORKER</Option>
+                    <Option value="DEALER">DEALER</Option>
+                </Select>
             </div>
             <div className={styles.partyWrapper}>
                 <div className={styles.partyLabel}>Party Name:</div>
@@ -143,13 +192,14 @@ const Voucher = () => {
                     showSearch
                     allowClear
                     className={styles.partySelect}
-                    value={selectedParty}
-                    onChange={setSelectedParty}
                     placeholder="Select Party Name"
+                    value={selectedLedger}
+                    onChange={setSelectedLedger}
+                    disabled={!selectedGroup}
                 >
-                    {partyNames.map((party, index) => (
-                        <Option key={index} value={party.Dealername}>
-                            {party.Dealername}
+                    {ledgerNames.map((item, index) => (
+                        <Option key={index} value={item.Dealername}>
+                            {item.Dealername}
                         </Option>
                     ))}
                 </Select>
@@ -189,7 +239,7 @@ const Voucher = () => {
                     />}
                     {activeButton === "payment" && <PaymentEntry
                         vNo={vNo}
-                        selectedParty={selectedParty}
+                        selectedParty={selectedLedger}
                         selectedDate={selectedDate}
                         refreshVno={vNoAPI}
                         resetparty={resetParty}
@@ -222,6 +272,11 @@ const Voucher = () => {
                 setMetalBalance={setMetalBalance}
                 setCashBalance={setCashBalance}
             />
+            <DeleteEntryModal
+                open={openDelete}
+                onClose={() => setOpenDelete(false)}
+            />
+
         </>
     );
 };

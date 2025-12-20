@@ -19,6 +19,8 @@ import SaleEstimation from "./Components/Sale/SaleEstimation";
 import SaleReturnEstimation from "./Components/SaleReturn/SaleReturnEstimation";
 import Voucher from "./Components/SmithTransaction/Voucher";
 import Module1 from "./Components/Module1/Module1";
+import SaleRegister from "./Components/SaleRegister/SaleRegister";
+import VoucherRegister from "./Components/VoucherRegister/VoucherRegister";
 const App = () => {
    const tenantName = localStorage.getItem("tenantName");
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -60,6 +62,9 @@ const App = () => {
                   <Route path="/sale-return" element={<SaleReturnEstimation />} />
                   <Route path="/voucher" element={<Voucher />} />
                   <Route path="/module1" element={<Module1 />} />
+                  <Route path="/sale-register" element={<SaleRegister />} />
+                  <Route path="/voucher-register" element={<VoucherRegister />} />
+
                 </Routes>
             ) : (
               <Navigate to="/" />

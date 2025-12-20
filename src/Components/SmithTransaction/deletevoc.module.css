@@ -1,0 +1,100 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.label {
+  font-weight: 600;
+  width: 80px;
+}
+
+.vocInput {
+  width: 50%;
+  font-weight: bold;
+}
+
+.fetchBtn {
+  width: 80px;
+  background-color: rgb(64, 64, 206);
+}
+
+/* DATA BOX */
+.dataBox {
+  margin-top: 5px;
+  padding: 12px;
+  border: 2px solid #d9d9d9;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* PERFECT ALIGNMENT */
+.dataRow {
+  display: grid;
+  grid-template-columns: 100px 10px 1fr;
+  align-items: center;
+  gap: 10px ;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.colon {
+  text-align: center;
+}
+
+.value {
+  font-weight: bold;
+}
+
+/* BUTTONS */
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 10px;
+}
+
+.deleteBtn {
+  width: 80px;
+  height: 35px;
+}
+
+.clearButton {
+  width: 80px;
+  height: 35px;
+  color: white;
+  background-color: orange;
+}
+
+/* CONFIRM MODAL */
+.messageSpan {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.datamessage {
+  font-weight: bold;
+}
+
+.cancelText {
+  font-weight: bold;
+}
+
+/* OK BUTTON ONLY */
+:global(.ant-modal-confirm .ant-btn-dangerous) {
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+  color: #ffffff;
+  font-weight: 600;
+}
