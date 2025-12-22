@@ -134,8 +134,17 @@ const ReturnEstimation = () => {
 
       const data = response.data;
 
+      // if (Array.isArray(data) && data.length > 0) {
+      //   setEstimationCount(data[0].Column1);
+      // }
       if (Array.isArray(data) && data.length > 0) {
-        setEstimationCount(data[0].Column1);
+        const rawValue = data[0]?.Column1;
+        const maxInvNo = Number.isFinite(Number(rawValue))
+          ? Number(rawValue)
+          : 0;
+        const newInvNo = maxInvNo + 1;
+        setEstimationCount(newInvNo);
+        return newInvNo;
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
@@ -570,7 +579,7 @@ const ReturnEstimation = () => {
   };
   const formattedDate = selectedDate ? selectedDate.format("YYYY-MM-DD") : null;
 
-  const createEstimationData = async () => {
+  const createEstimationData = async (estNo) => {
     const requestBody = tableData.map((stone, index) => {
       const actGrams =
         stoneMainData.find((item) => item.TAGNO === stone.TAGNO)?.ACTGRAMS ||
@@ -592,7 +601,7 @@ const ReturnEstimation = () => {
         estimationtype: "SALES",
         estimationno: selectEstimationNo
           ? selectEstimationNo?.ESTIMATIONNO
-          : estimationCount + 1,
+          : estNo,
         estimationdate: formattedDate,
         description: selectedParty,
         sno: index + 1 || 0,
@@ -662,11 +671,11 @@ const ReturnEstimation = () => {
     }
   };
 
-  const createEstimationItems = async () => {
+  const createEstimationItems = async (estNo) => {
     const requestBody = stonesData.map((stone, index) => ({
       estimationno: selectEstimationNo
         ? selectEstimationNo?.ESTIMATIONNO
-        : estimationCount + 1 || 0,
+        : estNo || 0,
       estimationdate: formattedDate,
       sno: index + 1 || 0,
       stonename: stone?.MAINTYPE || "-",
@@ -697,14 +706,14 @@ const ReturnEstimation = () => {
     }
   };
 
-  const createEstimationMast = async () => {
+  const createEstimationMast = async (estNo) => {
     const totalTouch = Number(touchValue) + Number(wastageValue);
     const requestBody = [
       {
         estimationtype: "SALES",
         estimationno: selectEstimationNo
           ? selectEstimationNo?.ESTIMATIONNO
-          : estimationCount + 1,
+          : estNo,
         estimationdate: formattedDate,
         description: selectedParty,
         gwt: Number(Number(totalGrossWeight).toFixed(3)) || 0,
@@ -1434,7 +1443,7 @@ const ReturnEstimation = () => {
     convertAllImages();
   }, [tableData, photos]);
 
-  const handleLandScapePrint = () => {
+  const handleLandScapePrint = (nextEstNo) => {
     let totalPCS = 0;
     let totalGWT = 0;
     let totalStone = 0;
@@ -1744,9 +1753,7 @@ const ReturnEstimation = () => {
           <div class="header"><h2>RETURN ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
-              selectEstimationNo
-                ? selectEstimationNo?.ESTIMATIONNO
-                : estimationCount + 1
+              selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
             }</span></span>
             <span>DATE : ${new Date().toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -1785,9 +1792,7 @@ const ReturnEstimation = () => {
       .set({
         margin: [10, 5, 10, 5],
         filename: `Return_Estimation_${
-          selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1
+          selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
         }.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         // html2canvas: { scale: 2, useCORS: false },
@@ -1800,7 +1805,7 @@ const ReturnEstimation = () => {
       });
   };
 
-  const handlePrint = () => {
+  const handlePrint = (nextEstNo) => {
     let totalPCS = 0;
     let totalGWT = 0;
     let totalStone = 0;
@@ -2089,9 +2094,7 @@ const ReturnEstimation = () => {
           <div class="header"><h2>RETURN ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
-              selectEstimationNo
-                ? selectEstimationNo?.ESTIMATIONNO
-                : estimationCount + 1
+              selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
             }</span></span>
             <span>DATE : ${new Date().toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -2130,9 +2133,7 @@ const ReturnEstimation = () => {
       .set({
         margin: [10, 5, 10, 5],
         filename: `Return_Estimation_${
-          selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1
+          selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
         }.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         // html2canvas: { scale: 2, useCORS: false },
@@ -2145,7 +2146,7 @@ const ReturnEstimation = () => {
       });
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = (nextEstNo) => {
     let totalPCS = 0;
     let totalGWT = 0;
     let totalStone = 0;
@@ -2364,9 +2365,7 @@ const ReturnEstimation = () => {
           <div class="header"><h2>ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
-              selectEstimationNo
-                ? selectEstimationNo?.ESTIMATIONNO
-                : estimationCount + 1
+              selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
             }</span></span>
             <span>DATE : ${new Date().toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -2404,9 +2403,7 @@ const ReturnEstimation = () => {
       .set({
         margin: [10, 5, 10, 5],
         filename: `Estimation_${
-          selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1
+          selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
         }.pdf`,
         image: { type: "jpeg", quality: 1 },
         pagebreak: { mode: ["css", "legacy"], avoid: "tr" },
@@ -2420,7 +2417,7 @@ const ReturnEstimation = () => {
       });
   };
 
-  const handleLandScapDownloadPDF = () => {
+  const handleLandScapDownloadPDF = (nextEstNo) => {
     let totalPCS = 0;
     let totalGWT = 0;
     let totalStone = 0;
@@ -2777,9 +2774,7 @@ const ReturnEstimation = () => {
           <div class="header"><h2>ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
-              selectEstimationNo
-                ? selectEstimationNo?.ESTIMATIONNO
-                : estimationCount + 1
+              selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
             }</span></span>
             <span>DATE : ${new Date().toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -2818,9 +2813,7 @@ const ReturnEstimation = () => {
       .set({
         margin: [10, 5, 10, 5],
         filename: `Estimation_${
-          selectEstimationNo
-            ? selectEstimationNo?.ESTIMATIONNO
-            : estimationCount + 1
+          selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
         }.pdf`,
         image: { type: "jpeg", quality: 0.95 },
         html2canvas: {
@@ -2838,11 +2831,13 @@ const ReturnEstimation = () => {
       });
   };
 
-  const handlePrintClick = ({ key }) => {
+  const handlePrintClick = async ({ key }) => {
     if (key === "1") {
-      handleLandScapePrint();
+      const nextEstNo = await estimationCountAPI();
+      handleLandScapePrint(nextEstNo);
     } else if (key === "2") {
-      handlePrint();
+      const nextEstNo = await estimationCountAPI();
+      handlePrint(nextEstNo);
     }
   };
 
@@ -2862,9 +2857,10 @@ const ReturnEstimation = () => {
     onClick: handlePrintClick,
   };
 
-  const handlePdfClick = ({ key }) => {
+  const handlePdfClick = async ({ key }) => {
     if (key === "1") {
-      handleLandScapDownloadPDF();
+      const nextEstNo = await estimationCountAPI();
+      handleLandScapDownloadPDF(nextEstNo);
       // if (tableData.length > 0) {
       //   if (selectEstimationNo?.ESTIMATIONNO) {
       //     estimationDeleteItems();
@@ -2879,7 +2875,8 @@ const ReturnEstimation = () => {
       //   }
       // }
     } else if (key === "2") {
-      handleDownloadPDF();
+      const nextEstNo = await estimationCountAPI();
+      handleDownloadPDF(nextEstNo);
       // if (tableData.length > 0) {
       //   if (selectEstimationNo?.ESTIMATIONNO) {
       //     estimationDeleteItems();
@@ -2964,7 +2961,7 @@ const ReturnEstimation = () => {
                 <strong style={{ fontWeight: "bold", fontSize: "18px" }}>
                   {selectEstimationNo
                     ? selectEstimationNo?.ESTIMATIONNO
-                    : estimationCount + 1}
+                    : estimationCount}
                 </strong>
               </span>
 
@@ -3549,6 +3546,7 @@ const ReturnEstimation = () => {
         printMenu={printMenu}
         pdfMenu={pdfMenu}
         admin={admin}
+        estimationCountAPI={estimationCountAPI}
       />
       <ReturnEstimationDialog
         setOpenDialog={setOpenDialog}

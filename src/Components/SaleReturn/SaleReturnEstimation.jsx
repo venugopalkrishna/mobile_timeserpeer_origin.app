@@ -288,8 +288,8 @@ const SaleReturnEstimation = () => {
       await handleCancel();
       await estimationNoDataAPI(selectEstimationNo);
       await estimationDataBill();
-      await estimationMastBill();
       await estimationItemsBill();
+      await estimationMastBill();
 
       setFromDate(dayjs());
       setToDate(dayjs());
@@ -331,8 +331,8 @@ const SaleReturnEstimation = () => {
     setLoading(true);
     try {
       await estimationDeleteData();
-      await estimationDeleteMast();
       await estimationDeleteItems();
+      await estimationDeleteMast();
       setEstNo();
       setEstOpen(false);
     } catch (error) {

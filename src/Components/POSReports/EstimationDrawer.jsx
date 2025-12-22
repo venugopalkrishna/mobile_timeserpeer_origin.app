@@ -47,6 +47,7 @@ const EstimationDrawer = ({
   printMenu,
   pdfMenu,
   admin,
+  estimationCountAPI,
 }) => {
   const onClose = () => {
     setDrawerOpen(false);
@@ -587,18 +588,24 @@ const EstimationDrawer = ({
             width: "8rem",
           }}
           disabled={tableData.length === 0 && stonesData.length === 0}
-          onClick={() => {
+          onClick={async () => {
             const isModel2 = path === "/estimations-model2";
             if (tableData.length > 0) {
               if (selectEstimationNo?.ESTIMATIONNO) {
-                estimationDeleteItems();
-                estimationDeleteData();
-                estimationDeleteMast();
-              }
-              if (tableData.length > 0) {
-                createEstimationMast();
-                createEstimationItems();
-                createEstimationData();
+                await estimationDeleteItems();
+                await estimationDeleteData();
+                await estimationDeleteMast();
+                await createEstimationData();
+                await createEstimationItems();
+                await createEstimationMast();
+                await setSelectEstimationNo(null);
+                // handleReset();
+                onClose();
+              } else {
+                const nextEstNo = await estimationCountAPI();
+                await createEstimationData(nextEstNo);
+                await createEstimationItems(nextEstNo);
+                await createEstimationMast(nextEstNo);
                 setSelectEstimationNo(null);
                 // handleReset();
                 onClose();
