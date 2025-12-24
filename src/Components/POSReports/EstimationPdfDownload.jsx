@@ -365,8 +365,6 @@ export const EstimationPdfDownload = (
       )}</span></div>
       </div>
     </div>
-
-      <div class="footer">Thank you for shopping please visit again!</div>
     </body>
   </html>
   `;
