@@ -48,6 +48,8 @@ const EstimationDrawer = ({
   pdfMenu,
   admin,
   estimationCountAPI,
+  printModel,
+  handlePdfThermalPrint,
 }) => {
   const onClose = () => {
     setDrawerOpen(false);
@@ -648,6 +650,23 @@ const EstimationDrawer = ({
             Print
           </Button>
         </Dropdown> */}
+        {Number(printModel) === 2 ? (
+          <Button
+            type="dashed"
+            onClick={handlePdfThermalPrint}
+            disabled={tableData.length === 0}
+            style={{
+              background: "#084d76",
+              borderColor: "#084d76",
+              width: "8rem",
+              color: "#fff",
+            }}
+          >
+            Print
+          </Button>
+        ) : (
+          ""
+        )}
         <Dropdown menu={pdfMenu} placement="topCenter">
           <Button
             type="dashed"

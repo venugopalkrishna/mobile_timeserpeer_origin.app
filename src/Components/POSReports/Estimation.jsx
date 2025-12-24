@@ -49,6 +49,7 @@ import EstimationDrawer from "./EstimationDrawer";
 import EstimationFields from "./EstimationFields";
 import EstimationStonesDrawer from "./EstimationStonesDrawer";
 import logo from "../Assets/tlogo.png";
+import { EstimationPdfDownload } from "./EstimationPdfDownload";
 
 const { Option } = Select;
 const Estimation = () => {
@@ -126,6 +127,7 @@ const Estimation = () => {
   const userName = localStorage.getItem("userName");
   const singleImage = localStorage.getItem("singleImage");
   const tenantName = localStorage.getItem("tenantName");
+  const printModel = localStorage.getItem("printModel");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -906,102 +908,6 @@ const Estimation = () => {
       console.error("Error fetching estimation count:", error);
     }
   };
-
-  // const estimationNoDataAPI = async (estNo) => {
-  //   try {
-  //     let whereCondition = "";
-  //     if (estNo) {
-  //       whereCondition = `ESTIMATIONNO=${estNo}`;
-  //     }
-  //     let params = {
-  //       tableName: "ESTIMATION_DATA",
-  //       where: whereCondition,
-  //       order: "SNO",
-  //     };
-
-  //     const response = await axios.get(
-  //       `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhereandOrder`,
-  //       {
-  //         params,
-  //         headers: {
-  //           tenantName: tenantName,
-  //         },
-  //       }
-  //     );
-
-  //     const data = response.data;
-
-  //     if (Array.isArray(data) && data.length > 0) {
-  //       const updatedData = data.map((item, index) => ({
-  //         ...item,
-  //         ACTSWT: 0.2,
-  //         BALGWT: 1500,
-  //         BALNWT: 1500,
-  //         BALPIECES: 0,
-  //         BALSTONEWT: 0,
-  //         FINALGOLD: item.FINEGOLD,
-  //         GROSSWEIGHT: item.GWT,
-  //         GWT: item.GWT,
-  //         NETWT: item.NWT,
-  //         NWT: item.NWT,
-  //         PIECES: item.PIECES,
-  //         PRODNAME: item.PRODNAME,
-  //         STONEWT: item.STONEWT,
-  //         TAGNO: item.TAGNO,
-  //         TOUCH: item.TOUCH,
-  //         // ... keep other fields if needed
-  //       }));
-
-  //       // const stones = data.map((item) => ({
-  //       //   TAGNO: item.TAGNO,
-  //       //   ACTGRAMS: item.STDET,
-  //       // }));
-
-  //       // setStoneMainData(stones);
-  //       // setTableData(updatedData);
-
-  //       // ✅ Loop TAGNOs & call mainAPI for each
-  //       for (const item of updatedData) {
-  //         if (item.TAGNO) {
-  //           await mainAPI(item.TAGNO);
-  //           await stonesAPI(item.TAGNO);
-  //         }
-  //       }
-
-  //       // Totals
-  //       const total = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.PIECES || 0),
-  //         0
-  //       );
-  //       const totalGross = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
-  //         0
-  //       );
-  //       const totalStones = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.STONEWT || 0),
-  //         0
-  //       );
-  //       const totalNetWt = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.NETWT || 0),
-  //         0
-  //       );
-  //       const totalGold = updatedData.reduce(
-  //         (sum, item) => sum + Number(item.FINALGOLD || 0),
-  //         0
-  //       );
-
-  //       // setTotalPieces(total);
-  //       // setTotalGrossWeight(totalGross);
-  //       // setTotalStoneWeight(totalStones);
-  //       // setTotalNetWeight(totalNetWt);
-  //       // setTotalFineGold(totalGold);
-
-  //       setSelectedObject(null);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching estimation count:", error);
-  //   }
-  // };
 
   const estimationNoMastAPI = async (estNo) => {
     try {
@@ -3320,6 +3226,29 @@ ${
       });
   };
 
+  const handleThermalPrint = (estNo) => {
+    EstimationPdfDownload(
+      estNo,
+      selectEstimationNo,
+      selectedParty,
+      tableData,
+      stoneMainData,
+      totalPieces,
+      totalGrossWeight,
+      totalStoneWeight,
+      totalNetWeight,
+      totalFineGold,
+      totalStoneCost,
+      rodiumChargeValue,
+      cashBalanceValue
+    );
+  };
+
+  const handlePdfThermalPrint = async () => {
+    const nextEstNo = await estimationCountAPI();
+    handleThermalPrint(nextEstNo);
+  };
+
   // const handleDownloadExcel = async () => {
   //   const workbook = new ExcelJS.Workbook();
   //   const worksheet = workbook.addWorksheet("Estimation");
@@ -3534,6 +3463,7 @@ ${
     } else if (key === "2") {
       const nextEstNo = await estimationCountAPI();
       handleDownloadPDF(nextEstNo);
+      // handleThermalPrint(nextEstNo);
       // if (tableData.length > 0) {
       //   if (selectEstimationNo?.ESTIMATIONNO) {
       //     estimationDeleteItems();
@@ -4224,6 +4154,8 @@ ${
         pdfMenu={pdfMenu}
         admin={admin}
         estimationCountAPI={estimationCountAPI}
+        printModel={printModel}
+        handlePdfThermalPrint={handlePdfThermalPrint}
       />
       <EstimationDialog
         setOpenDialog={setOpenDialog}

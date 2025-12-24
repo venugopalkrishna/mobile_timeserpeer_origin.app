@@ -39,6 +39,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("city", data[0]?.CITY);
         localStorage.setItem("singleImage", data[0]?.EPASS2);
         localStorage.setItem("admin", data[0]?.COMPDLRTAX);
+        localStorage.setItem("printModel", data[0]?.MOBILE1);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
