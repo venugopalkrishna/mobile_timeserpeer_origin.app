@@ -1,0 +1,223 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 97%;
+    margin: auto;
+    margin-top: 5px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #003161;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+
+.invBox {
+    display: flex;
+    padding: 8px;
+    gap: 8px;
+    align-items: center;
+    /* background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247)); */
+    color: white;
+    border-radius: 8px;
+    margin-top: 2px;
+    justify-content: space-between;
+    width: 97%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.vocContainer {
+    display: flex;
+    background-color: #030a32;
+    border-radius: 7px;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: 20%;
+}
+
+.dateContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    background-color: #0a113c;
+    padding: 5px;
+    border-radius: 7px;
+    width: 80%;
+    align-items: center;
+}
+
+.noContainer {
+    gap: 5px;
+}
+
+.invno {
+    color: white;
+    font-weight: bold;
+    align-items: center;
+    font-size: 15px;
+    /* padding: 5px 5px 5px 5px; */
+}
+
+.no {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.vocNo {
+    font-weight: bold;
+    font-size: 25px;
+    /* padding: 5px; */
+}
+
+.headerLeft,
+.headerRight {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.header label {
+    color: white;
+}
+
+.voucherLabel {
+    font-size: 12px;
+}
+
+.voucherNo {
+    font-weight: bold;
+    color: white;
+    font-size: 30px;
+}
+
+.voucherDateLabel {
+    font-size: 12px;
+}
+
+.body {
+    /* background: #add8e6; */
+    padding: 7px;
+    margin-top: 5px;
+    border-radius: 8px;
+    background: #0a113c;
+}
+
+.topRow {
+    display: flex;
+    /* gap: 5px; */
+    margin-bottom: 15px;
+    background: #add8e6;
+    padding: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 98%;
+    /* justify-content: space-around; */
+    border-radius: 5px;
+    flex-direction: column;
+    align-items: center;
+
+}
+.row1 {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 5px;
+    justify-content: center;
+    
+}
+.row3 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* margin-bottom: 10px; */
+    justify-content: center;
+    flex-direction: column;
+    
+}
+.row4 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* margin-bottom: 10px; */
+    justify-content: center;
+    flex-direction: column;
+    
+}
+.row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+.cancleButton {
+    width: 80px;
+    height: 30px;
+    font-size: 18px;
+    background-color: #fe0100;
+    color: white;
+    margin-bottom: 5px;
+}
+
+.rowMain {
+    background: radial-gradient(circle at center, #f9f7f7 40%, #eaecef 60%, #dee7f5 80%);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.label {
+    width: 120px;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.inputValue {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.smithLabel {
+    width: 40px;
+}
+
+.slipLabel {
+    width: 60px;
+}
+
+.slipInput {
+    width: 60px;
+    background-color: lightgray;
+    font-weight: bold;
+}
+
+.centerInput {
+    width: 200px;
+    text-align: center;
+}
+
+.descInput {
+    width: 300px;
+    text-align: center;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.saveBtn {
+    background-color: #107626ff !important;
+    color: white !important;
+    height: 35px;
+    width: 80px;
+    border-color: #0a113c;
+    font-size: 18px;
+}
+
+ 

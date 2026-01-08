@@ -6,7 +6,13 @@ import {
   ShopOutlined,
   BgColorsOutlined,
   WalletOutlined,
-  FileSearchOutlined
+  FileSearchOutlined,
+  BookOutlined,
+  SwitcherOutlined,
+  UsergroupDeleteOutlined,
+  ShoppingOutlined,
+  ScheduleOutlined,
+  SaveOutlined
 } from "@ant-design/icons";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import {
@@ -141,39 +147,46 @@ const SidebarDrawer = ({
 
   const saleMenu = {
     text: "Sale",
-    icon: <ReceiptIcon />,
+    icon: <SaveOutlined />,
     path: "/sale",
   };
-  
+
   const saleReturnMenu = {
     text: "Sale Return",
     icon: <ReceiptIcon />,
     path: "/sale-return",
   };
 
-    const VoucherMenu = {
-    text: "Smith Transaction",
-    icon: <BgColorsOutlined />,
-    children: [
-      {
-        text: "Voucher",
-        path: "/voucher",
-        icon: <WalletOutlined sx={{ width: "1rem" }} />,
-      },
-    ]
-  }
+  // const VoucherMenu = {
+  //   text: "Smith Transaction",
+  //   icon: <BgColorsOutlined />,
+  //   children: [
+  //     {
+  //       text: "Voucher",
+  //       path: "/voucher",
+  //       icon: <WalletOutlined sx={{ width: "1rem" }} />,
+  //     },
+  //   ]
+  // }
 
   const saleModule1 = {
     text: "Sale Module-1",
-    icon: <ReceiptIcon />,
+    icon: <ShoppingOutlined />,
     path: "/module1",
   };
 
-   const saleRegister = {
+  const saleRegister = {
     text: "Sale Register",
-    icon: <ReceiptIcon />,
+    icon: <ScheduleOutlined />,
     path: "/sale-register",
   };
+
+  const VoucherMenu = {
+    text: "Voucher",
+    icon: <SwitcherOutlined />,
+    path: "/voucher",
+  };
+  
 
   const voucherRegister = {
     text: "Voucher Register",
@@ -181,14 +194,37 @@ const SidebarDrawer = ({
     path: "/voucher-register",
   };
 
+  const WorkerBook = {
+    text: "Smith Transaction",
+    icon: <BgColorsOutlined />,
+    children: [
+      {
+        text: "Smith Issues",
+        path: "/smith-issues",
+        icon: <WalletOutlined sx={{ width: "1rem" }} />,
+      },
+      {
+        text: "Smith Receivals",
+        path: "/smith-receivals",
+        icon: <WalletOutlined sx={{ width: "1rem" }} />,
+      },
+    ]
+  }
+
+   const Outsatndings = {
+    text: "Outsatnding Customers",
+    icon: <UsergroupDeleteOutlined />,
+    path: "/outstandings",
+  };
+
   if (Number(userType) === 1) {
     menuItems = [estimationMenu, returnEstimationMenu];
   } else if (Number(userType) === 2) {
-    menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu,saleModule1,saleRegister,
-      voucherRegister];
+    menuItems = [estimationMenu, returnEstimationMenu, saleMenu, saleReturnMenu, saleModule1, saleRegister,
+      voucherRegister,WorkerBook, Outsatndings];
   } else {
-    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu,VoucherMenu,
-      saleModule1,saleRegister,voucherRegister];
+    menuItems = [estimationMenu, returnEstimationMenu, inventoryMenu, saleMenu, saleReturnMenu,
+      saleModule1, saleRegister, VoucherMenu, voucherRegister,WorkerBook, Outsatndings];
   }
   // const menuItems = [
   //   {

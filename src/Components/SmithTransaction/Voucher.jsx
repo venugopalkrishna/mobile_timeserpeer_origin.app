@@ -28,6 +28,7 @@ const Voucher = () => {
     const [open, setOpen] = useState(false);
     const partyRef = useRef(null);
     const [vNo, setVNo] = useState(null);
+    const [billNo, setBillNo] = useState(0);
     const [partyNames, setPartyNames] = useState([]);
     const [selectedParty, setSelectedParty] = useState(null);
     const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -45,11 +46,34 @@ const Voucher = () => {
         setActiveButton(buttonName);
     };
 
-    const reset = () => {
+    const reset = async () => {
+        // Tabs
         setActiveButton("receipt");
-        setSelectedParty(null);
 
+        // Party / Group
+        setSelectedGroup(null);
+        setSelectedLedger(null);
+        setLedgerNames([]);
+
+        // Date
+        setSelectedDate(dayjs());
+
+        // Values
+        setCashBalance("");
+        setMetalBalance("");
+        setCashValue("");
+        setCashValue2("");
+        setMetalValue("");
+        setMetalValue2("");
+        // Rate type
+        setSelectedType("metalToCash");
+        // Refresh voucher & bill numbers
+        await vNoAPI();
+        await billNoAPI();
+        // Scroll screen to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
+
 
     const resetParty = () => {
         setSelectedParty(null);
@@ -134,9 +158,27 @@ const Voucher = () => {
         }
     };
 
+    const billNoAPI = async () => {
+        try {
+            const response = await axios.get(
+                `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTableWithOrder?tableName=TRANS_ENTRY_DATA&column=VNO&where=TRANS_TYPE<>'BILLING'`,
+                { headers: { tenantName } }
+            );
+
+            const data = response.data;
+            const rawValue = data?.[0]?.Column1;
+            const newInvNo = (Number(rawValue) || 0) + 1;
+            setBillNo(newInvNo);
+            return newInvNo;
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
         partyNamesAPI();
         vNoAPI();
+        billNoAPI();
     }, []);
 
     return (
@@ -150,59 +192,64 @@ const Voucher = () => {
                 userName={userName}
             />
             <div className={styles.invBox}>
-                <span className={styles.invno}>Voc No: <span className={styles.vocNo}>{vNo ?? "--"}</span></span>
-                <DatePicker
-                    value={selectedDate}
-                    onChange={(date) => setSelectedDate(date)}
-                    format="DD/MM/YYYY"
-                    className={styles.datePicker}
-
-                />
-                <Button icon={<ReloadOutlined />} shape="circle" onClick={reset} />
-                {/* <Button
-                    icon={<FilterOutlined />}
-                    onClick={() => setModalOpen(true)}
-                    className={styles.filterButton}
-                /> */}
-                <DeleteOutlined
-                    className={styles.deleteIcon}
-                    onClick={() => setOpenDelete(true)}
-                />
+                <div className={styles.vocContainer}>
+                    <span className={styles.invno}>VOUCHER</span>
+                </div>
+                <div className={styles.dateContainer}>
+                    <div>
+                        <span className={styles.no}>No:</span>
+                        <span className={styles.vocNo}>{vNo ?? "--"}</span>
+                    </div>
+                    {/* <span className={styles.vocNo}>1000</span> */}
+                    <DatePicker
+                        value={selectedDate}
+                        onChange={(date) => setSelectedDate(date)}
+                        format="DD/MM/YYYY"
+                        className={styles.datePicker}
+                    />
+                    <Button icon={<ReloadOutlined />} shape="circle" onClick={reset} />
+                    <DeleteOutlined
+                        className={styles.deleteIcon}
+                        onClick={() => setOpenDelete(true)}
+                    />
+                </div>
             </div>
-            <div className={styles.partyWrapper2}>
-                <div className={styles.partyLabel}>Group Name:</div>
-                <Select
-                    // ref={partyRef}
-                    showSearch
-                    allowClear
-                    className={styles.partySelect}
-                    placeholder="Select Dealer Name"
-                    value={selectedGroup}
-                    onChange={handleGroupChange}
-                >
-                    <Option value="CUSTOMER">CUSTOMER</Option>
-                    <Option value="WORKER">WORKER</Option>
-                    <Option value="DEALER">DEALER</Option>
-                </Select>
-            </div>
-            <div className={styles.partyWrapper}>
-                <div className={styles.partyLabel}>Party Name:</div>
-                <Select
-                    ref={partyRef}
-                    showSearch
-                    allowClear
-                    className={styles.partySelect}
-                    placeholder="Select Party Name"
-                    value={selectedLedger}
-                    onChange={setSelectedLedger}
-                    disabled={!selectedGroup}
-                >
-                    {ledgerNames.map((item, index) => (
-                        <Option key={index} value={item.Dealername}>
-                            {item.Dealername}
-                        </Option>
-                    ))}
-                </Select>
+            <div className={styles.groupContainer}>
+                <div className={styles.partyWrapper2}>
+                    <div className={styles.partyLabel}>Group Name:</div>
+                    <Select
+                        // ref={partyRef}
+                        showSearch
+                        allowClear
+                        className={styles.partySelect}
+                        placeholder="Select Dealer Name"
+                        value={selectedGroup}
+                        onChange={handleGroupChange}
+                    >
+                        <Option value="CUSTOMER">CUSTOMER</Option>
+                        <Option value="WORKER">WORKER</Option>
+                        <Option value="DEALER">DEALER</Option>
+                    </Select>
+                </div>
+                <div className={styles.partyWrapper}>
+                    <div className={styles.partyLabel}>Party Name:</div>
+                    <Select
+                        ref={partyRef}
+                        showSearch
+                        allowClear
+                        className={styles.partySelect}
+                        placeholder="Select Party Name"
+                        value={selectedLedger}
+                        onChange={setSelectedLedger}
+                        disabled={!selectedGroup}
+                    >
+                        {ledgerNames.map((item, index) => (
+                            <Option key={index} value={item.Dealername}>
+                                {item.Dealername}
+                            </Option>
+                        ))}
+                    </Select>
+                </div>
             </div>
             {/* TAB BUTTONS */}
             <div className={styles.actionButtons}>
@@ -212,14 +259,12 @@ const Voucher = () => {
                 >
                     RECEIPT
                 </button>
-
                 <button
                     className={`${styles.tabButton} ${activeButton === "payment" ? styles.activeTab : ""}`}
                     onClick={() => handleClick("payment")}
                 >
                     PAYMENT
                 </button>
-
                 <button
                     className={`${styles.tabButton} ${activeButton === "rate" ? styles.activeTab : ""}`}
                     onClick={() => handleClick("rate")}
@@ -232,9 +277,10 @@ const Voucher = () => {
                 <div className={styles.container}>
                     {activeButton === "receipt" && <ReceiptEntry
                         vNo={vNo}
-                        selectedParty={selectedParty}
+                        selectedParty={selectedLedger}
                         selectedDate={selectedDate}
                         refreshVno={vNoAPI}
+                        billNoAPI={billNoAPI}
                         resetparty={resetParty}
                     />}
                     {activeButton === "payment" && <PaymentEntry
@@ -242,14 +288,16 @@ const Voucher = () => {
                         selectedParty={selectedLedger}
                         selectedDate={selectedDate}
                         refreshVno={vNoAPI}
+                        billNoAPI={billNoAPI}
                         resetparty={resetParty}
                     />}
                     {activeButton === "rate" && (
                         <RateCutEntry
                             vNo={vNo}
-                            selectedParty={selectedParty}
+                            selectedParty={selectedLedger}
                             selectedDate={selectedDate}
                             refreshVno={vNoAPI}
+                            billNoAPI={billNoAPI}
                             resetparty={resetParty}
                             selectedType={selectedType}
                             handleCheck={handleCheck}
@@ -276,7 +324,6 @@ const Voucher = () => {
                 open={openDelete}
                 onClose={() => setOpenDelete(false)}
             />
-
         </>
     );
 };

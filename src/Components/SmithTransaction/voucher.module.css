@@ -79,24 +79,52 @@
     padding: 8px;
     gap: 8px;
     align-items: center;
-    background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247));
+    /* background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247)); */
     color: white;
     border-radius: 8px;
-    margin-top: 5px;
-    justify-content: center;
-    width: 93%;
+    margin-top: 2px;
+    justify-content: space-between;
+    width: 97%;
     margin-left: auto;
     margin-right: auto;
 }
+.vocContainer {
+    display: flex;
+    background-color: #030a32;
+    border-radius: 7px;
+    align-items: center;
+    justify-content: center;  
+    padding: 10px;  
+    width: 20%;
+}
+.dateContainer {
+    display: flex;
+    justify-content: space-between;
+    /* gap: 10px; */
+    background-color: #0a113c;
+    padding: 5px;
+    border-radius: 7px;
+    width: 80%;
+    align-items: center;
+}
+.no{
+    font-size: 15px;
+    align-items: center;
+    font-weight: bold;
+}
 
 .invno {
-    color: black;
-    font-weight: 500;
+    color: white;
+    font-weight: bold;
+    align-items: center;
+    font-size: 15px;
+    /* padding: 5px 5px 5px 5px; */
 }
 
 .vocNo {
     font-weight: bold;
     font-size: 25px;
+    /* padding: 5px; */
 }
 
 .deleteBtn {
@@ -105,7 +133,7 @@
 }
 
 .deleteIcon {
-    color: #ea1f22;
+    color: #e9e950;
     /* AntD danger red */
     font-size: 22px;
     cursor: pointer;
@@ -124,6 +152,7 @@
     transform: scale(0.95);
 }
 
+
 .selectRow {
     display: flex;
     gap: 10px;
@@ -134,10 +163,17 @@
     width: 50%;
 }
 
+.groupContainer {
+    background-color: #cadff1;
+    margin: auto;
+    width: 97%;
+    border-radius: 7px;
+}
+
 .partyWrapper {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     padding: 5px;
     align-items: center;
 }
@@ -153,6 +189,7 @@
     font-weight: 600;
     white-space: nowrap;
     min-width: 90px;
+    font-size: 12px;
 }
 
 .partySelect {
@@ -214,6 +251,7 @@
     margin-left: auto;
     margin-right: auto;
     width: 80%;
+    margin-top: 2px;
 }
 
 /* base tab button */
@@ -302,7 +340,7 @@
 
 
 .container {
-    background-color: #fffccc;
+    background-color: #add8e6;
     border-radius: 10px;
     /* padding: 15px; */
     /* margin-top: 2px; */
@@ -323,7 +361,7 @@
 .rateHeader {
     margin-top: 2px;
     display: flex;
-    background-color: rgb(183, 230, 247);
+    background-color: rgb(26, 1, 88);
     align-items: center;
     justify-content: center;
     border-radius: 5px;
@@ -332,6 +370,7 @@
     margin-left: auto;
     margin-right: auto;
     width: 90%;
+    color: white;
 }
 
 .checkButton {
@@ -351,19 +390,27 @@
 .boxYellow {
     display: flex;
     flex-direction: column;
-    background-color: #ceebf4;
+    background: radial-gradient(circle at center, #dcd9d9 40%, #dce2ed 60%, #d2ddef 80%);
     padding: 8px;
     border-radius: 5px;
-    width: 93%;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .boxBlue {
     display: flex;
     flex-direction: column;
-    background-color: #D6F5FF;
+    background: radial-gradient(circle at center, #f9f7f7 40%, #eaecef 60%, #dee7f5 80%);
     padding: 8px;
     border-radius: 5px;
-    width: 93%;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+.inputField{
+    width: 50%;
+    text-align: center;
 }
 
 .row {
@@ -371,6 +418,7 @@
     align-items: center;
     margin-bottom: 3px;
     width: 90%;
+    justify-content: center;
     /* height: 30px; */
 }
 
@@ -400,13 +448,14 @@
 
 .receiptTitle {
     font-weight: bold;
+    color: white;
     /* margin-top: 5px; */
 }
 
 .receiptCentered {
     margin-top: 2px;
     display: flex;
-    background-color: lightblue;
+    background-color: rgb(26, 1, 88);
     align-items: center;
     border-radius: 5px;
     padding: 8px;

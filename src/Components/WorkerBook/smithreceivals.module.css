@@ -1,0 +1,352 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 98%;
+    margin: auto;
+    margin-top: 2px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    background-color: #003161;
+    padding: 10px;
+    gap: 20%;
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #003161;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.invBox {
+    display: flex;
+    padding: 8px;
+    gap: 8px;
+    align-items: center;
+    /* background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247)); */
+    color: white;
+    border-radius: 8px;
+    margin-top: 2px;
+    justify-content: space-between;
+    width: 97%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.vocContainer {
+    display: flex;
+    background-color: #030a32;
+    border-radius: 7px;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: 20%;
+}
+
+.dateContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    background-color: #0a113c;
+    padding: 5px;
+    border-radius: 7px;
+    width: 80%;
+    align-items: center;
+}
+
+.invno {
+    color: white;
+    font-weight: bold;
+    align-items: center;
+    font-size: 15px;
+    /* padding: 5px 5px 5px 5px; */
+}
+
+.vocNo {
+    font-weight: bold;
+    font-size: 25px;
+    /* padding: 5px; */
+}
+
+.no {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.headerLeft,
+.headerRight {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.header label {
+    color: white;
+}
+
+.voucherLabel {
+    font-size: 12px;
+    width: 50px;
+}
+
+.voucherNo {
+    font-weight: bold;
+    color: white;
+    font-size: 30px;
+}
+
+.voucherDateLabel {
+    font-size: 12px;
+    width: 60px;
+}
+
+/* Body */
+.body {
+    background-color: #0a113c;
+    padding: 5px;
+    /* margin-top: 5px; */
+    border-radius: 8px;
+}
+
+/* Rows */
+.row {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.rowCenter {
+    display: flex;
+    margin-top: 5px;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 97%;
+    padding: 5px;
+    gap: 30px;
+    /* flex-direction: column; */
+}
+
+.rowCenter2 {
+    display: flex;
+    margin-top: 2px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: #add8e6;
+    border-radius: 5px;
+}
+
+.rowMain {
+    background: radial-gradient(circle at center, #f9f7f7 40%, #eaecef 60%, #dee7f5 80%);
+    padding: 3px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.row3 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* margin-bottom: 10px; */
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+.row4 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* margin-bottom: 10px; */
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+/* Labels */
+.label120 {
+    width: 120px;
+    font-size: 13px;
+}
+
+.smallLabel {
+    width: 60px;
+}
+
+/* Inputs */
+.input {
+    text-align: center;
+    font-weight: bold;
+}
+
+.pcs {
+    width: 70px;
+}
+
+.normal {
+    width: 200px;
+}
+
+.desc {
+    width: 240px;
+}
+
+/* Selects */
+.select200 {
+    width: 250px;
+}
+
+.select300 {
+    width: 250px;
+}
+
+/* Slip No */
+.slipInput {
+    width: 70px;
+    background-color: lightgray;
+    font-weight: bold;
+}
+
+/* Footer */
+.footer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+    align-items: center;
+}
+
+.saveBtn {
+    background-color: #107626ff !important;
+    height: 37px;
+    width: 75px;
+    font-size: 20px;
+}
+
+.print {
+    background-color: rgb(118, 77, 16) !important;
+    height: 37px;
+    width: 75px;
+    font-size: 20px;
+}
+
+.cnacleButton {
+    width: 80px;
+    height: 30px;
+    margin-bottom: 2px;
+    text-align: center;
+    background-color: rgb(227, 12, 12);
+    color: white;
+}
+
+
+
+/* ============================= */
+/* TAB VIEW (Tablets) */
+/* ============================= */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+
+    .container {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    /* Header */
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 8px;
+    }
+
+    .invBox {
+        flex-direction: column;
+        width: 100%;
+        gap: 6px;
+    }
+
+    .vocContainer {
+        width: 100%;
+        padding: 8px;
+        justify-content: center;
+    }
+
+    .dateContainer {
+        width: 100%;
+        padding: 6px;
+        justify-content: space-between;
+    }
+
+    .vocNo {
+        font-size: 22px;
+    }
+
+    /* Body */
+    .body {
+        padding: 8px;
+    }
+
+    /* Rows */
+    .row,
+    .rowCenter {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 6px;
+    }
+
+    /* Labels */
+    .label120 {
+        width: 100px;
+        font-size: 12px;
+    }
+
+    .smallLabel {
+        width: 55px;
+        font-size: 12px;
+    }
+
+    /* Inputs */
+    .pcs {
+        width: 80px;
+    }
+
+    .normal {
+        width: 180px;
+    }
+
+    .desc {
+        width: 100%;
+    }
+
+    /* Selects */
+    .select200 {
+        width: 180px;
+    }
+
+    .select300 {
+        width: 220px;
+    }
+
+    /* Footer */
+    .footer {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .saveBtn,
+    .print,
+    .cnacleButton {
+        width: 80px;
+        height: 36px;
+        font-size: 16px;
+    }
+}

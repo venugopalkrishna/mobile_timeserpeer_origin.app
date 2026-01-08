@@ -1,33 +1,103 @@
-.vocContainer {
+.invBox {
     display: flex;
+    padding: 8px;
+    gap: 8px;
+    align-items: center;
+    /* background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247)); */
+    color: white;
+    border-radius: 8px;
+    margin-top: 2px;
     justify-content: space-between;
-    padding: 10px;
-    background-color: antiquewhite;
+    width: 97%;
     margin-left: auto;
     margin-right: auto;
-    width: 90%;
-    margin-top: 7px;
-    border-radius: 8px;
-    font-weight: 500;
+}
+
+.vocContainer {
+    display: flex;
+    background-color: #030a32;
+    border-radius: 7px;
     align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: 20%;
+}
+
+.dateContainer {
+    display: flex;
+    justify-content: space-between;
+    background-color: #0a113c;
+    padding: 5px;
+    border-radius: 7px;
+    width: 80%;
+    align-items: center;
+}
+
+.invno {
+    color: white;
+    font-weight: bold;
+    align-items: center;
+    font-size: 15px;
+    /* padding: 5px 5px 5px 5px; */
 }
 
 .vocNo {
     font-weight: bold;
     font-size: 25px;
+    /* padding: 5px; */
+}
+
+.no {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+
+.datePicker2 {
+    font-weight: 500;
+    color: white;
 }
 
 .datePicker :global(.ant-picker-input > input) {
     font-weight: 500;
     width: 90px;
+
+}
+
+.partyContainer {
+    background: #0a113c;
+    margin-right: auto;
+    margin-left: auto;
+    width: 97%;
+    /* margin-top: 2px; */
+    border-radius: 8px;
+    padding: 2px;
 }
 
 .partyWrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
+    gap: 5px;
+    /* padding: 10px; */
     align-items: center;
+    background: #add8e6;
+    flex-direction: column;
+    border-radius: 5px;
+    width: 97%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+}
+
+
+
+.cancleButton {
+    width: 80px;
+    height: 30px;
+    font-size: 18px;
+    background-color: #fe0100;
+    color: white;
+    margin-bottom: 5px;
 }
 
 .partyLabel {
@@ -37,7 +107,7 @@
 }
 
 .partySelect {
-    width: 60%;
+    width: 70%;
     border-color: #1677ff;
 }
 
@@ -74,18 +144,19 @@
 
 /* Container stays same */
 .container {
-    background-color: #dbe9fc;
+    /* background-color: #dbe9fc; */
     margin-left: auto;
     margin-right: auto;
-    width: 95%;
+    width: 97%;
     border-radius: 7px;
+    background: radial-gradient(circle at center, #f9f7f7 40%, #eaecef 60%, #dee7f5 80%);
+    margin-top: 5px;
 }
 
 /* Main layout */
 .mainContainer {
     display: flex;
     flex-direction: column;
-
 }
 
 /* All rows */
@@ -95,7 +166,7 @@
 .subContainer4 {
     display: flex;
     align-items: center;
-    padding: 7px;
+    padding: 4px;
     gap: 5px;
 }
 
@@ -105,16 +176,26 @@
     width: 80px;
     /* fixed label column */
     text-align: left;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* Inputs aligned to same middle column */
 .inputfield {
     width: 50%;
+    /* border-color: #d0e0f7; */
+    font-weight: 500;
+    text-align: center;
+    /* background-color: rgb(245, 245, 245); */
+    height: 35px;
+    font-size: 15px;
+}
+
+.inputfield2 {
+    width: 80%;
     border-color: #d0e0f7;
     font-weight: 500;
     text-align: center;
-    background-color: rgb(245, 245, 245);
+    /* background-color: rgb(245, 245, 245); */
     height: 35px;
     font-size: 15px;
 }
@@ -128,7 +209,7 @@
 
 /* St.Cost input */
 .stInputField {
-    width: 70%;
+    width: 52%;
     background-color: rgb(245, 245, 245);
     border-color: #d0e0f7;
     height: 35px;
@@ -157,25 +238,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    padding: 5px;
     gap: 10px;
 }
 
 .saveButton {
-    width: 80px;
+    width: 90px;
     height: 40px;
     font-size: 18px;
     background-color: rgb(3, 101, 3);
+    border-color: #0a113c;
     color: white;
 }
 
-.cancleButton {
-    width: 80px;
-    height: 40px;
-    font-size: 18px;
-    background-color: rgb(250, 122, 122);
-    color: white;
-}
+
 
 .cancleButton:hover,
 .cancleButton:focus,
@@ -188,7 +264,7 @@
 }
 
 .deleteIcon {
-    color: #ea1f22;
+    color: #f2f67a;
     /* AntD danger red */
     font-size: 22px;
     cursor: pointer;

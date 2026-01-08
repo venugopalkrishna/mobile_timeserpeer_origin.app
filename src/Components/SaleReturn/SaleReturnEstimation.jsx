@@ -5,7 +5,7 @@ import axios from "axios";
 import Header from "../Header";
 import SidebarDrawer from "../SidebarDrawer";
 import styles from "./SaleReturnEstimation.module.css";
-import { Button, Checkbox, Col, DatePicker, Row, Spin, Typography } from "antd";
+import { Button, Checkbox, Col, DatePicker, Row, Spin, Typography, message } from "antd";
 import SaleReturnEstimationDialog from "./SaleReturnEstimationDialog";
 import DeleteSaleReturnEstimationDialog from "./DeleteSaleReturnEstimationDialog";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -22,11 +22,15 @@ const SaleReturnEstimation = () => {
   const [saleOpen, setSaleOpen] = useState(false);
   const [estNo, setEstNo] = useState();
   const [estOpen, setEstOpen] = useState(false);
+  const [saveSale, setSaveSave] = useState({});
+  const [vNo, setVNo] = useState(0);
+  const [billNumber, setBillNumber] = useState(0);
 
   const userArea = localStorage.getItem("city");
   const userName = localStorage.getItem("userName");
   const singleImage = localStorage.getItem("singleImage");
   const tenantName = localStorage.getItem("tenantName");
+
 
   const billCountAPI = async () => {
     // setLoading(true);
@@ -92,11 +96,108 @@ const SaleReturnEstimation = () => {
     }
   };
 
+  const vNoAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTable?tableName=TRANS_ENTRY_DATA&column=ENTRYNO`,
+        { headers: { tenantName } }
+      );
+
+      const data = response.data;
+      const rawValue = data?.[0]?.Column1;
+      const newInvNo = (Number(rawValue) || 0) + 1;
+      setVNo(newInvNo);
+      return newInvNo;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const billNoAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTableWithOrder?tableName=TRANS_ENTRY_DATA&column=VNO&where=TRANS_TYPE='BILLING'`,
+        { headers: { tenantName } }
+      );
+
+      const data = response.data;
+      const rawValue = data?.[0]?.Column1;
+      const newInvNo = (Number(rawValue) || 0) + 1;
+      setBillNumber(newInvNo);
+      return newInvNo;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const date = new Date();
+
+  const handleSave = async (vn, bill) => {
+
+    const payload = [
+      {
+        sdate: date.toISOString(),
+        entryno: vn,
+        groupname: "CUSTOMER",
+        lname: saveSale.DESCRIPTION,
+        particulars: "SALE",
+        gjama: 0,
+        gnama: Number(saveSale.GWT) || 0,
+        touch: Number(saveSale.TOUCHPER) || 0,
+        pjama: 0,
+        pnama: Number(saveSale.PUREWT) || 0,
+        cjama: 0,
+        cnama: Number(saveSale.TOTCASH) || 0,
+        vno: bill,
+        vtype: "CUSTOMER",
+        stype: "NEW ORNAMENTS",
+        cuT_METAL: 0,
+        cuT_TOUCH: 0,
+        cuT_FINE: 0,
+        rate: 0,
+        cuT_AMOUNT: 0,
+        vaT_PER: 0,
+        vaT_AMOUNT: 0,
+        cuT_NETAMOUNT: 0,
+        jstonewt: 0,
+        jnwt: 0,
+        jamount: 0,
+        nstonewt: Number(saveSale.STONEWT) || 0,
+        nnwt: Number(saveSale.NWT) || 0,
+        namount: 0,
+        tranS_TYPE: "BILLING",
+        maintype: "ORNAMENT STOCK",
+        scode: 2,
+        narration: "-",
+        branchname: "-",
+        branchcode: "-",
+        dealername: saveSale.DESCRIPTION,
+        paytype: "-",
+        sno: bill,
+        invno: String(bill)
+      }
+
+    ];
+    console.log("Post Payload" + payload);
+
+    try {
+      await axios.post(
+        `${CREATE_jwel}/api/Wholesal/InsertTransEntryData`,
+        payload,
+        { headers: { tenantName } }
+      );
+      message.success("Saved Successfully");
+      // vNoAPI();
+      // handleReset();
+    } catch (error) {
+      console.error(error);
+      message.error("Save Failed");
+    }
+  };
+
   const estimationDataBill = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/UpdateEstimationDataBillDetails?billNo=${
-          billNo + 1
+        `${CREATE_jwel}/api/Wholesal/UpdateEstimationDataBillDetails?billNo=${billNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
@@ -113,8 +214,7 @@ const SaleReturnEstimation = () => {
   const estimationMastBill = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/UpdateEstimationMastBillDetails?billNo=${
-          billNo + 1
+        `${CREATE_jwel}/api/Wholesal/UpdateEstimationMastBillDetails?billNo=${billNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
@@ -131,8 +231,7 @@ const SaleReturnEstimation = () => {
   const estimationItemsBill = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/UpdateEstimationItemsBillDetails?billNo=${
-          billNo + 1
+        `${CREATE_jwel}/api/Wholesal/UpdateEstimationItemsBillDetails?billNo=${billNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
@@ -285,11 +384,15 @@ const SaleReturnEstimation = () => {
   const handleSale = async () => {
     setLoading(true);
     try {
+      const vno = await vNoAPI();
+      const bill = await billNoAPI();
       await handleCancel();
       await estimationNoDataAPI(selectEstimationNo);
       await estimationDataBill();
       await estimationMastBill();
       await estimationItemsBill();
+      await handleSave(vno, bill);
+
 
       setFromDate(dayjs());
       setToDate(dayjs());
@@ -310,6 +413,8 @@ const SaleReturnEstimation = () => {
 
   useEffect(() => {
     billCountAPI();
+    vNoAPI();
+    billNoAPI();
   }, []);
 
   const handleCheckboxChange = (record) => {
@@ -413,11 +518,11 @@ const SaleReturnEstimation = () => {
                   className={
                     item.BILLNO <= 0 ? styles.infoBox : styles.infoBox1
                   }
-                  // onClick={() => {
-                  //   if (item.BILLNO <= 0) {
-                  //     handleCheckboxChange(item);
-                  //   }
-                  // }}
+                // onClick={() => {
+                //   if (item.BILLNO <= 0) {
+                //     handleCheckboxChange(item);
+                //   }
+                // }}
                 >
                   {/* Tag No */}
                   <div
@@ -551,6 +656,7 @@ const SaleReturnEstimation = () => {
                     onClick={() => {
                       // handleSale(item.ESTIMATIONNO)
                       setSaleOpen(true);
+                      saveSale();
                     }}
                     disabled={
                       selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO

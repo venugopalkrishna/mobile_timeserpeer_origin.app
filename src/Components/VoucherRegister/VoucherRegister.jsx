@@ -295,40 +295,33 @@ const VoucherRegister = () => {
                                             </span>
                                         </p>
                                     </div>
-                                    <hr className={styles.fullWidthLine} />
-                                    <div  className={styles.row}>
-                                        <p style={{ fontSize: "15px" }}>
-                                            <span
-                                                style={{
-                                                    fontWeight: 500,
-                                                    fontSize: "15px",
-                                                    color: "red",
-                                                }} black
-                                            >
-                                                {item.PARTICULARS &&
-                                                    item.LNAME &&
-                                                    item.PARTICULARS.trim() !== item.LNAME.trim()
-                                                    ? item.PARTICULARS : null}
-                                            </span>
-                                        </p>
-                                    </div>
-
-
+                                    {item.PARTICULARS &&
+                                        item.LNAME &&
+                                        item.PARTICULARS.trim() !== item.LNAME.trim() && (
+                                            <>
+                                                <hr className={styles.fullWidthLine} />
+                                                <div className={styles.row}>
+                                                    <p style={{ fontSize: "15px" }}>
+                                                        <span
+                                                            style={{
+                                                                fontWeight: 500,
+                                                                fontSize: "15px",
+                                                                color: "red",
+                                                            }}
+                                                        >
+                                                            {item.PARTICULARS}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
                                 </div>
-
-
-
-
                             </>
-
                         ))}
                     </div>
                 </div>
-
             </div>
-
         </Spin>
     );
 };
-
 export default VoucherRegister;

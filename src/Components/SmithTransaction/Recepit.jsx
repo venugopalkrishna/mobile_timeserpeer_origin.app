@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import { Input, Button, message } from "antd";
+import { Button, Input, message } from "antd";
 import axios from "axios";
-import styles from "./voucher.module.css";
-import { CREATE_jwel } from "../../Config/Config";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import { useState } from "react";
+import { CREATE_jwel } from "../../Config/Config";
+import styles from "./voucher.module.css";
 
-const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty }) => {
+const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, billNoAPI, resetparty }) => {
 
     const [weight, setWeight] = useState("");
     const [touch, setTouch] = useState("");
@@ -27,7 +26,7 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
     /* -------- API URL -------- */
     const API_URL = `${CREATE_jwel}/api/Wholesal/InsertTransEntryData`; // 🔴 change api name
     /* -------- SAVE HANDLER -------- */
-    const handleSave = async (vn) => {
+    const handleSave = async (vn, bill) => {
         const metal = Number(paidMetal);
         const cash = Number(paidCash);
 
@@ -57,7 +56,7 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 pnama: 0,
                 cjama: Number(paidCash) || 0,
                 cnama: 0,
-                vno: vn,
+                vno: bill,
                 vtype: "CUSTOMER",
                 stype: "RECEPIT",
                 cuT_METAL: 0,
@@ -82,8 +81,8 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 branchcode: "-",
                 dealername: "_",
                 paytype: "-",
-                sno: vn,
-                invno: String(vn)
+                sno: bill,
+                invno: String(bill)
             });
             /* ========= 2️⃣ CASH ENTRY (IF CASH > 0) ========= */
             if (Number(paidCash) > 0) {
@@ -100,7 +99,7 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                     pnama: 0,
                     cjama: Number(paidCash) || 0,
                     cnama: 0,
-                    vno: vn,
+                    vno: bill,
                     vtype: "CUSTOMER",
                     stype: "CASH BOOK",
                     cuT_METAL: 0,
@@ -125,8 +124,8 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                     branchcode: "-",
                     dealername: "-",
                     paytype: "-",
-                    sno: vn,
-                    invno: String(vn)
+                    sno: bill,
+                    invno: String(bill)
                 });
             }
             /* ========= 3️⃣ METAL ENTRY (IF METAL > 0) ========= */
@@ -144,7 +143,7 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                     pnama: 0,
                     cjama: 0,
                     cnama: 0,
-                    vno: vn,
+                    vno: bill,
                     vtype: "CUSTOMER",
                     stype: "BULLION GOLD",
                     cuT_METAL: 0,
@@ -169,8 +168,8 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                     branchcode: "-",
                     dealername: "-",
                     paytype: "-",
-                    sno: vn,
-                    invno: String(vn)
+                    sno: bill,
+                    invno: String(bill)
                 });
             }
             /* -------- API CALL -------- */
@@ -185,6 +184,8 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 }
             );
             message.success("Entry saved successfully");
+            refreshVno();
+            billNoAPI();
             /* -------- RESET -------- */
             setWeight("");
             setTouch("");
@@ -221,6 +222,8 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
         setTouch("");
         setWeight("");
         setDescription("");
+        refreshVno();
+        billNoAPI();
     }
 
     return (
@@ -231,10 +234,11 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
             <div className={styles.metalCashContainer}>
                 {/* METAL */}
                 <div className={styles.boxYellow}>
-                    <strong>METAL PAYMENT</strong>
+                    <strong>Metal Payment</strong>
                     <div className={styles.row}>
                         <label className={styles.rowLabel}>Weight</label>
                         <Input
+                            className={styles.inputField}
                             placeholder="Weight"
                             inputMode="decimal"
                             value={weight}
@@ -256,8 +260,9 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                         />
                     </div>
                     <div className={styles.row}>
-                        <label className={styles.rowLabel}>Touch</label>
+                        <label className={styles.rowLabel}>Touch(%)</label>
                         <Input
+                            className={styles.inputField}
                             placeholder="Touch"
                             inputMode="decimal"
                             value={touch}
@@ -276,6 +281,7 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                     <div className={styles.row}>
                         <label className={styles.rowLabel}>Paid Metal</label>
                         <Input
+                            className={styles.inputField}
                             placeholder="Paid Metal"
                             inputMode="decimal"
                             value={paidMetal}
@@ -292,10 +298,11 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 </div>
                 {/* CASH */}
                 <div className={styles.boxBlue}>
-                    <strong>CASH PAYMENT</strong>
+                    <strong>Cash Payment</strong>
                     <div className={styles.row}>
                         <label className={styles.rowLabel}>Paid Cash</label>
                         <Input
+                            className={styles.inputField}
                             placeholder="Paid Cash"
                             inputMode="decimal"
                             value={paidCash}
@@ -341,7 +348,8 @@ const ReceiptEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                         onClick={async () => {
                             // if (!vNo) return;
                             const vno = await refreshVno();
-                            await handleSave(vno);
+                            const billNo = await billNoAPI();
+                            await handleSave(vno, billNo);
                         }}
                     >
                         SAVE

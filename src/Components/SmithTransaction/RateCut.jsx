@@ -5,7 +5,7 @@ import styles from "./voucher.module.css";
 import { CREATE_jwel } from "../../Config/Config";
 import dayjs from "dayjs";
 
-const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty }) => {
+const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, billNoAPI, resetparty }) => {
     /* -------- STATES -------- */
     const [selectedType, setSelectedType] = useState("");
     const [rateValue, setRateValue] = useState("");
@@ -87,7 +87,7 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
         }
     };
     /* -------- SAVE HANDLER -------- */
-    const handleSave = async (vn) => {
+    const handleSave = async (vn, bill) => {
 
         if (!rateValue || Number(rateValue) <= 0) {
             message.warning("Rate is required");
@@ -120,7 +120,7 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 pnama: 0,
                 cjama: 0,
                 cnama: Number(cashValue),
-                vno: vn,
+                vno: bill,
                 vtype: "CUSTOMER",
                 stype: "RATE CUT",
                 cuT_METAL: Number(metalValue),
@@ -145,8 +145,8 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 branchcode: "-",
                 dealername: "-",
                 paytype: "-",
-                sno: vn,
-                invno: String(vn)
+                sno: bill,
+                invno: String(bill)
             });
         }
         /* ===== CASH → METAL ===== */
@@ -169,7 +169,7 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 pnama: Number(metalValue2),
                 cjama: Number(cashValue2),
                 cnama: 0,
-                vno: vn,
+                vno: bill,
                 vtype: "CUSTOMER",
                 stype: "RATE CUT",
                 cuT_METAL: 0,
@@ -194,8 +194,8 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 branchcode: "-",
                 dealername: "-",
                 paytype: "-",
-                sno: vn,
-                invno: String(vn)
+                sno: bill,
+                invno: String(bill)
             });
         }
         try {
@@ -207,6 +207,8 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                 }
             });
             message.success("Rate Cut Entry Saved");
+            refreshVno();
+            billNoAPI();
             /* -------- RESET -------- */
             setSelectedType("");
             setRateValue("");
@@ -240,6 +242,7 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
             <div className={styles.rateContainer}>
                 <label className={styles.rateLabel}>Rate</label>
                 <Input
+                    className={styles.inputField}
                     placeholder="Rate"
                     inputMode="decimal"
                     value={rateValue}
@@ -257,12 +260,13 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                         disabled={!rateValue}
                         onChange={() => handleCheck("metalToCash")}
                     >
-                        METAL TO CASH
+                        Metal To Cash
                     </Checkbox>
 
                     <div className={styles.row}>
                         <label className={styles.rowLabel}>Metal</label>
                         <Input
+                            className={styles.inputField}
                             disabled={selectedType !== "metalToCash"}
                             value={metalValue}
                             onFocus={(e) => {
@@ -275,6 +279,7 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                     <div className={styles.row}>
                         <label className={styles.rowLabel}>Cash</label>
                         <Input
+                            className={styles.inputField}
                             disabled={selectedType !== "metalToCash"}
                             value={cashValue}
                             onFocus={(e) => {
@@ -283,7 +288,7 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                         />
                     </div>
                 </div>
-                
+
                 {/* CASH TO METAL */}
                 <div className={styles.boxBlue}>
                     <Checkbox
@@ -291,12 +296,13 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                         disabled={!rateValue}
                         onChange={() => handleCheck("cashToMetal")}
                     >
-                        CASH TO METAL
+                        Cash To Metal
                     </Checkbox>
 
                     <div className={styles.row}>
                         <label className={styles.rowLabel}>Cash</label>
                         <Input
+                            className={styles.inputField}
                             disabled={selectedType !== "cashToMetal"}
                             value={cashValue2}
                             onFocus={(e) => {
@@ -309,6 +315,7 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                     <div className={styles.row}>
                         <label className={styles.rowLabel}>Metal</label>
                         <Input
+                            className={styles.inputField}
                             disabled={selectedType !== "cashToMetal"}
                             value={metalValue2}
                             onFocus={(e) => {
@@ -349,7 +356,8 @@ const RateCutEntry = ({ vNo, selectedParty, selectedDate, refreshVno, resetparty
                         loading={loading}
                         onClick={async () => {
                             const vno = await refreshVno();
-                            await handleSave(vno);
+                            const billNo = await billNoAPI();
+                            await handleSave(vno, billNo);
                         }}
                     >
                         SAVE

@@ -21,6 +21,9 @@ import Voucher from "./Components/SmithTransaction/Voucher";
 import Module1 from "./Components/Module1/Module1";
 import SaleRegister from "./Components/SaleRegister/SaleRegister";
 import VoucherRegister from "./Components/VoucherRegister/VoucherRegister";
+import SmithIssues from "./Components/WorkerBook/SmithIssues";
+import SmithReceivals from "./Components/WorkerBook/SmithReceivals";
+import Outstandings from "./Components/Outstandings/Outstandings";
 const App = () => {
    const tenantName = localStorage.getItem("tenantName");
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -64,6 +67,9 @@ const App = () => {
                   <Route path="/module1" element={<Module1 />} />
                   <Route path="/sale-register" element={<SaleRegister />} />
                   <Route path="/voucher-register" element={<VoucherRegister />} />
+                  <Route path="/smith-issues" element={<SmithIssues />} />
+                  <Route path="/smith-receivals" element={<SmithReceivals />} />
+                  <Route path="/outstandings" element={<Outstandings />} />
 
                 </Routes>
             ) : (
