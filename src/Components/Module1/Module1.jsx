@@ -39,6 +39,11 @@ const Module1 = () => {
     date.setUTCHours(0, 0, 0, 0);
     console.log(billNoDate, "date");
 
+    const inputRefs = useRef([]);
+    const setRef = (index, el) => {
+        inputRefs.current[index] = el;
+    };
+
     const partyNamesAPI = async () => {
         try {
             const response = await axios.get(
@@ -66,11 +71,9 @@ const Module1 = () => {
             console.error(error);
         }
     };
-
     // const date = new Date();
     // const billNoDate = dayjs(selectedDate);
     // date.setUTCHours(0, 0, 0, 0);
-
     useEffect(() => {
         partyNamesAPI();
         vNoAPI();
@@ -156,7 +159,6 @@ const Module1 = () => {
                 sno: vNo,
                 invno: String(vNo)
             }
-
         ];
         console.log("Post Payload" + payload);
 
@@ -185,6 +187,16 @@ const Module1 = () => {
         setCash();
         setStCost();
         setDescription("");
+    };
+
+    const handleKeyDown = (e, index) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            // move focus to next input if exists
+            if (inputRefs.current[index + 1]) {
+                inputRefs.current[index + 1].focus();
+            }
+        }
     };
 
     return (
@@ -225,7 +237,7 @@ const Module1 = () => {
                 <div className={styles.partyWrapper}>
                     <div className={styles.partyLabel}>Party Name</div>
                     <Select
-                        ref={partyRef}
+                        ref={(el) => setRef(0, el?.focus ? el : el?.rcSelect?.inputRef)}
                         showSearch
                         allowClear
                         className={styles.partySelect}
@@ -250,6 +262,8 @@ const Module1 = () => {
                                 className={styles.inputfield}
                                 value={gwt}
                                 inputMode="decimal"
+                                ref={(el) => setRef(1, el)}
+                                onKeyDown={(e) => handleKeyDown(e, 1)}
                                 onFocus={(e) => {
                                     e.target.select();
                                 }}
@@ -273,6 +287,8 @@ const Module1 = () => {
                             <Input
                                 className={styles.inputfield}
                                 value={less}
+                                ref={(el) => setRef(2, el)}
+                                onKeyDown={(e) => handleKeyDown(e, 2)}
                                 inputMode="decimal"
                                 onFocus={(e) => {
                                     e.target.select();
@@ -297,6 +313,8 @@ const Module1 = () => {
                             <span className={styles.spantext}> Net Wt</span>
                             <Input className={styles.inputfield} value={nwt}
                                 inputMode="decimal"
+                                ref={(el) => setRef(3, el)}
+                                onKeyDown={(e) => handleKeyDown(e, 3)}
                                 onFocus={(e) => {
                                     e.target.select();
                                 }}
@@ -319,6 +337,8 @@ const Module1 = () => {
                                 className={styles.inputfield}
                                 value={stCost}
                                 inputMode="decimal"
+                                ref={(el) => setRef(4, el)}
+                                onKeyDown={(e) => handleKeyDown(e, 4)}
                                 onFocus={(e) => {
                                     e.target.select();
                                 }}
@@ -342,6 +362,8 @@ const Module1 = () => {
                             <span className={styles.spantext}> Touch(%)</span>
                             <Input className={styles.inputfield} value={touch}
                                 inputMode="decimal"
+                                ref={(el) => setRef(5, el)}
+                                onKeyDown={(e) => handleKeyDown(e, 5)}
                                 onFocus={(e) => {
                                     e.target.select();
                                 }}
@@ -363,6 +385,8 @@ const Module1 = () => {
                             <span className={styles.spantext}> Fine</span>
                             <Input className={styles.inputfield} value={fine}
                                 inputMode="decimal"
+                                ref={(el) => setRef(6, el)}
+                                onKeyDown={(e) => handleKeyDown(e, 6)}
                                 onFocus={(e) => {
                                     e.target.select();
                                 }}
@@ -383,6 +407,8 @@ const Module1 = () => {
                             <span className={styles.spantext}> Cash</span>
                             <Input className={styles.inputfield} value={cash}
                                 inputMode="decimal"
+                                ref={(el) => setRef(7, el)}
+                                onKeyDown={(e) => handleKeyDown(e, 7)}
                                 onFocus={(e) => {
                                     e.target.select();
                                 }}
@@ -401,7 +427,9 @@ const Module1 = () => {
                         </div>
                         <div className={styles.subContainer4}>
                             <span className={styles.spantext}> Description</span>
-                            <Input className={styles.inputfield2} value={description} onChange={e => setDescription(e.target.value)} />
+                            <Input className={styles.inputfield2} value={description} onChange={e => setDescription(e.target.value)}
+                                ref={(el) => setRef(8, el)}
+                                onKeyDown={(e) => handleKeyDown(e, 8)} />
                         </div>
                     </div>
                 </div>

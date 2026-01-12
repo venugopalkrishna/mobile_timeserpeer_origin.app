@@ -56,10 +56,14 @@ const SmithReceivals = () => {
     const handleKeyDown = (e, i) => {
         if (e.key === "Enter") {
             e.preventDefault();
-            refs.current[i + 1]?.focus() ||
-                document.getElementById("save-btn")?.click();
+
+            if (refs.current[i + 1]) {
+                refs.current[i + 1].focus();
+            }
+            // else do nothing (NO SAVE)
         }
     };
+
     // ---------- DECIMAL HANDLER ----------
     const handleDecimalChange = (value, setter, decimals = 3) => {
         if (value === "") {
