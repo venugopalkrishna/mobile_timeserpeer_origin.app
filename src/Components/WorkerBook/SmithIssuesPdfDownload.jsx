@@ -1,6 +1,7 @@
 import React from "react";
 import dayjs from "dayjs";
 import html2pdf from "html2pdf.js";
+import styles from "./smithtissues.module.css"
 
 const SmithIssuePdfDownload = ({
     voucherNo,
@@ -109,18 +110,7 @@ const SmithIssuePdfDownload = ({
         <div style={{ textAlign: "center" }}>
             <button
                 onClick={handleDownloadPdf}
-                style={{
-                    padding: "8px 20px",
-                    fontSize: "15px",
-                    cursor: "pointer",
-                    borderRadius: "5px",
-                    backgroundColor: "#c08241ff",
-                    color: "white",
-                    border: "none",
-                    outline: "none",
-                    boxShadow: "none",
-                    borderColor:"#0a113c"
-                }}
+                className={styles.print}
             >
                 Print
             </button>

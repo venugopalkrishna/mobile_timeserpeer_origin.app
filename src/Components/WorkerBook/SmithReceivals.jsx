@@ -305,7 +305,7 @@ const SmithReceivals = () => {
     };
 
     return (
-        <div>
+        <div className={styles.devContainer}>
             <Header setOpen={setOpen} />
             <SidebarDrawer
                 open={open}
@@ -322,16 +322,18 @@ const SmithReceivals = () => {
                     </div>
 
                     <div className={styles.dateContainer}>
-                        <div>
-                            <span className={styles.no}>No:</span>
+                        <div className={styles.vocCont}>
+                            <div className={styles.no}>INVNO</div>
                             <span className={styles.vocNo}>{voucherNo}</span>
                         </div>
                         <DatePicker
+                            className={styles.datePicker}
                             value={voucherDate}
                             format="DD/MM/YYYY"
                             onChange={setVoucherDate}
                             ref={(el) => setRef(0, el?.input)}
                             onKeyDown={(e) => handleKeyDown(e, 0)}
+                        // className={styles.dateCont}
                         />
                     </div>
                 </div>
@@ -345,25 +347,34 @@ const SmithReceivals = () => {
                                 <span className={styles.smallLabel}>Smith</span>
                                 <span>
                                     <Select
-                                        className={styles.select200}
+                                        className={styles.partySelect}
                                         value={smith}
                                         showSearch
                                         allowClear
-                                        onChange={setSmith}
+                                        onChange={(value) => {
+                                            setSmith(value);
+
+                                            // 👉 move cursor to Particulars
+                                            setTimeout(() => {
+                                                refs.current[3]?.rcSelect?.inputRef?.focus();
+                                            }, 0);
+                                        }}
+
                                         ref={(el) => setRef(1, el)}
                                         onKeyDown={(e) => handleKeyDown(e, 1)}
                                         placeholder="Select Smith"
                                     >
                                         {dealerSmith.map((d, i) => (
-                                            <Option key={i} value={d.Dealername}>
+                                            <Option key={i} value={d.Dealername} className={styles.options}>
                                                 {d.Dealername}
+
                                             </Option>
                                         ))}
                                     </Select>
                                 </span>
                             </div>
 
-                            <div className={styles.row4}>
+                            {/* <div className={styles.row4}>
                                 <label className={styles.smallLabel}>Slip No</label>
                                 <Input
                                     className={styles.slipInput}
@@ -372,187 +383,198 @@ const SmithReceivals = () => {
                                     ref={(el) => setRef(2, el)}
                                     onKeyDown={(e) => handleKeyDown(e, 2)}
                                 />
-                            </div>
+                            </div> */}
 
                         </div>
-                        <Button className={styles.cnacleButton} onClick={handleCancel}>
+                        <Button className={styles.cancleButton} onClick={handleCancel}>
                             Reset
                         </Button>
                     </div>
-                    <div className={styles.rowMain}>
+                    <div className={styles.devCont}>
+                        <div className={styles.rowMain}>
 
-                        {/* Particulars */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Particulars</label>
-                            <Select
-                                className={styles.select300}
-                                value={particulars}
-                                onChange={setParticulars}
-                                ref={(el) => setRef(3, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 3)}
-                                showSearch
-                                allowClear
-                                placeholder="Select Particulars"
-                            >
-                                {issueItems.map((it, i) => (
-                                    <Option key={i} value={it.ISSUEITEM}>
-                                        {it.ISSUEITEM}
-                                    </Option>
-                                ))}
-                            </Select>
+                            {/* Particulars */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Particulars</label>
+                                <Select
+                                    className={styles.select300}
+                                    value={particulars}
+                                    onChange={(value) => {
+                                        setParticulars(value);
+
+                                        // 👉 move cursor to PCS
+                                        setTimeout(() => {
+                                            refs.current[4]?.focus();
+                                        }, 0);
+                                    }}
+
+                                    ref={(el) => setRef(3, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 3)}
+                                    showSearch
+                                    allowClear
+                                    placeholder="Select Particulars"
+                                >
+                                    {issueItems.map((it, i) => (
+                                        <Option key={i} value={it.ISSUEITEM}>
+                                            {it.ISSUEITEM}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </div>
+
+                            {/* Pcs */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Pcs</label>
+                                <Input
+                                    className={`${styles.input} ${styles.pcs}`}
+                                    value={pcs}
+                                    onChange={(e) => handleDecimalChange(e.target.value, setPcs, 0)}
+                                    ref={(el) => setRef(4, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 4)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Rec Wt */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Rec Wt</label>
+                                <Input
+                                    className={`${styles.input} ${styles.normal}`}
+                                    value={recWt}
+                                    onChange={(e) => handleDecimalChange(e.target.value, setRecWt)}
+                                    ref={(el) => setRef(5, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 5)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Stone Wt */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Stone Wt</label>
+                                <Input
+                                    className={`${styles.input} ${styles.normal}`}
+                                    value={stoneWt}
+                                    onChange={(e) => handleDecimalChange(e.target.value, setStoneWt)}
+                                    ref={(el) => setRef(6, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 6)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Net Wt */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Net Wt</label>
+                                <Input
+                                    className={`${styles.input} ${styles.normal}`}
+                                    value={netWt}
+                                    onChange={(e) => setNetWt(e.target.value)}
+                                    ref={(el) => setRef(7, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 7)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Wast (%) */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Wast (%)</label>
+                                <Input
+                                    className={`${styles.input} ${styles.normal}`}
+                                    value={wast}
+                                    onChange={(e) => handleDecimalChange(e.target.value, setWast)}
+                                    ref={(el) => setRef(8, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 8)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Wastage Wt */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Wastage Wt</label>
+                                <Input
+                                    className={`${styles.input} ${styles.normal}`}
+                                    value={wastWt}
+                                    onChange={(e) => setWastWt(e.target.value)}
+                                    ref={(el) => setRef(9, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 9)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Rec Weight */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Rec Weight</label>
+                                <Input
+                                    className={`${styles.input} ${styles.normal}`}
+                                    value={recWeight}
+                                    onChange={(e) => setRecWeight(e.target.value)}
+                                    ref={(el) => setRef(10, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 10)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Order No */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Order No</label>
+                                <Input
+                                    className={`${styles.input} ${styles.normal}`}
+                                    value={orderNo}
+                                    onChange={(e) => setOrderNo(e.target.value)}
+                                    ref={(el) => setRef(11, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 11)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Name */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Name</label>
+                                <Input
+                                    className={`${styles.input} ${styles.normal}`}
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    ref={(el) => setRef(12, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 12)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Description */}
+                            <div className={styles.row}>
+                                <label className={styles.label120}>Description</label>
+                                <Input
+                                    className={`${styles.input} ${styles.desc}`}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    ref={(el) => setRef(13, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 13)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                />
+                            </div>
+
+                            {/* Footer */}
+
                         </div>
-
-                        {/* Pcs */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Pcs</label>
-                            <Input
-                                className={`${styles.input} ${styles.pcs}`}
-                                value={pcs}
-                                onChange={(e) => handleDecimalChange(e.target.value, setPcs, 0)}
-                                ref={(el) => setRef(4, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 4)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Rec Wt */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Rec Wt</label>
-                            <Input
-                                className={`${styles.input} ${styles.normal}`}
-                                value={recWt}
-                                onChange={(e) => handleDecimalChange(e.target.value, setRecWt)}
-                                ref={(el) => setRef(5, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 5)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Stone Wt */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Stone Wt</label>
-                            <Input
-                                className={`${styles.input} ${styles.normal}`}
-                                value={stoneWt}
-                                onChange={(e) => handleDecimalChange(e.target.value, setStoneWt)}
-                                ref={(el) => setRef(6, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 6)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Net Wt */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Net Wt</label>
-                            <Input
-                                className={`${styles.input} ${styles.normal}`}
-                                value={netWt}
-                                onChange={(e) => setNetWt(e.target.value)}
-                                ref={(el) => setRef(7, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 7)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Wast (%) */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Wast (%)</label>
-                            <Input
-                                className={`${styles.input} ${styles.normal}`}
-                                value={wast}
-                                onChange={(e) => handleDecimalChange(e.target.value, setWast)}
-                                ref={(el) => setRef(8, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 8)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Wastage Wt */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Wastage Wt</label>
-                            <Input
-                                className={`${styles.input} ${styles.normal}`}
-                                value={wastWt}
-                                onChange={(e) => setWastWt(e.target.value)}
-                                ref={(el) => setRef(9, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 9)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Rec Weight */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Rec Weight</label>
-                            <Input
-                                className={`${styles.input} ${styles.normal}`}
-                                value={recWeight}
-                                onChange={(e) => setRecWeight(e.target.value)}
-                                ref={(el) => setRef(10, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 10)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Order No */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Order No</label>
-                            <Input
-                                className={`${styles.input} ${styles.normal}`}
-                                value={orderNo}
-                                onChange={(e) => setOrderNo(e.target.value)}
-                                ref={(el) => setRef(11, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 11)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Name */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Name</label>
-                            <Input
-                                className={`${styles.input} ${styles.normal}`}
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                ref={(el) => setRef(12, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 12)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Description */}
-                        <div className={styles.row}>
-                            <label className={styles.label120}>Description</label>
-                            <Input
-                                className={`${styles.input} ${styles.desc}`}
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                ref={(el) => setRef(13, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 13)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                            />
-                        </div>
-
-                        {/* Footer */}
                         <div className={styles.footer}>
                             <Button
                                 id="save-btn"

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import dayjs from "dayjs";
 import html2pdf from "html2pdf.js";
+import styles from "./smithreceivals.module.css"
 
 const SmithReceivalsprint = (props) => {
   const {
@@ -126,17 +127,7 @@ const SmithReceivalsprint = (props) => {
     <div style={{ textAlign: "center" }}>
       <button
         onClick={generatePdf}
-        style={{
-          padding: "9px 20px",
-          fontSize: 15,
-          cursor: "pointer",
-          borderRadius: "5px",
-          backgroundColor: "#c08241ff",
-          color: "white",
-          border: "none",
-          outline: "none",
-          boxShadow: "none",
-        }}
+        className={styles.print}
       >
         Print
       </button>

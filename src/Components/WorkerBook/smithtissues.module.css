@@ -22,7 +22,7 @@
     align-items: center;
     /* background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247)); */
     color: white;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-top: 2px;
     justify-content: space-between;
     width: 97%;
@@ -33,11 +33,16 @@
 .vocContainer {
     display: flex;
     background-color: #030a32;
-    border-radius: 7px;
+    border-radius: 10px;
     align-items: center;
     justify-content: center;
     padding: 10px;
     width: 20%;
+    height: 35px;
+}
+
+.vocCont {
+    flex-direction: column;
 }
 
 .dateContainer {
@@ -46,7 +51,7 @@
     gap: 10px;
     background-color: #0a113c;
     padding: 5px;
-    border-radius: 7px;
+    border-radius: 10px;
     width: 80%;
     align-items: center;
 }
@@ -64,7 +69,7 @@
 }
 
 .no {
-    font-size: 15px;
+    font-size: 10px;
     font-weight: bold;
 }
 
@@ -103,8 +108,14 @@
     /* background: #add8e6; */
     padding: 7px;
     margin-top: 5px;
-    border-radius: 8px;
+    border-radius: 10px;
+    /* background: #0a113c; */
+}
+
+.devCont {
     background: #0a113c;
+    padding: 3px;
+    border-radius: 10px;
 }
 
 .topRow {
@@ -122,14 +133,16 @@
     align-items: center;
 
 }
+
 .row1 {
     display: flex;
     align-items: center;
     gap: 30px;
     margin-bottom: 5px;
     justify-content: center;
-    
+
 }
+
 .row3 {
     display: flex;
     align-items: center;
@@ -137,8 +150,9 @@
     /* margin-bottom: 10px; */
     justify-content: center;
     flex-direction: column;
-    
+
 }
+
 .row4 {
     display: flex;
     align-items: center;
@@ -146,14 +160,19 @@
     /* margin-bottom: 10px; */
     justify-content: center;
     flex-direction: column;
-    
+
 }
+
 .row {
     display: flex;
     align-items: center;
     gap: 5px;
     margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 85%;
 }
+
 .cancleButton {
     width: 80px;
     height: 30px;
@@ -161,6 +180,26 @@
     background-color: #fe0100;
     color: white;
     margin-bottom: 5px;
+}
+
+.cancleButton:hover {
+    color: #fe0100;
+}
+
+/* Active (click) effect */
+.cancleButton:active {
+    color: #fe0100;
+    transform: scale(0.95);
+}
+
+.cancleButton:hover,
+.cancleButton:focus,
+.cancleButton:active {
+    background-color: transparent !important;
+    border-color: #ccc !important;
+    background-color: #fe0100 !important;
+    box-shadow: none !important;
+    color: white !important;
 }
 
 .rowMain {
@@ -175,13 +214,34 @@
     font-size: 13px;
 }
 
+.lableatyle {
+    width: 120px;
+    font-weight: 500;
+}
+
+.particularSelect {
+    width: 250px;
+    border-radius: 10px;
+    text-align: center;
+}
+
 .inputValue {
     font-weight: bold;
     font-size: 15px;
+    width: 250px;
+    text-align: center;
 }
 
 .smithLabel {
     width: 40px;
+    font-weight: bold;
+}
+
+.partySelect {
+    width: 250px;
+    font-weight: 600;
+    border-radius: 10px;
+    text-align: center;
 }
 
 .slipLabel {
@@ -208,7 +268,7 @@
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin-top: 15px;
+    margin-top: 5px;
 }
 
 .saveBtn {
@@ -220,4 +280,394 @@
     font-size: 18px;
 }
 
- 
+.print {
+    padding: 8px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 10px;
+    background-color: #c08241ff;
+    color: white;
+    outline: none;
+    box-shadow: none;
+    border-color: #c08241ff;
+}
+
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        width: 97%;
+        margin: auto;
+        margin-top: 5px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        background-color: #003161;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .invBox {
+        display: flex;
+        padding: 8px;
+        gap: 8px;
+        align-items: center;
+        /* background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247)); */
+        color: white;
+        border-radius: 10px;
+        margin-top: 2px;
+        justify-content: space-between;
+        width: 97%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .vocContainer {
+        display: flex;
+        background-color: #030a32;
+        border-radius: 15px;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        width: 28%;
+        height: 80px;
+    }
+
+    .vocCont {
+        flex-direction: column;
+    }
+
+    .dateContainer {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        background-color: #0a113c;
+        padding: 5px;
+        border-radius: 10px;
+        width: 80%;
+        align-items: center;
+    }
+
+    .noContainer {
+        gap: 5px;
+    }
+
+    .invno {
+        color: white;
+        font-weight: bold;
+        align-items: center;
+        font-size: 35px;
+        /* padding: 5px 5px 5px 5px; */
+    }
+
+    .no {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .vocNo {
+        font-weight: bold;
+        font-size: 45px;
+        /* padding: 5px; */
+    }
+
+    .datePicker {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        font-size: 30px;
+        border-radius: 10px;
+    }
+
+    .datePicker :global(.ant-picker-input > input) {
+        font-size: 30px;
+        font-weight: 500;
+        height: 36px;
+        padding: 4px 10px;
+        width: 200px;
+    }
+
+    .headerLeft,
+    .headerRight {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .header label {
+        color: white;
+    }
+
+    .voucherLabel {
+        font-size: 12px;
+    }
+
+    .voucherNo {
+        font-weight: bold;
+        color: white;
+        font-size: 30px;
+    }
+
+    .voucherDateLabel {
+        font-size: 12px;
+    }
+
+    .body {
+        /* background: #add8e6; */
+        padding: 7px;
+        margin-top: 5px;
+        border-radius: 10px;
+        /* background: #0a113c; */
+    }
+
+    .devCont {
+        background: #0a113c;
+        padding: 3px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .topRow {
+        display: flex;
+        /* gap: 5px; */
+        margin-bottom: 15px;
+        background: #add8e6;
+        padding: 5px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 98%;
+        /* justify-content: space-around; */
+        border-radius: 5px;
+        flex-direction: column;
+        align-items: center;
+        border-radius: 15px;
+    }
+
+    .row1 {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 5px;
+        justify-content: center;
+    }
+
+    .row3 {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        /* margin-bottom: 10px; */
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .row4 {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        /* margin-bottom: 10px; */
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        gap: 80px;
+        margin-bottom: 10px;
+        justify-content: center;
+    }
+
+    .cancleButton {
+        width: 180px;
+        height: 70px;
+        font-size: 35px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        border-radius: 15px;
+    }
+
+    .cancleButton:hover {
+        color: #fe0100;
+    }
+
+    /* Active (click) effect */
+    .cancleButton:active {
+        color: #fe0100;
+        transform: scale(0.95);
+    }
+
+    .cancleButton:hover,
+    .cancleButton:focus,
+    .cancleButton:active {
+        background-color: transparent !important;
+        border-color: #ccc !important;
+        background-color: #fe0100 !important;
+        box-shadow: none !important;
+        color: white !important;
+    }
+
+    .rowMain {
+        background: radial-gradient(circle at center, #f9f7f7 40%, #eaecef 60%, #dee7f5 80%);
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .label {
+        width: 200px;
+        font-weight: 500;
+        font-size: 30px;
+    }
+
+    .inputValue {
+        width: 500px;
+        font-weight: bold;
+        font-size: 40px;
+        height: 70px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .smithLabel {
+        width: 40px;
+        font-weight: bold;
+        font-size: 35px;
+    }
+
+    .partySelect {
+        width: 600px;
+        height: 70px;
+        font-size: 50px;
+        font-weight: 600;
+        border-radius: 15px;
+        text-align: center;
+    }
+
+    .selectOptions {
+        font-size: 50px;
+    }
+
+    /* Select input text */
+    .partySelect :global(.ant-select-selection-item) {
+        font-size: 30px;
+        /* increase font size here */
+        font-weight: 500;
+    }
+
+    /* Dropdown input search box */
+    .partySelect :global(.ant-select-selection-search-input) {
+        font-size: 30px;
+        font-weight: 500;
+    }
+
+    /* Dropdown menu items */
+    .selectOptions :global(.ant-select-item-option-content) {
+        font-size: 35px;
+        font-weight: 500;
+    }
+
+    /* Optional: placeholder */
+    .partySelect :global(.ant-select-selection-placeholder) {
+        font-size: 35px;
+    }
+
+    .slipLabel {
+        width: 60px;
+    }
+
+    .slipInput {
+        width: 60px;
+        background-color: lightgray;
+        font-weight: bold;
+    }
+
+    .lableatyle {
+        width: 200px;
+        font-weight: 500;
+        font-size: 30px;
+    }
+
+    .particularSelect {
+        width: 500px;
+        height: 70px;
+        font-size: 50px;
+        font-weight: 600;
+        border-radius: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .selectOptions {
+        font-size: 50px;
+    }
+
+    /* Select input text */
+    .particularSelect :global(.ant-select-selection-item) {
+        font-size: 30px;
+        /* increase font size here */
+        font-weight: 500;
+    }
+
+    /* Dropdown input search box */
+    .particularSelect :global(.ant-select-selection-search-input) {
+        font-size: 30px;
+        font-weight: 500;
+    }
+
+    /* Dropdown menu items */
+    .selectOptions :global(.ant-select-item-option-content) {
+        font-size: 35px;
+        font-weight: 500;
+    }
+
+    /* Optional: placeholder */
+    .particularSelect :global(.ant-select-selection-placeholder) {
+        font-size: 35px;
+    }
+
+    .centerInput {
+        width: 200px;
+        text-align: center;
+    }
+
+    .descInput {
+        width: 300px;
+        text-align: center;
+    }
+
+    .footer {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 5px;
+    }
+
+    .saveBtn {
+        background-color: #107626ff !important;
+        color: white !important;
+        height: 70px;
+        width: 180px;
+        border-color: #0a113c;
+        font-size: 35px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-radius: 15px;
+    }
+
+    .print {
+        height: 70px;
+        width: 180px;
+        font-size: 30px;
+        cursor: pointer;
+        border-radius: 15px;
+        background-color: #c08241ff;
+        color: white;
+        outline: none;
+        box-shadow: none;
+        border-color: #c08241ff;
+        margin-top: 10px;
+    }
+
+}

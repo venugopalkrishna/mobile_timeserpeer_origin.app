@@ -31,6 +31,8 @@ const Module1 = () => {
     const [vNo, setVNo] = useState(null);
     const toggleDrawer = () => setOpen(false);
     const [openDelete, setOpenDelete] = useState(false);
+    const grossWtRef = useRef(null);
+
 
     const date = new Date();
     const billNoDate = new Date(
@@ -211,11 +213,11 @@ const Module1 = () => {
             />
             <div className={styles.invBox}>
                 <div className={styles.vocContainer}>
-                    <span className={styles.invno}>VOUCHER </span>
+                    <span className={styles.invno}>SALE </span>
                 </div>
                 <div className={styles.dateContainer}>
-                    <div>
-                        <span className={styles.no}> No:</span>
+                    <div className={styles.saleCont}>
+                        <div className={styles.no}> INVNO</div>
                         <span className={styles.vocNo}>{vNo ?? "--"}</span>
                     </div>
                     <span className={styles.datePicker2}>
@@ -242,8 +244,15 @@ const Module1 = () => {
                         allowClear
                         className={styles.partySelect}
                         value={selectedParty}
-                        onChange={setSelectedParty}
                         placeholder="Select Party Name"
+                        onChange={(value) => {
+                            setSelectedParty(value);
+
+                            // ✅ MOVE CURSOR TO GROSS WT
+                            setTimeout(() => {
+                                inputRefs.current[1]?.focus();
+                            }, 0);
+                        }}
                     >
                         {partyNames.map((party, index) => (
                             <Option key={index} value={party.Dealername}>
@@ -253,189 +262,192 @@ const Module1 = () => {
                     </Select>
                     <Button className={styles.cancleButton} onClick={handleReset}>Reset</Button>
 
-                </div>
-                <div className={styles.container}>
-                    <div className={styles.mainContainer}>
-                        <div className={styles.subContainer}>
-                            <span className={styles.spantext}> Gross Wt</span>
-                            <Input
-                                className={styles.inputfield}
-                                value={gwt}
-                                inputMode="decimal"
-                                ref={(el) => setRef(1, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 1)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value === "") {
-                                        setGwt("");
-                                        setNwt("");
-                                        return;
-                                    }
-                                    const regex = /^\d*\.?\d{0,3}$/;
-                                    if (regex.test(value)) {
-                                        setGwt(value);
-                                        setNwt(calculateNwt(value, less));
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className={styles.subContainer}>
-                            <span className={styles.spantext}> Less Wt</span>
-                            <Input
-                                className={styles.inputfield}
-                                value={less}
-                                ref={(el) => setRef(2, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 2)}
-                                inputMode="decimal"
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                onChange={(e) => {
-                                    const value = e.target.value;
+                </div >
+                <div className={styles.devContainer}>
+                    <div className={styles.container}>
+                        <div className={styles.mainContainer}>
+                            <div className={styles.subContainer}>
+                                <span className={styles.spantext}> Gross Wt</span>
+                                <Input
+                                    className={styles.inputfield}
+                                    value={gwt}
+                                    inputMode="decimal"
+                                    ref={(el) => setRef(1, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 1)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === "") {
+                                            setGwt("");
+                                            setNwt("");
+                                            return;
+                                        }
+                                        const regex = /^\d*\.?\d{0,3}$/;
+                                        if (regex.test(value)) {
+                                            setGwt(value);
+                                            setNwt(calculateNwt(value, less));
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className={styles.subContainer}>
+                                <span className={styles.spantext}> Less Wt</span>
+                                <Input
+                                    className={styles.inputfield}
+                                    value={less}
+                                    ref={(el) => setRef(2, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 2)}
+                                    inputMode="decimal"
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
 
-                                    if (value === "") {
-                                        setLess("");
-                                        setNwt(calculateNwt(gwt, 0));
-                                        return;
-                                    }
-                                    const regex = /^\d*\.?\d{0,3}$/;
-                                    if (regex.test(value)) {
-                                        setLess(value);
-                                        setNwt(calculateNwt(gwt, value));
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className={styles.subContainer2}>
-                            <span className={styles.spantext}> Net Wt</span>
-                            <Input className={styles.inputfield} value={nwt}
-                                inputMode="decimal"
-                                ref={(el) => setRef(3, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 3)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value === "") {
-                                        setNwt(value);
-                                        return;
-                                    }
-                                    const regex = /^\d+(\.\d{0,3})?$/;
-                                    if (regex.test(value)) {
-                                        setNwt(value);
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className={styles.subContainer2}>
-                            <span className={styles.spantext}>St.Cost</span>
-                            <Input
-                                className={styles.inputfield}
-                                value={stCost}
-                                inputMode="decimal"
-                                ref={(el) => setRef(4, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 4)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    // allow empty
-                                    if (value === "") {
-                                        setStCost(value);
-                                        setCash(value);
-                                        return;
-                                    }
-                                    const regex = /^\d+(\.\d{0,2})?$/;
-                                    if (regex.test(value)) {
-                                        setStCost(value);
-                                        setCash(value); // ✅ AUTO CASH UPDATE
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className={styles.subContainer3}>
-                            <span className={styles.spantext}> Touch(%)</span>
-                            <Input className={styles.inputfield} value={touch}
-                                inputMode="decimal"
-                                ref={(el) => setRef(5, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 5)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value === "") {
-                                        setTouch(value);
-                                        return;
-                                    }
-                                    const regex = /^\d+(\.\d{0,3})?$/;
-                                    if (regex.test(value)) {
-                                        setTouch(value);
-                                    }
-                                }}
-                            />
-                        </div>
+                                        if (value === "") {
+                                            setLess("");
+                                            setNwt(calculateNwt(gwt, 0));
+                                            return;
+                                        }
+                                        const regex = /^\d*\.?\d{0,3}$/;
+                                        if (regex.test(value)) {
+                                            setLess(value);
+                                            setNwt(calculateNwt(gwt, value));
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className={styles.subContainer2}>
+                                <span className={styles.spantext}> Net Wt</span>
+                                <Input className={styles.inputfield} value={nwt}
+                                    inputMode="decimal"
+                                    ref={(el) => setRef(3, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 3)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === "") {
+                                            setNwt(value);
+                                            return;
+                                        }
+                                        const regex = /^\d+(\.\d{0,3})?$/;
+                                        if (regex.test(value)) {
+                                            setNwt(value);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className={styles.subContainer2}>
+                                <span className={styles.spantext}>St.Cost</span>
+                                <Input
+                                    className={styles.inputfield}
+                                    value={stCost}
+                                    inputMode="decimal"
+                                    ref={(el) => setRef(4, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 4)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        // allow empty
+                                        if (value === "") {
+                                            setStCost(value);
+                                            setCash(value);
+                                            return;
+                                        }
+                                        const regex = /^\d+(\.\d{0,2})?$/;
+                                        if (regex.test(value)) {
+                                            setStCost(value);
+                                            setCash(value); // ✅ AUTO CASH UPDATE
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className={styles.subContainer3}>
+                                <span className={styles.spantext}> Touch(%)</span>
+                                <Input className={styles.inputfield} value={touch}
+                                    inputMode="decimal"
+                                    ref={(el) => setRef(5, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 5)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === "") {
+                                            setTouch(value);
+                                            return;
+                                        }
+                                        const regex = /^\d+(\.\d{0,3})?$/;
+                                        if (regex.test(value)) {
+                                            setTouch(value);
+                                        }
+                                    }}
+                                />
+                            </div>
 
-                        <div className={styles.subContainer}>
-                            <span className={styles.spantext}> Fine</span>
-                            <Input className={styles.inputfield} value={fine}
-                                inputMode="decimal"
-                                ref={(el) => setRef(6, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 6)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value === "") {
-                                        setFine(value);
-                                        return;
-                                    }
-                                    const regex = /^\d+(\.\d{0,2})?$/;
-                                    if (regex.test(value)) {
-                                        setFine(value);
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className={styles.subContainer4}>
-                            <span className={styles.spantext}> Cash</span>
-                            <Input className={styles.inputfield} value={cash}
-                                inputMode="decimal"
-                                ref={(el) => setRef(7, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 7)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value === "") {
-                                        setCash(value);
-                                        return;
-                                    }
-                                    const regex = /^\d+(\.\d{0,2})?$/;
-                                    if (regex.test(value)) {
-                                        setCash(value);
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className={styles.subContainer4}>
-                            <span className={styles.spantext}> Description</span>
-                            <Input className={styles.inputfield2} value={description} onChange={e => setDescription(e.target.value)}
-                                ref={(el) => setRef(8, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 8)} />
+                            <div className={styles.subContainer}>
+                                <span className={styles.spantext}> Fine</span>
+                                <Input className={styles.inputfield} value={fine}
+                                    inputMode="decimal"
+                                    ref={(el) => setRef(6, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 6)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === "") {
+                                            setFine(value);
+                                            return;
+                                        }
+                                        const regex = /^\d+(\.\d{0,2})?$/;
+                                        if (regex.test(value)) {
+                                            setFine(value);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className={styles.subContainer4}>
+                                <span className={styles.spantext}> Cash</span>
+                                <Input className={styles.inputfield} value={cash}
+                                    inputMode="decimal"
+                                    ref={(el) => setRef(7, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 7)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === "") {
+                                            setCash(value);
+                                            return;
+                                        }
+                                        const regex = /^\d+(\.\d{0,2})?$/;
+                                        if (regex.test(value)) {
+                                            setCash(value);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className={styles.subContainer4}>
+                                <span className={styles.spantext}> Description</span>
+                                <Input className={styles.inputfield} value={description} onChange={e => setDescription(e.target.value)}
+                                    ref={(el) => setRef(8, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 8)} />
+                            </div>
                         </div>
                     </div>
+                    <div className={styles.buttons}>
+                        <Button className={styles.saveButton} onClick={handleSave}>Save</Button>
+                    </div>
                 </div>
-                <div className={styles.buttons}>
-                    <Button className={styles.saveButton} onClick={handleSave}>Save</Button>
-                </div>
+
             </div>
             <DeleteEntryModal
                 open={openDelete}

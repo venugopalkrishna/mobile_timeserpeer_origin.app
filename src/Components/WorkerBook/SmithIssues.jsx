@@ -10,18 +10,6 @@ import styles from "./smithtissues.module.css";
 
 const { Option } = Select;
 
-const labelStyle = {
-    width: "120px",
-    fontWeight: 500,
-};
-
-const rowStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    marginBottom: "10px",
-};
-
 const SmithIssues = () => {
     /* ---------------- STATES ---------------- */
     const [voucherNo, setVoucherNo] = useState(1);
@@ -320,8 +308,8 @@ const SmithIssues = () => {
                         </div> */}
 
                     <div className={styles.dateContainer}>
-                        <div>
-                            <span className={styles.no}>No:</span>
+                        <div className={styles.vocCont}>
+                            <div className={styles.no}>INVNO</div>
                             <span className={styles.vocNo}>
                                 {voucherNo}
                             </span>
@@ -331,6 +319,7 @@ const SmithIssues = () => {
                             value={voucherDate}
                             format="DD/MM/YYYY"
                             onChange={setVoucherDate}
+                            className={styles.datePicker}
                         // onKeyDown={(e) => handleKeyDown(e, 1)}
                         />
                     </div>
@@ -346,11 +335,17 @@ const SmithIssues = () => {
                                 <span className={styles.smithLabel}>Smith</span>
                                 <span>
                                     <Select
-                                        data-focus
-                                        style={{ width: 250 }}
+                                        className={styles.partySelect}
+                                        ref={(el) => setRef(0, el)}
                                         value={smith}
-                                        onChange={setSmith}
-                                        // onInputKeyDown={(e) => handleKeyDown(e, 2)}
+                                        onChange={(value) => {
+                                            setSmith(value);
+
+                                            // 👉 MOVE TO PARTICULARS
+                                            setTimeout(() => {
+                                                refs.current[1]?.rcSelect?.inputRef?.focus();
+                                            }, 0);
+                                        }}
                                         allowClear
                                         showSearch
                                         placeholder="Select Smith"
@@ -363,7 +358,7 @@ const SmithIssues = () => {
                                     </Select>
                                 </span>
                             </div>
-                            <div className={styles.row4}>
+                            {/* <div className={styles.row4}>
                                 <label className={styles.slipLabel}>Slip No</label>
                                 <Input
                                     // data-focus
@@ -373,7 +368,7 @@ const SmithIssues = () => {
                                 // onChange={setSlipNo}
                                 // onInputKeyDown={(e) => handleKeyDown(e, 3)}
                                 />
-                            </div>
+                            </div> */}
                         </div>
 
                         <Button className={styles.cancleButton} onClick={handleCancel}>
@@ -393,133 +388,138 @@ const SmithIssues = () => {
                     </button> */}
                     </div >
                     {/* Particulars */}
-                    <div className={styles.rowMain}>
-                        <div className={styles.row}>
-                            <label style={labelStyle}>Particulars</label>
-                            <Select
+                    <div className={styles.devCont}>
+                        <div className={styles.rowMain}>
+                            <div className={styles.row}>
+                                <label className={styles.lableatyle}>Particulars</label>
+                                <Select
+                                    className={styles.particularSelect}
+                                    ref={(el) => setRef(1, el)}
+                                    // style={{ width: 240, textAlign: "center" }}
+                                    value={particulars}
+                                    onChange={(value) => {
+                                        setParticulars(value);
+
+                                        // 👉 MOVE TO PCS INPUT
+                                        setTimeout(() => {
+                                            refs.current[2]?.focus();
+                                        }, 0);
+                                    }}
+                                    showSearch
+                                    allowClear
+                                    placeholder="Select Particulars"
+                                >
+                                    {issueItems.map((item, idx) => (
+                                        <Option key={idx} value={item.ISSUEITEM}>
+                                            {item.ISSUEITEM}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className={styles.row} >
+                                <label className={styles.label} >Pcs</label>
+                                <Input
+                                    ref={(el) => setRef(2, el)}
+                                    // style={{ width: 120, textAlign: "center" }}
+                                    value={pcs}
+                                    onChange={(e) => setPcs(e.target.value)}
+                                    onKeyDown={(e) => handleKeyDown(e, 2)}
+                                    inputMode="decimal"
+                                    onFocus={(e) => e.target.select()}
+                                    className={styles.inputValue}
+                                />
+                            </div>
+                            <div className={styles.row}>
+                                <label className={styles.label}>Order No</label>
+                                <Input
+                                    // style={{ width: 200, textAlign: "center" }}
+                                    data-focus
+                                    value={orderNo}
+                                    onChange={(e) => setOrderNo(e.target.value)}
+                                    ref={(el) => setRef(3, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 3)}
+                                    inputMode="decimal"
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    className={styles.inputValue}
+                                // onKeyDown={(e) => handleKeyDown(e, 6)}
+                                />
+                            </div>
+                            <div className={styles.row}>
+                                <label className={styles.label}>Name</label>
+                                <Input
+                                    // style={{ width: 200, textAlign: "center" }}
+                                    data-focus
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    ref={(el) => setRef(4, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 4)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    className={styles.inputValue}
+                                // onKeyDown={(e) => handleKeyDown(e, 7)}
+                                />
+                            </div>
+                            <div className={styles.row}>
+                                <label className={styles.label}>Issue Wt</label>
+                                <Input
+                                    // style={{ width: 200, textAlign: "center" }}
+                                    data-focus
+                                    value={issueWt}
+                                    onChange={(e) => setIssueWt(e.target.value)}
+                                    ref={(el) => setRef(5, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 5)}
+                                    inputMode="decimal"
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    className={styles.inputValue}
+                                // onKeyDown={(e) => handleKeyDown(e, 8)}
+                                />
+                            </div>
+                            <div className={styles.row}>
+                                <label className={styles.label}>Description</label>
+                                <Input
+                                    // style={{ width: 240, textAlign: "center" }}
+                                    data-focus
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    ref={(el) => setRef(6, el)}
+                                    onKeyDown={(e) => handleKeyDown(e, 6)}
+                                    onFocus={(e) => {
+                                        e.target.select();
+                                    }}
+                                    className={styles.inputValue}
+                                // onKeyDown={(e) => handleKeyDown(e, 9)}
+                                />
+                            </div>
+                        </div>
+                        <div className={styles.footer}>
+                            <Button
                                 data-focus
-                                style={{ width: 240, textAlign: "center" }}
-                                value={particulars}
-                                onChange={setParticulars}
-                                // onInputKeyDown={(e) => handleKeyDown(e, 4)}
-                                showSearch
-                                allowClear
-                                placeholder="Select Particulars"
+                                className={styles.saveBtn}
+                                // onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                                onClick={handleSave}
                             >
-                                {issueItems.map((item, idx) => (
-                                    <Option key={idx} value={item.ISSUEITEM}>
-                                        {item.ISSUEITEM}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </div>
-                        <div className={styles.row} >
-                            <label className={styles.label} >Pcs</label>
-                            <Input
-                                style={{ width: 200, textAlign: "center" }}
-                                data-focus
-                                value={pcs}
-                                onChange={(e) => setPcs(e.target.value)}
-                                ref={(el) => setRef(1, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 1)}
-                                inputMode="decimal"
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                className={styles.inputValue}
-                            // onKeyDown={(e) => handleKeyDown(e, 5)}
-                            />
-                        </div>
-                        <div className={styles.row}>
-                            <label className={styles.label}>Order No</label>
-                            <Input
-                                style={{ width: 200, textAlign: "center" }}
-                                data-focus
-                                value={orderNo}
-                                onChange={(e) => setOrderNo(e.target.value)}
-                                ref={(el) => setRef(2, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 2)}
-                                inputMode="decimal"
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                className={styles.inputValue}
-                            // onKeyDown={(e) => handleKeyDown(e, 6)}
-                            />
-                        </div>
-                        <div className={styles.row}>
-                            <label className={styles.label}>Name</label>
-                            <Input
-                                style={{ width: 200, textAlign: "center" }}
-                                data-focus
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                ref={(el) => setRef(3, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 3)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                className={styles.inputValue}
-                            // onKeyDown={(e) => handleKeyDown(e, 7)}
-                            />
-                        </div>
-                        <div className={styles.row}>
-                            <label className={styles.label}>Issue Wt</label>
-                            <Input
-                                style={{ width: 200, textAlign: "center" }}
-                                data-focus
-                                value={issueWt}
-                                onChange={(e) => setIssueWt(e.target.value)}
-                                ref={(el) => setRef(4, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 4)}
-                                inputMode="decimal"
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                className={styles.inputValue}
-                            // onKeyDown={(e) => handleKeyDown(e, 8)}
-                            />
-                        </div>
-                        <div className={styles.row}>
-                            <label className={styles.label}>Description</label>
-                            <Input
-                                style={{ width: 240, textAlign: "center" }}
-                                data-focus
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                ref={(el) => setRef(5, el)}
-                                onKeyDown={(e) => handleKeyDown(e, 5)}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
-                                className={styles.inputValue}
-                            // onKeyDown={(e) => handleKeyDown(e, 9)}
+                                Save
+                            </Button>
+                            <SmithIssuePdfDownload
+                                voucherNo={voucherNo}
+                                voucherDate={voucherDate}
+                                smith={smith}
+                                slipNo={slipNo}
+                                particulars={particulars}
+                                pcs={pcs}
+                                orderNo={orderNo}
+                                name={name}
+                                issueWt={issueWt}
+                                description={description}
                             />
                         </div>
                     </div>
                     {/* Footer */}
-                    <div className={styles.footer}>
-                        <Button
-                            data-focus
-                            className={styles.saveBtn}
-                            // onKeyDown={(e) => e.key === "Enter" && handleSave()}
-                            onClick={handleSave}
-                        >
-                            Save
-                        </Button>
-                        <SmithIssuePdfDownload
-                            voucherNo={voucherNo}
-                            voucherDate={voucherDate}
-                            smith={smith}
-                            slipNo={slipNo}
-                            particulars={particulars}
-                            pcs={pcs}
-                            orderNo={orderNo}
-                            name={name}
-                            issueWt={issueWt}
-                            description={description}
-                        />
-                    </div>
                 </div>
             </div>
         </div>

@@ -5,7 +5,7 @@
     align-items: center;
     /* background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247)); */
     color: white;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-top: 2px;
     justify-content: space-between;
     width: 97%;
@@ -16,11 +16,12 @@
 .vocContainer {
     display: flex;
     background-color: #030a32;
-    border-radius: 7px;
+    border-radius: 10px;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    padding: 12px;
     width: 20%;
+    height: 30px;
 }
 
 .dateContainer {
@@ -28,16 +29,20 @@
     justify-content: space-between;
     background-color: #0a113c;
     padding: 5px;
-    border-radius: 7px;
+    border-radius: 10px;
     width: 80%;
     align-items: center;
+}
+
+.saleCont {
+    flex-direction: column;
 }
 
 .invno {
     color: white;
     font-weight: bold;
     align-items: center;
-    font-size: 15px;
+    font-size: 20px;
     /* padding: 5px 5px 5px 5px; */
 }
 
@@ -48,8 +53,9 @@
 }
 
 .no {
-    font-size: 15px;
+    font-size: 9px;
     font-weight: bold;
+
 }
 
 
@@ -65,12 +71,12 @@
 }
 
 .partyContainer {
-    background: #0a113c;
+    /* background: #0a113c; */
     margin-right: auto;
     margin-left: auto;
     width: 97%;
     /* margin-top: 2px; */
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 2px;
 }
 
@@ -82,11 +88,11 @@
     align-items: center;
     background: #add8e6;
     flex-direction: column;
-    border-radius: 5px;
+    border-radius: 10px;
     width: 97%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 5px;
+    margin-top: 2px;
 }
 
 
@@ -98,12 +104,15 @@
     background-color: #fe0100;
     color: white;
     margin-bottom: 5px;
+    font-weight: 500;
 }
 
 .partyLabel {
-    font-weight: 600;
+    font-weight: bolder;
     white-space: nowrap;
     min-width: 90px;
+    margin-top: 10px;
+    /* font-size: 18px; */
 }
 
 .partySelect {
@@ -148,15 +157,29 @@
     margin-left: auto;
     margin-right: auto;
     width: 97%;
-    border-radius: 7px;
+    border-radius: 10px;
     background: radial-gradient(circle at center, #f9f7f7 40%, #eaecef 60%, #dee7f5 80%);
     margin-top: 5px;
+}
+
+.devContainer {
+    background: #030a32;
+    padding: 0.2px;
+    border-radius: 12px;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
 }
 
 /* Main layout */
 .mainContainer {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* All rows */
@@ -181,7 +204,7 @@
 
 /* Inputs aligned to same middle column */
 .inputfield {
-    width: 50%;
+    width: 65%;
     /* border-color: #d0e0f7; */
     font-weight: 500;
     text-align: center;
@@ -216,7 +239,6 @@
     text-align: center;
     font-weight: 500;
     font-size: 15px;
-
 }
 
 /* Description */
@@ -246,12 +268,31 @@
     width: 90px;
     height: 40px;
     font-size: 18px;
-    background-color: rgb(3, 101, 3);
+    background-color: #ffa503;
     border-color: #0a113c;
     color: white;
+    font-weight: 500;
 }
 
+.saveButton:hover {
+    color: #ffa503;
+}
 
+/* Active (click) effect */
+.saveButton:active {
+    color: #ffa503;
+    transform: scale(0.95);
+}
+
+.saveButton:hover,
+.saveButton:focus,
+.saveButton:active {
+    background-color: transparent !important;
+    border-color: #ccc !important;
+    background-color: #ffa503 !important;
+    box-shadow: none !important;
+    color: white !important;
+}
 
 .cancleButton:hover,
 .cancleButton:focus,
@@ -291,13 +332,23 @@
 
     /* Voc container */
     .vocContainer {
-        width: 95%;
+        width: 30%;
         padding: 15px;
         font-size: 32px;
+        height: 70px;
+        border-radius: 15px;
+    }
+
+    .invno {
+        font-size: 40px;
     }
 
     .vocNo {
-        font-size: 44px;
+        font-size: 50px;
+    }
+
+    .no {
+        font-size: 20px;
     }
 
     .datePicker {
@@ -306,6 +357,7 @@
         gap: 10px;
         font-weight: 500;
         font-size: 30px;
+        border-radius: 10px;
     }
 
     .datePicker :global(.ant-picker-input > input) {
@@ -316,6 +368,14 @@
         width: 200px;
     }
 
+    .dateContainer {
+        border-radius: 15PX;
+    }
+
+    .invBox {
+        border-radius: 15PX;
+    }
+
     /* Optional: change the border and background */
     .datePicker :global(.ant-picker) {
         border-radius: 10px;
@@ -323,10 +383,21 @@
         background-color: aliceblue;
     }
 
+    .partyContainer {
+        border-radius: 15px;
+    }
+
     /* Party section */
     .partyWrapper {
         gap: 15px;
         padding: 15px;
+        border-radius: 15px;
+    }
+
+    .devContainer {
+        width: 100%;
+        margin-top: 20px;
+        border-radius: 20px;
     }
 
     .partyLabel {
@@ -369,11 +440,10 @@
         font-size: 35px;
     }
 
-
     /* Main input container */
     .container {
         width: 98%;
-        border-radius: 10px;
+        border-radius: 15px;
     }
 
     /* Rows */
@@ -387,13 +457,13 @@
 
     /* Labels */
     .spantext {
-        width: 75px;
+        width: 150px;
         font-size: 32px;
     }
 
     /* Inputs */
     .inputfield {
-        width: 40%;
+        width: 60%;
         height: 65px;
         font-size: 40px;
         border-radius: 10px;
@@ -422,12 +492,54 @@
         gap: 8px;
     }
 
+    .description {
+        display: flex;
+        flex-direction: column;
+        padding: 7px;
+        font-weight: 500;
+    }
+
+    .descrInput {
+        width: 60%;
+        /* aligns with other inputs */
+        background-color: rgb(248, 246, 246);
+    }
+
     .saveButton,
     .cancleButton {
         width: 170px;
-        height: 80px;
+        height: 70px;
         font-size: 32px;
-        border-radius: 10px;
+        border-radius: 15px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .deleteIcon {
+        color: #f2f67a;
+        /* AntD danger red */
+        font-size: 50px;
+        cursor: pointer;
+        transition: color 0.2s ease, transform 0.15s ease;
+    }
+
+    .ant-message-success .ant-message-notice-content {
+        background-color: #f6ffed;
+        border: 1px solid #b7eb8f;
+        color: #389e0d;
+        font-size: 30px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    /* Error message */
+    .ant-message-error .ant-message-notice-content {
+        background-color: #fff1f0;
+        border: 1px solid #ffa39e;
+        color: #cf1322;
+        font-size: 30px;
+        border-radius: 20px;
+        font-weight: bold;
     }
 
 }

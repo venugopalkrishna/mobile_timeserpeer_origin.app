@@ -1,9 +1,18 @@
+.devContainer {
+    width: 100%;
+}
+
 .container {
     display: flex;
     flex-direction: column;
     width: 98%;
     margin: auto;
     margin-top: 2px;
+}
+
+.vocCont {
+    flex-direction: column;
+
 }
 
 /* Header */
@@ -33,7 +42,7 @@
     align-items: center;
     /* background: linear-gradient(135deg, rgb(182, 231, 248), rgb(158, 225, 247)); */
     color: white;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-top: 2px;
     justify-content: space-between;
     width: 97%;
@@ -44,11 +53,12 @@
 .vocContainer {
     display: flex;
     background-color: #030a32;
-    border-radius: 7px;
+    border-radius: 10px;
     align-items: center;
     justify-content: center;
     padding: 10px;
     width: 20%;
+    height: 35px;
 }
 
 .dateContainer {
@@ -57,7 +67,7 @@
     gap: 10px;
     background-color: #0a113c;
     padding: 5px;
-    border-radius: 7px;
+    border-radius: 10px;
     width: 80%;
     align-items: center;
 }
@@ -77,7 +87,7 @@
 }
 
 .no {
-    font-size: 15px;
+    font-size: 10px;
     font-weight: bold;
 }
 
@@ -110,22 +120,32 @@
 
 /* Body */
 .body {
-    background-color: #0a113c;
-    padding: 5px;
+    /* background-color: #0a113c; */
+    /* padding: 2px; */
     /* margin-top: 5px; */
-    border-radius: 8px;
+    border-radius: 10px;
+}
+
+.devCont {
+    background: #0a113c;
+    padding: 5px;
+    border-radius: 10px;
+    margin-top: 10px;
 }
 
 /* Rows */
 .row {
     display: flex;
     gap: 5px;
-    margin-top: 5px;
+    margin-top: 3px;
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .rowCenter {
     display: flex;
-    margin-top: 5px;
+    /* margin-top: 5px; */
     justify-content: center;
     align-items: center;
     margin-left: auto;
@@ -150,7 +170,9 @@
     background: radial-gradient(circle at center, #f9f7f7 40%, #eaecef 60%, #dee7f5 80%);
     padding: 3px;
     border-radius: 5px;
-    margin-top: 5px;
+    /* margin-top: 5px; */
+    justify-content: center;
+    align-items: center;
 }
 
 .row3 {
@@ -175,12 +197,14 @@
 
 /* Labels */
 .label120 {
-    width: 120px;
+    width: 100px;
     font-size: 13px;
+    font-weight: 500;
 }
 
 .smallLabel {
     width: 60px;
+    font-weight: bold;
 }
 
 /* Inputs */
@@ -198,16 +222,17 @@
 }
 
 .desc {
-    width: 240px;
+    width: 200px;
 }
 
 /* Selects */
-.select200 {
+.partySelect {
     width: 250px;
+    font-weight: 500;
 }
 
 .select300 {
-    width: 250px;
+    width: 200px;
 }
 
 /* Slip No */
@@ -222,7 +247,7 @@
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin-top: 10px;
+    margin-top: 5px;
     align-items: center;
 }
 
@@ -231,33 +256,66 @@
     height: 37px;
     width: 75px;
     font-size: 20px;
+    font-weight: 500;
 }
 
 .print {
-    background-color: rgb(118, 77, 16) !important;
     height: 37px;
     width: 75px;
-    font-size: 20px;
+    font-size: 19px;
+    cursor: pointer;
+    border-radius: 7px;
+    background-color: #c08241ff;
+    color: white;
+    outline: none;
+    box-shadow: none;
+    border-color: #c08241ff;
+    font-weight: 500;
 }
 
-.cnacleButton {
+.cancleButton {
     width: 80px;
     height: 30px;
     margin-bottom: 2px;
     text-align: center;
     background-color: rgb(227, 12, 12);
     color: white;
+    font-weight: 500;
 }
 
+.cancleButton:hover {
+    color: #fe0100;
+}
 
+/* Active (click) effect */
+.cancleButton:active {
+    color: #fe0100;
+    transform: scale(0.95);
+}
+
+.cancleButton:hover,
+.cancleButton:focus,
+.cancleButton:active {
+    background-color: transparent !important;
+    border-color: #ccc !important;
+    background-color: #fe0100 !important;
+    box-shadow: none !important;
+    color: white !important;
+}
 
 /* ============================= */
 /* TAB VIEW (Tablets) */
 /* ============================= */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
+    .devContainer {
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 15px;
+    }
 
     .container {
-        width: 100%;
+        width: 98%;
         margin-top: 5px;
     }
 
@@ -270,7 +328,7 @@
 
     .invBox {
         flex-direction: column;
-        width: 100%;
+        width: 98%;
         gap: 6px;
     }
 
@@ -281,9 +339,14 @@
     }
 
     .dateContainer {
-        width: 100%;
+        width: 98%;
         padding: 6px;
         justify-content: space-between;
+    }
+
+    .dateCont {
+        width: 150px;
+        font-size: 40px;
     }
 
     .vocNo {
@@ -336,6 +399,11 @@
         width: 220px;
     }
 
+    .devCont {
+        margin-top: 20px;
+        border-radius: 15px;
+    }
+
     /* Footer */
     .footer {
         flex-wrap: wrap;
@@ -349,4 +417,305 @@
         height: 36px;
         font-size: 16px;
     }
+}
+
+/* ============================= */
+/* TABLET VIEW (768px – 1024px) */
+/* ============================= */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+
+    /* Page container */
+    .container {
+        width: 100%;
+        padding: 6px;
+    }
+
+    /* ================= HEADER ================= */
+    .invBox {
+        flex-direction: row;
+        width: 98%;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .vocContainer {
+        width: 28%;
+        height: 80px;
+        justify-content: center;
+        border-radius: 15px;
+    }
+
+    /* .vocCont{
+        height: 60px;
+    } */
+
+    .invno {
+        font-size: 35px;
+    }
+
+    .no {
+        font-size: 20px;
+    }
+
+    .vocNo {
+        font-size: 50px;
+    }
+
+    .dateContainer {
+        width: 70%;
+        height: 80px;
+        justify-content: space-between;
+        border-radius: 10px;
+    }
+
+    .datePicker {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        font-size: 30px;
+        border-radius: 10px;
+    }
+
+    .datePicker :global(.ant-picker-input > input) {
+        font-size: 30px;
+        font-weight: 500;
+        height: 36px;
+        padding: 4px 10px;
+        width: 200px;
+    }
+
+    .dateContainer {
+        border-radius: 15PX;
+    }
+
+    .cancleButton {
+        width: 180px;
+        font-size: 35px;
+        height: 70px;
+        border-radius: 15px;
+        margin-top: 10px;
+    }
+
+    .body {
+        width: 98%;
+    }
+
+    /* ================= SMITH + SLIP ================= */
+    .rowCenter2 {
+        align-items: center;
+        /* ✅ CENTER BLOCK */
+        justify-content: center;
+        padding: 8px;
+        border-radius: 15px;
+    }
+
+    .rowCenter {
+        justify-content: center;
+        /* ✅ CENTER CONTENT */
+        align-items: center;
+        gap: 20px;
+        width: 100%;
+    }
+
+    /* Selects */
+
+    .row3,
+    .row4 {
+        align-items: center;
+    }
+
+    /* ================= MAIN FORM ================= */
+    .rowMain {
+        /* width: 97%; */
+        margin-left: auto;
+        /* ✅ CENTER rowMain */
+        margin-right: auto;
+        padding: 10px;
+        border-radius: 15px;
+    }
+
+    /* Keep rows LEFT aligned inside rowMain */
+    .row {
+        justify-content: flex-start;
+        /* ❗ important */
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ================= INPUT SIZES ================= */
+    .pcs {
+        width: 150px;
+        height: 60px;
+        font-size: 40px;
+        border-radius: 10px;
+    }
+
+    .normal {
+        width: 450px;
+        height: 60px;
+        font-size: 40px;
+        border-radius: 10px;
+    }
+
+    .desc {
+        width: 450px;
+        height: 60px;
+        font-size: 30px;
+        border-radius: 10px;
+    }
+
+    .smallLabel {
+        font-size: 35px;
+        width: 150px;
+    }
+
+
+    .partySelect {
+        width: 600px;
+        height: 70px;
+        font-size: 50px;
+        font-weight: 600;
+        border-radius: 15px;
+    }
+
+    .selectOptions {
+        font-size: 50px;
+    }
+
+    /* Select input text */
+    .partySelect :global(.ant-select-selection-item) {
+        font-size: 30px;
+        /* increase font size here */
+        font-weight: 500;
+    }
+
+    /* Dropdown input search box */
+    .partySelect :global(.ant-select-selection-search-input) {
+        font-size: 30px;
+        font-weight: 500;
+    }
+
+    /* Dropdown menu items */
+    .selectOptions :global(.ant-select-item-option-content) {
+        font-size: 35px;
+        font-weight: 500;
+    }
+
+    /* Optional: placeholder */
+    .partySelect :global(.ant-select-selection-placeholder) {
+        font-size: 35px;
+    }
+
+    .options {
+        font-size: 50px;
+    }
+
+    .select300 {
+        width: 450px;
+        height: 60px;
+        font-size: 50px;
+        font-weight: 600;
+        border-radius: 15px;
+
+    }
+
+    /* Select input text */
+    .select300 :global(.ant-select-selection-item) {
+        font-size: 30px;
+        /* increase font size here */
+        font-weight: 500;
+    }
+
+    /* Dropdown input search box */
+    .select300 :global(.ant-select-selection-search-input) {
+        font-size: 30px;
+        font-weight: 500;
+    }
+
+    /* Dropdown menu items */
+    .select300 :global(.ant-select-item-option-content) {
+        font-size: 35px;
+        font-weight: 500;
+    }
+
+    /* Optional: placeholder */
+    .select300 :global(.ant-select-selection-placeholder) {
+        font-size: 35px;
+    }
+
+    .slipInput {
+        width: 100px;
+        height: 50px;
+        border-radius: 10px;
+        font-size: 30px;
+    }
+
+    .row {
+        display: flex;
+        gap: 100px;
+        margin-top: 5px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .label120 {
+        font-size: 30px;
+        width: 200px;
+    }
+
+    .select300 {
+        width: 55%;
+    }
+
+    /* ================= FOOTER ================= */
+    .footer {
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .saveBtn,
+    .cnacleButton {
+        width: 180px;
+        height: 70px;
+        font-size: 35px;
+        border-radius: 15px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .print {
+        height: 70px;
+        width: 180px;
+        font-size: 30px;
+        cursor: pointer;
+        border-radius: 15px;
+        background-color: #c08241ff;
+        color: white;
+        outline: none;
+        box-shadow: none;
+        border-color: #c08241ff;
+        /* margin-top: 10px; */
+    }
+
+    /* Success message */
+    .ant-message-success .ant-message-notice-content {
+        background-color: #f6ffed;
+        border: 1px solid #b7eb8f;
+        color: #389e0d;
+        font-size: 30px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    /* Error message */
+    .ant-message-error .ant-message-notice-content {
+        background-color: #fff1f0;
+        border: 1px solid #ffa39e;
+        color: #cf1322;
+        font-size: 30px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
 }
