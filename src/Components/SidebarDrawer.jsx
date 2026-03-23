@@ -138,6 +138,18 @@ const SidebarDrawer = ({
     ],
   };
 
+  const customerMenu = {
+    text: "Master",
+    icon: <FileDoneOutlined />,
+    children: [
+      {
+        text: "Mail Book",
+        path: "/customer",
+        icon: <SellIcon sx={{ width: "1rem" }} />,
+      },
+    ],
+  };
+
   const saleMenu = {
     text: "Sale",
     icon: <ReceiptIcon />,
@@ -163,13 +175,14 @@ const SidebarDrawer = ({
   };
 
   if (Number(userType) === 1) {
-    menuItems = [estimationMenu, returnEstimationMenu];
+    menuItems = [estimationMenu, returnEstimationMenu, customerMenu];
   } else if (Number(userType) === 2) {
     menuItems = [
       estimationMenu,
       returnEstimationMenu,
       saleMenu,
       saleReturnMenu,
+      customerMenu,
     ];
   } else {
     menuItems = [
@@ -178,6 +191,7 @@ const SidebarDrawer = ({
       inventoryMenu,
       saleMenu,
       saleReturnMenu,
+      customerMenu,
     ];
   }
   // const menuItems = [
@@ -379,7 +393,7 @@ const SidebarDrawer = ({
                 onClick={() => {
                   if (hasChildren) {
                     setExpandedMenu((prev) =>
-                      prev === item.text ? null : item.text
+                      prev === item.text ? null : item.text,
                     );
                   } else {
                     navigate(item.path);
