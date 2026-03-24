@@ -88,7 +88,7 @@ const CustomerDetails = () => {
       setCustomerMobile("");
       setCustomerArea("");
       messageApi.open({
-        type: "error",
+        type: "success",
         content: (
           <div style={{ fontSize: "20px" }}>Successfully submitted!</div>
         ),

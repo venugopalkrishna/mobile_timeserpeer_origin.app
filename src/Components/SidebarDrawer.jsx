@@ -27,6 +27,8 @@ import SummarizeIcon from "@mui/icons-material/Summarize";
 import SellIcon from "@mui/icons-material/Sell";
 import StyleIcon from "@mui/icons-material/Style";
 import ReceiptIcon from "@mui/icons-material/Receipt";
+import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccountOutlined";
+import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -140,12 +142,12 @@ const SidebarDrawer = ({
 
   const customerMenu = {
     text: "Master",
-    icon: <FileDoneOutlined />,
+    icon: <LibraryBooksOutlinedIcon />,
     children: [
       {
         text: "Mail Book",
         path: "/customer",
-        icon: <SellIcon sx={{ width: "1rem" }} />,
+        icon: <SupervisorAccountOutlinedIcon sx={{ width: "1rem" }} />,
       },
     ],
   };
