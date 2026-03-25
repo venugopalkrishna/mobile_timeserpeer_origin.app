@@ -3080,6 +3080,8 @@ const ReturnEstimation = () => {
             <Button
               type="primary"
               htmlType="submit"
+              style={{ backgroundColor: "AppWorkspace", color: "white" }}
+              disabled={selectEstimationNo?.BILLNO > 0}
               className={styles.submitButton}
               ref={submitRef}
               onClick={() => {
@@ -3303,9 +3305,11 @@ const ReturnEstimation = () => {
                     ) : null}
                     <PhotoCameraIcon
                       style={{ color: "#000000" }}
-                      onClick={() =>
-                        handleCameraOk(index, item.TAGNO, item?.IMGPATH)
-                      }
+                      onClick={() => {
+                        if (!selectEstimationNo?.BILLNO > 0) {
+                          handleCameraOk(index, item.TAGNO, item?.IMGPATH);
+                        }
+                      }}
                     />
                     <DeleteOutlined
                       style={{
