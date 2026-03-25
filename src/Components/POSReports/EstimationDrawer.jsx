@@ -165,7 +165,9 @@ const EstimationDrawer = ({
           <Checkbox
             checked={rateCut}
             onChange={(e) => setRateCut(e.target.checked)}
-            disabled={Number(totalFineGold) === 0}
+            disabled={
+              Number(totalFineGold) === 0 || selectEstimationNo?.BILLNO > 0
+            }
           />
           <span style={{ marginLeft: 8, fontSize: "14px" }}>Rate Cut</span>
         </div>
@@ -256,7 +258,7 @@ const EstimationDrawer = ({
               setAmountValue(
                 value && fineGoldValue
                   ? (parseFloat(value) * fineGoldValue).toFixed(2)
-                  : 0
+                  : 0,
               );
             }}
             onBlur={() => {
@@ -321,14 +323,20 @@ const EstimationDrawer = ({
         >
           <label style={{ width: "18%", textAlign: "left" }}>Making</label>
           <Input
-            style={{ width: "30%", fontSize: "15px" }}
+            style={{
+              width: "30%",
+              fontSize: "15px",
+              backgroundColor: "AppWorkspace",
+              color: "black",
+            }}
+            disabled={selectEstimationNo?.BILLNO > 0}
             value={makingValue}
             onChange={(e) => {
               const value = e.target.value.replace(/\D/g, "");
               if (value.length <= 8) {
                 setMakingValue(value);
                 setPerGramValue(
-                  value ? (value * totalNetWeight)?.toFixed(2) : 0
+                  value ? (value * totalNetWeight)?.toFixed(2) : 0,
                 );
               }
             }}
@@ -341,7 +349,10 @@ const EstimationDrawer = ({
               textAlign: "right",
               flex: 1,
               fontSize: "15px",
+              backgroundColor: "AppWorkspace",
+              color: "black",
             }}
+            disabled={selectEstimationNo?.BILLNO > 0}
             placeholder="Per Gm."
             value={perGramValue}
             onChange={(e) => {
@@ -390,7 +401,10 @@ const EstimationDrawer = ({
                 textAlign: "right",
                 flex: 1,
                 fontSize: "15px",
+                backgroundColor: "AppWorkspace",
+                color: "black",
               }}
+              disabled={selectEstimationNo?.BILLNO > 0}
               placeholder="Other Charges"
               value={rodiumChargeValue}
               onChange={(e) => {
@@ -435,14 +449,20 @@ const EstimationDrawer = ({
             >
               <label style={{ width: "18%", textAlign: "left" }}>Stone</label>
               <Input
-                style={{ width: "30%", fontSize: "15px" }}
+                style={{
+                  width: "30%",
+                  fontSize: "15px",
+                  backgroundColor: "AppWorkspace",
+                  color: "black",
+                }}
+                disabled={selectEstimationNo?.BILLNO > 0}
                 value={stoneMakingValue}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, "");
                   if (value.length <= 8) {
                     setStoneMakingValue(value);
                     setStonePerGramValue(
-                      value ? (value * totalStoneWeight)?.toFixed(2) : 0
+                      value ? (value * totalStoneWeight)?.toFixed(2) : 0,
                     );
                   }
                 }}
@@ -455,7 +475,10 @@ const EstimationDrawer = ({
                   textAlign: "right",
                   flex: 1,
                   fontSize: "15px",
+                  backgroundColor: "AppWorkspace",
+                  color: "black",
                 }}
+                disabled={selectEstimationNo?.BILLNO > 0}
                 placeholder="Per Gm."
                 value={stonePerGramValue}
                 onChange={(e) => {
@@ -589,7 +612,10 @@ const EstimationDrawer = ({
             borderColor: "#52bd91",
             width: "8rem",
           }}
-          disabled={tableData.length === 0 && stonesData.length === 0}
+          disabled={
+            (tableData.length === 0 && stonesData.length === 0) ||
+            selectEstimationNo?.BILLNO > 0
+          }
           onClick={async () => {
             const isModel2 = path === "/estimations-model2";
             if (tableData.length > 0) {

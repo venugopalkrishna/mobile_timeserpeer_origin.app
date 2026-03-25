@@ -36,7 +36,7 @@ const EstimationDialog = ({
       let whereCondition = "";
       if (fromDate && toDate) {
         whereCondition = `ESTIMATIONDATE>='${dayjs(fromDate).format(
-          "MM/DD/YYYY"
+          "MM/DD/YYYY",
         )}' and ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
       }
       let params = {
@@ -52,13 +52,13 @@ const EstimationDialog = ({
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
 
       const uniqueData = Array.from(
-        new Map(data.map((item) => [item.ESTIMATIONNO, item])).values()
+        new Map(data.map((item) => [item.ESTIMATIONNO, item])).values(),
       );
 
       setSummaryData(uniqueData);
@@ -84,7 +84,7 @@ const EstimationDialog = ({
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -100,7 +100,7 @@ const EstimationDialog = ({
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -116,7 +116,7 @@ const EstimationDialog = ({
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -125,10 +125,10 @@ const EstimationDialog = ({
 
   const handleCheckboxChange = (record) => {
     setSelectedObject(
-      selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record
+      selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record,
     );
     setSelectEstimationNo(
-      selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record
+      selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record,
     );
   };
 
@@ -239,139 +239,133 @@ const EstimationDialog = ({
           <div className={styles.cardContainer}>
             {summaryData?.map((item, index) => (
               <>
-                {item.BILLNO <= 0 ? (
-                  <>
-                    <div
-                      className={styles.infoBox}
-                      // onClick={() => handleCheckboxChange(item)}
-                    >
-                      {/* Tag No */}
-                      <div className={styles.rowTag}>
-                        <Checkbox
-                          checked={
-                            selectedObject?.ESTIMATIONNO === item.ESTIMATIONNO
-                          }
-                          onChange={() => handleCheckboxChange(item)}
-                          disabled={
-                            selectedObject !== null &&
-                            selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO
-                          }
-                        />
-                        <p style={{ fontSize: "12px" }}>
-                          Est No:{" "}
-                          <span
-                            style={{ fontWeight: "bold", fontSize: "16px" }}
-                          >
-                            {item.ESTIMATIONNO}
-                          </span>
-                        </p>
-                        <DeleteOutlined
-                          style={{
-                            color: "red",
-                            cursor: "pointer",
-                            fontSize: "20px",
-                          }}
-                          onClick={() => {
-                            setEstOpen(true);
-                            setEstNo(item.ESTIMATIONNO);
-                          }}
-                        />
-                      </div>
-                      <hr className={styles.fullWidthLine} />
-
-                      {/* Item and Purity */}
-                      <div className={styles.row}>
-                        <p style={{ fontSize: "11px" }}>
-                          <span
-                            style={{ fontWeight: "bold", fontSize: "12px" }}
-                          >
-                            {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
-                          </span>
-                        </p>
-                        <p style={{ fontWeight: "bold", fontSize: "11px" }}>
-                          <span
-                            style={{
-                              fontWeight: "bold",
-                              fontSize: "12px",
-                              color: "#52bd91",
-                            }}
-                          >
-                            {item.DESCRIPTION}
-                          </span>
-                        </p>
-                      </div>
-                      <hr className={styles.fullWidthLine} />
-
-                      {/* Gross Wt, Less Wt, Net Wt */}
-                      <div className={styles.row}>
-                        {/* <p style={{ fontWeight: "bold", fontSize: "12px" }}>
-                    <strong>Pieces:</strong> {item.TOTPCS}
-                  </p> */}
-                        <p style={{ fontSize: "11px" }}>
-                          Gross Wt:{" "}
-                          <span
-                            style={{
-                              fontWeight: "bold",
-                              fontSize: "12px",
-                              color: "red",
-                            }}
-                          >
-                            {item.GWT}
-                          </span>
-                        </p>
-                        <p style={{ fontSize: "11px" }}>
-                          Stone Wt:{" "}
-                          <span
-                            style={{
-                              fontWeight: "bold",
-                              fontSize: "12px",
-                              color: "red",
-                            }}
-                          >
-                            {item.STONEWT}
-                          </span>
-                        </p>
-                        <p style={{ fontSize: "11px" }}>
-                          Net Wt:{" "}
-                          <span
-                            style={{
-                              fontWeight: "bold",
-                              fontSize: "12px",
-                              color: "red",
-                            }}
-                          >
-                            {item.NWT}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      style={{
-                        backgroundColor: "green",
-                        borderColor: "green",
-                      }}
-                      onClick={() => {
-                        setOpenDialog(false);
-                        setStonesData([]);
-                        setTableData([]);
-                        estimationNoDataAPI(item.ESTIMATIONNO);
-                        estimationNoItemsAPI(item.ESTIMATIONNO);
-                        estimationNoMastAPI(item.ESTIMATIONNO);
-                        setFromDate(dayjs());
-                        setToDate(dayjs());
-                      }}
+                {/* {item.BILLNO <= 0 ? (
+                  <> */}
+                <div
+                  className={styles.infoBox}
+                  // onClick={() => handleCheckboxChange(item)}
+                >
+                  {/* Tag No */}
+                  <div className={styles.rowTag}>
+                    <Checkbox
+                      checked={
+                        selectedObject?.ESTIMATIONNO === item.ESTIMATIONNO
+                      }
+                      onChange={() => handleCheckboxChange(item)}
                       disabled={
+                        selectedObject !== null &&
                         selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO
                       }
-                    >
-                      Submit
-                    </Button>
-                  </>
+                    />
+                    <p style={{ fontSize: "12px" }}>
+                      Est No:{" "}
+                      <span style={{ fontWeight: "bold", fontSize: "16px" }}>
+                        {item.ESTIMATIONNO}
+                      </span>
+                    </p>
+                    <DeleteOutlined
+                      style={{
+                        color: "red",
+                        cursor: "pointer",
+                        fontSize: "20px",
+                      }}
+                      onClick={() => {
+                        setEstOpen(true);
+                        setEstNo(item.ESTIMATIONNO);
+                      }}
+                    />
+                  </div>
+                  <hr className={styles.fullWidthLine} />
+
+                  {/* Item and Purity */}
+                  <div className={styles.row}>
+                    <p style={{ fontSize: "11px" }}>
+                      <span style={{ fontWeight: "bold", fontSize: "12px" }}>
+                        {dayjs(item.ESTIMATIONDATE).format("DD-MMM-YYYY")}
+                      </span>
+                    </p>
+                    <p style={{ fontWeight: "bold", fontSize: "11px" }}>
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: "#52bd91",
+                        }}
+                      >
+                        {item.DESCRIPTION}
+                      </span>
+                    </p>
+                  </div>
+                  <hr className={styles.fullWidthLine} />
+
+                  {/* Gross Wt, Less Wt, Net Wt */}
+                  <div className={styles.row}>
+                    {/* <p style={{ fontWeight: "bold", fontSize: "12px" }}>
+                    <strong>Pieces:</strong> {item.TOTPCS}
+                  </p> */}
+                    <p style={{ fontSize: "11px" }}>
+                      Gross Wt:{" "}
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: "red",
+                        }}
+                      >
+                        {item.GWT}
+                      </span>
+                    </p>
+                    <p style={{ fontSize: "11px" }}>
+                      Stone Wt:{" "}
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: "red",
+                        }}
+                      >
+                        {item.STONEWT}
+                      </span>
+                    </p>
+                    <p style={{ fontSize: "11px" }}>
+                      Net Wt:{" "}
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: "red",
+                        }}
+                      >
+                        {item.NWT}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{
+                    backgroundColor: "green",
+                    borderColor: "green",
+                  }}
+                  onClick={() => {
+                    setOpenDialog(false);
+                    setStonesData([]);
+                    setTableData([]);
+                    estimationNoDataAPI(item.ESTIMATIONNO);
+                    estimationNoItemsAPI(item.ESTIMATIONNO);
+                    estimationNoMastAPI(item.ESTIMATIONNO);
+                    setFromDate(dayjs());
+                    setToDate(dayjs());
+                  }}
+                  disabled={selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO}
+                >
+                  Submit
+                </Button>
+                {/* </>
                 ) : (
                   ""
-                )}
+                )} */}
               </>
             ))}
           </div>

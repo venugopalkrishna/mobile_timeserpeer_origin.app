@@ -22,6 +22,7 @@ const EstimationFields = ({
   tableData,
   setTableData,
   setTotalFineGold,
+  selectEstimationNo,
 }) => {
   return (
     <div>
@@ -45,8 +46,13 @@ const EstimationFields = ({
           <Select
             showSearch
             placeholder="Select Party Name"
+            disabled={selectEstimationNo?.BILLNO > 0}
             autoFocus={true}
-            style={{ width: "70%" }}
+            style={{
+              width: "70%",
+              backgroundColor: "AppWorkspace",
+              color: "black",
+            }}
             ref={partyRef}
             value={selectedParty || null}
             onChange={(value) => {
@@ -57,8 +63,8 @@ const EstimationFields = ({
               if (e.key === "Enter") {
                 const filteredOptions = partyNames.filter((party) =>
                   party.Dealername.toLowerCase().includes(
-                    e.target.value.toLowerCase()
-                  )
+                    e.target.value.toLowerCase(),
+                  ),
                 );
                 if (filteredOptions.length > 0) {
                   setSelectedParty(filteredOptions[0].Dealername);
@@ -89,8 +95,14 @@ const EstimationFields = ({
           <div>Touch:</div>
           <Input
             placeholder="Enter Touch"
+            disabled={selectEstimationNo?.BILLNO > 0}
             ref={touchRef}
-            style={{ width: "100px", height: 30 }}
+            style={{
+              width: "100px",
+              height: 30,
+              backgroundColor: "AppWorkspace",
+              color: "black",
+            }}
             onKeyDown={(e) => handleKeyDown(e, wastRef)}
             value={touchValue}
             // onChange={(e) => {
@@ -115,8 +127,14 @@ const EstimationFields = ({
           <div>Wast:</div>
           <Input
             placeholder="Enter Wast"
+            disabled={selectEstimationNo?.BILLNO > 0}
             ref={wastRef}
-            style={{ width: "100px", height: 30 }}
+            style={{
+              width: "100px",
+              height: 30,
+              backgroundColor: "AppWorkspace",
+              color: "black",
+            }}
             onKeyDown={(e) => handleKeyDown(e, tagNoRef)}
             value={wastageValue}
             // onChange={(e) => {
@@ -178,7 +196,7 @@ const EstimationFields = ({
 
               const totalGold = updatedTableData.reduce(
                 (sum, item) => sum + Number(item.FINALGOLD || 0),
-                0
+                0,
               );
 
               setTableData(updatedTableData);

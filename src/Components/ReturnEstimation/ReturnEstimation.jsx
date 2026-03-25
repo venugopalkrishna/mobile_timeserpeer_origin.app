@@ -105,7 +105,7 @@ const ReturnEstimation = () => {
   const [base64Images, setBase64Images] = useState({});
 
   const formatDate = dayjs(selectEstimationNo?.ESTIMATIONDATE).format(
-    "ddd, DD MMM YYYY HH:mm:ss [GMT]"
+    "ddd, DD MMM YYYY HH:mm:ss [GMT]",
   );
 
   const imageUrls = localStorage.getItem("images")?.split(",");
@@ -129,7 +129,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -164,7 +164,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -195,7 +195,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       let newData = response.data;
@@ -209,7 +209,7 @@ const ReturnEstimation = () => {
 
       setStoneMainData((prevData) => {
         const existingTag = prevData.some(
-          (item) => item.TAGNO === (tagNoValue || tagNo)
+          (item) => item.TAGNO === (tagNoValue || tagNo),
         );
 
         if (existingTag) {
@@ -217,7 +217,7 @@ const ReturnEstimation = () => {
         }
 
         const validNewData = newData.filter(
-          (item) => item?.TAGNO && item?.MAINTYPE && item?.ACTGRAMS
+          (item) => item?.TAGNO && item?.MAINTYPE && item?.ACTGRAMS,
         );
 
         const mergedMap = {};
@@ -361,7 +361,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -385,7 +385,7 @@ const ReturnEstimation = () => {
       // stonesAPI(data[0]?.TAGNO, data);
       setTableData((prevData) => {
         const existingTag = prevData.some(
-          (item) => item.TAGNO === (tagNoValue || tagNo)
+          (item) => item.TAGNO === (tagNoValue || tagNo),
         );
 
         if (existingTag) {
@@ -425,25 +425,25 @@ const ReturnEstimation = () => {
 
         // Totals
         setTotalPieces(
-          updatedData.reduce((sum, item) => sum + Number(item.PIECES || 0), 0)
+          updatedData.reduce((sum, item) => sum + Number(item.PIECES || 0), 0),
         );
         setTotalGrossWeight(
           updatedData.reduce(
             (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
-            0
-          )
+            0,
+          ),
         );
         setTotalStoneWeight(
-          updatedData.reduce((sum, item) => sum + Number(item.STONEWT || 0), 0)
+          updatedData.reduce((sum, item) => sum + Number(item.STONEWT || 0), 0),
         );
         setTotalNetWeight(
-          updatedData.reduce((sum, item) => sum + Number(item.NETWT || 0), 0)
+          updatedData.reduce((sum, item) => sum + Number(item.NETWT || 0), 0),
         );
         setTotalFineGold(
           updatedData.reduce(
             (sum, item) => sum + Number(item.FINALGOLD || 0),
-            0
-          )
+            0,
+          ),
         );
 
         return updatedData;
@@ -483,7 +483,7 @@ const ReturnEstimation = () => {
     }
     if (selectEstimationNo?.DESCRIPTION) {
       const matchedParty = partyNames.find(
-        (party) => party.Dealername === selectEstimationNo.DESCRIPTION
+        (party) => party.Dealername === selectEstimationNo.DESCRIPTION,
       );
       if (matchedParty) {
         setSelectedParty(matchedParty.Dealername);
@@ -520,7 +520,7 @@ const ReturnEstimation = () => {
       const deletedItem = prevData[indexToDelete]; // Get item before deleting
 
       const updatedData = prevData.filter(
-        (_, index) => index !== indexToDelete
+        (_, index) => index !== indexToDelete,
       );
 
       setStonesData([]);
@@ -662,7 +662,7 @@ const ReturnEstimation = () => {
             "Content-Type": "application/json",
             tenantName: tenantName,
           },
-        }
+        },
       );
       let data = response?.data;
       setEstimationData(data[0].isInsert);
@@ -697,7 +697,7 @@ const ReturnEstimation = () => {
             "Content-Type": "application/json",
             tenantName: tenantName,
           },
-        }
+        },
       );
       let data = response?.data;
       setItemData(data[0].isInsert);
@@ -782,7 +782,7 @@ const ReturnEstimation = () => {
             "Content-Type": "application/json",
             tenantName: tenantName,
           },
-        }
+        },
       );
       let data = response?.data;
       setMastData(data[0].isInsert);
@@ -812,7 +812,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -881,23 +881,23 @@ const ReturnEstimation = () => {
         setTableData(updatedData);
         const total = updatedData.reduce(
           (sum, item) => sum + Number(item.PIECES || 0),
-          0
+          0,
         );
         const totalGross = updatedData.reduce(
           (sum, item) => sum + Number(item.GROSSWEIGHT || 0),
-          0
+          0,
         );
         const totalStones = updatedData.reduce(
           (sum, item) => sum + Number(item.STONEWT || 0),
-          0
+          0,
         );
         const totalNetWt = updatedData.reduce(
           (sum, item) => sum + Number(item.NETWT || 0),
-          0
+          0,
         );
         const totalGold = updatedData.reduce(
           (sum, item) => sum + Number(item.FINALGOLD || 0),
-          0
+          0,
         );
 
         // Set totals
@@ -932,7 +932,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -970,7 +970,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -1027,7 +1027,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -1043,7 +1043,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -1059,7 +1059,7 @@ const ReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -1085,15 +1085,15 @@ const ReturnEstimation = () => {
         `${CREATE_jwel}/api/Wholesal/UpdateTagGenerationImagePath?tagNo=${tagNo}&path=${
           imgUrl || ""
         }`,
-        { headers: { tenantName } }
+        { headers: { tenantName } },
       );
 
       setTableData((prevData) =>
         prevData.map((item) =>
           item.TAGNO === tagNo
             ? { ...item, IMGPATH: imgUrl } // update image path
-            : item
-        )
+            : item,
+        ),
       );
     } catch (error) {
       console.error("Failed to update image path:", error);
@@ -1128,7 +1128,7 @@ const ReturnEstimation = () => {
         },
         {
           headers: { tenantName },
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -1138,8 +1138,8 @@ const ReturnEstimation = () => {
           prevData.map((item) =>
             item.TAGNO === tagNo
               ? { ...item, IMGPATH: imgUrl } // update image path
-              : item
-          )
+              : item,
+          ),
         );
         alert("Image uploaded successfully!");
       }
@@ -1192,7 +1192,7 @@ const ReturnEstimation = () => {
         },
         (error) => {
           console.warn("QR Scan Error:", error);
-        }
+        },
       );
     } catch (error) {
       console.error("Failed to start scanner:", error);
@@ -1394,7 +1394,7 @@ const ReturnEstimation = () => {
   const urlToBase64 = async (url) => {
     const cleanUrl = decodeURIComponent(url);
     const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(
-      cleanUrl
+      cleanUrl,
     )}`;
 
     const response = await fetchWithRetry(proxyUrl, 3, 800);
@@ -1435,7 +1435,7 @@ const ReturnEstimation = () => {
               console.error("Image conversion failed:", item.IMGPATH, err);
             }
           }
-        })
+        }),
       );
       setBase64Images(imageMap);
     };
@@ -1477,11 +1477,11 @@ const ReturnEstimation = () => {
         return `
           <tr>
             <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          index + 1
-        }</strong></td>
+              index + 1
+            }</strong></td>
             <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          item.TAGNO
-        }</strong></td>
+              item.TAGNO
+            }</strong></td>
           <td rowspan="${cleanedActGrams ? 2 : 1}">
         
   ${
@@ -1554,7 +1554,7 @@ const ReturnEstimation = () => {
                           <td class="stone-name">${stone.MAINTYPE}</td>
                           <td>${stone.PCS}</td>
                           <td class="sub-right">${stone.ACTGRAMS.toFixed(
-                            3
+                            3,
                           )}</td>
                           <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
                           <td class="sub-right">${amount.toFixed(2)}</td>
@@ -1581,7 +1581,7 @@ const ReturnEstimation = () => {
       <div class="summary-container">
         <table>
           <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
-            3
+            3,
           )}</td></tr>
           ${
             rateCut === true
@@ -1596,15 +1596,15 @@ const ReturnEstimation = () => {
           <tr><td class="stone-name">Making ${
             makingValue || 0
           } /g</td><td class="sub-right">${
-      perGramValue ? Number(perGramValue).toFixed(2) : 0
-    }</td></tr>
+            perGramValue ? Number(perGramValue).toFixed(2) : 0
+          }</td></tr>
           ${
             path === "/return-estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
                  <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
-                   2
+                   2,
                  )}</td></tr>`
               : `<tr><td class="stone-name">Stone Cost ${
                   stoneMakingValue || 0
@@ -1614,10 +1614,10 @@ const ReturnEstimation = () => {
                  }</td></tr>`
           }
           <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-            3
+            3,
           )}</strong></td></tr>
           <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
-            2
+            2,
           )}</strong></td></tr>
         </table>
       </div>
@@ -1839,11 +1839,11 @@ const ReturnEstimation = () => {
         return `
           <tr>
             <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          index + 1
-        }</strong></td>
+              index + 1
+            }</strong></td>
             <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          item.TAGNO
-        }</strong></td>
+              item.TAGNO
+            }</strong></td>
             <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
             <td>${item.PREFIX}</td>
             <td class="sub-right"><strong>${item.PIECES}</strong></td>
@@ -1906,7 +1906,7 @@ const ReturnEstimation = () => {
                           <td class="stone-name">${stone.MAINTYPE}</td>
                           <td>${stone.PCS}</td>
                           <td class="sub-right">${stone.ACTGRAMS.toFixed(
-                            3
+                            3,
                           )}</td>
                           <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
                           <td class="sub-right">${amount.toFixed(2)}</td>
@@ -1933,7 +1933,7 @@ const ReturnEstimation = () => {
       <div class="summary-container">
         <table>
           <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
-            3
+            3,
           )}</td></tr>
           ${
             rateCut === true
@@ -1948,15 +1948,15 @@ const ReturnEstimation = () => {
           <tr><td class="stone-name">Making ${
             makingValue || 0
           } /g</td><td class="sub-right">${
-      perGramValue ? Number(perGramValue).toFixed(2) : 0
-    }</td></tr>
+            perGramValue ? Number(perGramValue).toFixed(2) : 0
+          }</td></tr>
           ${
             path === "/return-estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
                  <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
-                   2
+                   2,
                  )}</td></tr>`
               : `<tr><td class="stone-name">Stone Cost ${
                   stoneMakingValue || 0
@@ -1966,10 +1966,10 @@ const ReturnEstimation = () => {
                  }</td></tr>`
           }
           <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-            3
+            3,
           )}</strong></td></tr>
           <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
-            2
+            2,
           )}</strong></td></tr>
         </table>
       </div>
@@ -2187,7 +2187,7 @@ const ReturnEstimation = () => {
           <td>${item.PREFIX}</td>
           <td class="sub-right"><strong>${item.PIECES}</strong></td>
           <td class="sub-right"><strong>${Number(item.GWT)?.toFixed(
-            3
+            3,
           )}</strong></td>
             <td class="sub-right">${Number(item.STONEWT)?.toFixed(3)}</td>
           <td class="sub-right">${Number(item.NETWT)?.toFixed(3)}</td>
@@ -2249,10 +2249,10 @@ const ReturnEstimation = () => {
                           <td class="sub-stone-name">${stone.MAINTYPE}</td>
                           <td class="stone-pieces">${stone.PCS}</td>
                           <td class="stone-weight">${stone.ACTGRAMS.toFixed(
-                            3
+                            3,
                           )}</td>
                           <td class="stone-cost">${Number(rate)?.toFixed(
-                            2
+                            2,
                           )}</td>
                           <td class="stone-amount">${amount.toFixed(2)}</td>
                         </tr>
@@ -2263,7 +2263,7 @@ const ReturnEstimation = () => {
                       <td colspan="1">Total</td>
                       <td class="stone-pieces">${totalStonePieces}</td>
                       <td class="stone-weight">${totalStoneWeight.toFixed(
-                        3
+                        3,
                       )}</td>
                       <td class="stone-cost"></td>
                       <td class="stone-amount">${totalAmount.toFixed(2)}</td>
@@ -2281,7 +2281,7 @@ const ReturnEstimation = () => {
       <div class="summary-container">
         <table>
           <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
-            3
+            3,
           )}</td></tr>
           ${
             rateCut === true
@@ -2296,15 +2296,15 @@ const ReturnEstimation = () => {
           <tr><td class="stone-name">Making ${
             makingValue || 0
           } /g</td><td class="sub-right">${
-      perGramValue ? Number(perGramValue).toFixed(2) : 0
-    }</td></tr>
+            perGramValue ? Number(perGramValue).toFixed(2) : 0
+          }</td></tr>
           ${
             path === "/return-estimations-model1" && Number(admin) !== 2
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
                  <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
-                   2
+                   2,
                  )}</td></tr>`
               : `<tr><td class="stone-name">Stone Cost ${
                   stoneMakingValue || 0
@@ -2316,10 +2316,10 @@ const ReturnEstimation = () => {
           ${
             Number(admin) !== 2
               ? `<tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-                  3
+                  3,
                 )}</strong></td></tr>
           <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
-            2
+            2,
           )}</strong></td></tr>`
               : ""
           }
@@ -2451,11 +2451,11 @@ const ReturnEstimation = () => {
         return `
           <tr>
             <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          index + 1
-        }</strong></td>
+              index + 1
+            }</strong></td>
             <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-          item.TAGNO
-        }</strong></td>
+              item.TAGNO
+            }</strong></td>
             <td rowspan="${cleanedActGrams ? 2 : 1}">
               ${
                 base64Img
@@ -2469,7 +2469,7 @@ const ReturnEstimation = () => {
             <td>${item.PREFIX}</td>
             <td class="sub-right"><strong>${item.PIECES}</strong></td>
             <td class="sub-right"><strong>${Number(item.GWT)?.toFixed(
-              3
+              3,
             )}</strong></td>
             <td class="sub-right">${Number(item.STONEWT)?.toFixed(3)}</td>
           <td class="sub-right">${Number(item.NETWT)?.toFixed(3)}</td>
@@ -2531,10 +2531,10 @@ const ReturnEstimation = () => {
                           <td class="sub-stone-name">${stone.MAINTYPE}</td>
                           <td class="stone-pieces">${stone.PCS}</td>
                           <td class="stone-weight">${stone.ACTGRAMS.toFixed(
-                            3
+                            3,
                           )}</td>
                           <td class="stone-cost">${Number(rate)?.toFixed(
-                            2
+                            2,
                           )}</td>
                           <td class="stone-amount">${amount.toFixed(2)}</td>
                         </tr>
@@ -2545,7 +2545,7 @@ const ReturnEstimation = () => {
                       <td colspan="1">Total</td>
                       <td class="stone-pieces">${totalStonePieces}</td>
                       <td class="stone-weight">${totalStoneWeight.toFixed(
-                        3
+                        3,
                       )}</td>
                       <td class="stone-cost"></td>
                       <td class="stone-amount">${totalAmount.toFixed(2)}</td>
@@ -2563,7 +2563,7 @@ const ReturnEstimation = () => {
       <div class="summary-container">
         <table>
           <tr class="sub-final"><td class="stone-name-bold">Fine Gold</td><td class="sub-right-bold">${totalFineGold.toFixed(
-            3
+            3,
           )}</td></tr>
           ${
             rateCut === true
@@ -2578,15 +2578,15 @@ const ReturnEstimation = () => {
           <tr><td class="stone-name">Making ${
             makingValue || 0
           } /g</td><td class="sub-right">${
-      perGramValue ? Number(perGramValue).toFixed(2) : 0
-    }</td></tr>
+            perGramValue ? Number(perGramValue).toFixed(2) : 0
+          }</td></tr>
           ${
             path === "/return-estimations-model1"
               ? `<tr><td class="stone-name">Other Charges</td><td class="sub-right">${
                   rodiumChargeValue || 0
                 }</td></tr>
                  <tr><td class="stone-name">Stone Cost</td><td class="sub-right">${totalStoneCost?.toFixed(
-                   2
+                   2,
                  )}</td></tr>`
               : `<tr><td class="stone-name">Stone Cost ${
                   stoneMakingValue || 0
@@ -2596,10 +2596,10 @@ const ReturnEstimation = () => {
                  }</td></tr>`
           }
           <tr class="sub-final"><td class="stone-name-bold"><strong>Metal Balance</strong></td><td class="sub-right-bold"><strong>${metalBalanceValue.toFixed(
-            3
+            3,
           )}</strong></td></tr>
           <tr class="sub-final"><td class="stone-name-bold"><strong>Cash Balance</strong></td><td class="sub-right-bold"><strong>${cashBalanceValue.toFixed(
-            2
+            2,
           )}</strong></td></tr>
         </table>
       </div>
@@ -3281,7 +3281,7 @@ const ReturnEstimation = () => {
                             handleImageOk(
                               photos[index] ||
                                 base64Images[item?.IMGPATH] ||
-                                item?.IMGPATH
+                                item?.IMGPATH,
                             );
                           }}
                         >
@@ -3418,7 +3418,7 @@ const ReturnEstimation = () => {
                           {(() => {
                             const actGrams =
                               stoneMainData.find(
-                                (stone) => stone.TAGNO === item.TAGNO
+                                (stone) => stone.TAGNO === item.TAGNO,
                               )?.ACTGRAMS || "";
 
                             const removeUndefinedWrapper = (str) => {
@@ -3499,6 +3499,7 @@ const ReturnEstimation = () => {
         tableData={tableData}
         setTableData={setTableData}
         setTotalFineGold={setTotalFineGold}
+        selectEstimationNo={selectEstimationNo}
       />
       <ReturnEstimationDrawer
         drawerOpen={drawerOpen}
@@ -3567,6 +3568,7 @@ const ReturnEstimation = () => {
         stonesData={stonesData}
         setStoneRate={setStoneRate}
         stoneRate={stoneRate}
+        selectEstimationNo={selectEstimationNo}
       />
       <SidebarDrawer
         open={open}

@@ -7,6 +7,7 @@ const EstimationStonesDrawer = ({
   stonesData,
   setStoneRate,
   stoneRate,
+  selectEstimationNo,
 }) => {
   const onClose = () => {
     setStonesDrawerOpen(false);
@@ -23,7 +24,10 @@ const EstimationStonesDrawer = ({
       footerStyle={{ display: "none" }}
       extra={
         <Space>
-          <Button onClick={onClose} style={{ color: "white", backgroundColor: "red" }}>
+          <Button
+            onClick={onClose}
+            style={{ color: "white", backgroundColor: "red" }}
+          >
             Cancel
           </Button>
         </Space>
@@ -35,7 +39,10 @@ const EstimationStonesDrawer = ({
             {/* Tag No */}
             <div className={styles.rowTag}>
               <p style={{ fontSize: "14px" }}>
-                Item Name : <span style={{ fontWeight: "bold", fontSize: "16px" }}>{item.MAINTYPE}</span>
+                Item Name :{" "}
+                <span style={{ fontWeight: "bold", fontSize: "16px" }}>
+                  {item.MAINTYPE}
+                </span>
               </p>
             </div>
             <hr className={styles.fullWidthLine} />
@@ -43,10 +50,20 @@ const EstimationStonesDrawer = ({
             {/* Item and Purity */}
             <div className={styles.row}>
               <p style={{ fontSize: "11px" }}>
-                Pieces : <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>{item.PCS}</span>
+                Pieces :{" "}
+                <span
+                  style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}
+                >
+                  {item.PCS}
+                </span>
               </p>
               <p style={{ fontSize: "11px" }}>
-                Grams : <span style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}>{item?.ACTGRAMS?.toFixed(3)}</span>
+                Grams :{" "}
+                <span
+                  style={{ fontWeight: "bold", fontSize: "12px", color: "red" }}
+                >
+                  {item?.ACTGRAMS?.toFixed(3)}
+                </span>
               </p>
             </div>
             <hr className={styles.fullWidthLine} />
@@ -55,7 +72,14 @@ const EstimationStonesDrawer = ({
             <div className={styles.row}>
               <p style={{ fontWeight: "bold", fontSize: "11px" }}>Rate</p>
               <Input
-                style={{ width: "50%", fontSize: "14px", fontWeight:"bold" }}
+                style={{
+                  width: "50%",
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  backgroundColor: "AppWorkspace",
+                  color: "black",
+                }}
+                disabled={selectEstimationNo?.BILLNO > 0}
                 placeholder="Enter Rate"
                 value={stoneRate[index] || ""}
                 onChange={(e) => {
@@ -72,10 +96,18 @@ const EstimationStonesDrawer = ({
             <hr className={styles.fullWidthLine} />
             <div className={styles.row}>
               <p style={{ fontSize: "11px" }}>
-                Amount : {" "}
-                <span style={{ fontWeight: "bold", fontSize: "14px", color: "#52bd91" }}>{(
-                  (parseFloat(stoneRate[index]) || 0) * (item?.ACTGRAMS || 0)
-                ).toFixed(2)}</span>
+                Amount :{" "}
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    color: "#52bd91",
+                  }}
+                >
+                  {(
+                    (parseFloat(stoneRate[index]) || 0) * (item?.ACTGRAMS || 0)
+                  ).toFixed(2)}
+                </span>
               </p>
             </div>
           </div>
