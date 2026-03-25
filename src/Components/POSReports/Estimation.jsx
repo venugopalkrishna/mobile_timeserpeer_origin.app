@@ -3718,7 +3718,7 @@ ${
             >
               Files
             </Button>
-            {selectedParty && (
+            {selectedParty && !(selectEstimationNo?.BILLNO > 0) && (
               <div
                 onClick={handleToggleScan}
                 style={{ width: "20px", height: "20px" }}
