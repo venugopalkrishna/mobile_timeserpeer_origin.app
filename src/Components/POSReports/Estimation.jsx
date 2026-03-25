@@ -3913,9 +3913,11 @@ ${
                     ) : null}
                     <PhotoCameraIcon
                       style={{ color: "#000000" }}
-                      onClick={() =>
-                        handleCameraOk(index, item.TAGNO, item?.IMGPATH)
-                      }
+                      onClick={() => {
+                        if (!selectEstimationNo?.BILLNO > 0) {
+                          handleCameraOk(index, item.TAGNO, item?.IMGPATH);
+                        }
+                      }}
                     />
                     <DeleteOutlined
                       style={{
@@ -3923,7 +3925,11 @@ ${
                         cursor: "pointer",
                         fontSize: "20px",
                       }}
-                      onClick={() => handleDelete(index)}
+                      onClick={() => {
+                        if (!selectEstimationNo?.BILLNO > 0) {
+                          handleDelete(index);
+                        }
+                      }}
                     />
                   </div>
                   <hr className={styles.fullWidthLine} />

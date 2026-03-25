@@ -3313,7 +3313,11 @@ const ReturnEstimation = () => {
                         cursor: "pointer",
                         fontSize: "20px",
                       }}
-                      onClick={() => handleDelete(index)}
+                      onClick={() => {
+                        if (!selectEstimationNo?.BILLNO > 0) {
+                          handleDelete(index);
+                        }
+                      }}
                     />
                   </div>
                   <hr className={styles.fullWidthLine} />
