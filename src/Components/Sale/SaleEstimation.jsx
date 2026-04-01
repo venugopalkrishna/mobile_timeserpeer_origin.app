@@ -9,6 +9,7 @@ import { Button, Checkbox, Col, DatePicker, Row, Spin, Typography } from "antd";
 import SaleEstimationDialog from "./SaleEstimationDialog";
 import { DeleteOutlined } from "@ant-design/icons";
 import DeleteSaleEstimationDialog from "./DeleteSaleEstimationDialog";
+import UnSaleEstimationDialog from "./UnSaleEstimationDialog";
 
 const SaleEstimation = () => {
   const [summaryData, setSummaryData] = useState([]);
@@ -20,6 +21,7 @@ const SaleEstimation = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
+  const [unSaleOpen, setUnSaleOpen] = useState(false);
   const [estNo, setEstNo] = useState();
   const [estOpen, setEstOpen] = useState(false);
 
@@ -32,18 +34,20 @@ const SaleEstimation = () => {
     // setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTable?tableName=ESTIMATION_MAST&column=ESTIMATIONNO`,
+        `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTable?tableName=ESTIMATION_MAST&column=BILLNO`,
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
 
       if (Array.isArray(data) && data.length > 0) {
-        setBillNo(data[0].Column1);
+        const rawValue = data[0]?.Column1;
+        setBillNo(rawValue);
+        return rawValue;
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
@@ -59,7 +63,7 @@ const SaleEstimation = () => {
       let whereCondition = "";
       if (fromDate && toDate) {
         whereCondition = `ESTIMATIONDATE>='${dayjs(fromDate).format(
-          "MM/DD/YYYY"
+          "MM/DD/YYYY",
         )}' and ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
       }
       let params = {
@@ -75,13 +79,13 @@ const SaleEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
 
       const uniqueData = Array.from(
-        new Map(data.map((item) => [item.ESTIMATIONNO, item])).values()
+        new Map(data.map((item) => [item.ESTIMATIONNO, item])).values(),
       );
 
       setSummaryData(uniqueData);
@@ -92,54 +96,56 @@ const SaleEstimation = () => {
     }
   };
 
-  const estimationDataBill = async () => {
+  const estimationDataBill = async (nextInvNo) => {
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/UpdateEstimationDataBillDetails?billNo=${
-          billNo + 1
+          nextInvNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
     }
   };
 
-  const estimationMastBill = async () => {
+  const estimationMastBill = async (nextInvNo) => {
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/UpdateEstimationMastBillDetails?billNo=${
-          billNo + 1
+          nextInvNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
+      billCountAPI();
+      EstimationSummaryAPI();
     } catch (error) {
       console.error("Error posting data:", error);
     }
   };
 
-  const estimationItemsBill = async () => {
+  const estimationItemsBill = async (nextInvNo) => {
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/UpdateEstimationItemsBillDetails?billNo=${
-          billNo + 1
+          nextInvNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -155,7 +161,7 @@ const SaleEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -171,7 +177,7 @@ const SaleEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -197,7 +203,7 @@ const SaleEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -243,7 +249,7 @@ const SaleEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -259,8 +265,9 @@ const SaleEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
+      EstimationSummaryAPI();
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -275,7 +282,7 @@ const SaleEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -285,14 +292,16 @@ const SaleEstimation = () => {
   const handleSale = async () => {
     setLoading(true);
     try {
+      const nextInvNo = await billCountAPI();
       await handleCancel();
       await estimationNoDataAPI(selectEstimationNo);
-      await estimationDataBill();
-      await estimationItemsBill();
-      await estimationMastBill();
+      await estimationDataBill(nextInvNo);
+      await estimationItemsBill(nextInvNo);
+      await estimationMastBill(nextInvNo);
+      await EstimationSummaryAPI();
 
-      setFromDate(dayjs());
-      setToDate(dayjs());
+      // setFromDate(dayjs());
+      // setToDate(dayjs());
       setSelectEstimationNo(0);
       setSelectedObject(null);
     } catch (error) {
@@ -314,7 +323,7 @@ const SaleEstimation = () => {
 
   const handleCheckboxChange = (record) => {
     setSelectedObject(
-      selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record
+      selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record,
     );
     setSelectEstimationNo(record.ESTIMATIONNO);
   };
@@ -327,12 +336,17 @@ const SaleEstimation = () => {
     setSaleOpen(false);
   };
 
+  const handleUnSaleCancel = () => {
+    setUnSaleOpen(false);
+  };
+
   const handleDelete = async () => {
     setLoading(true);
     try {
       await estimationDeleteData();
       await estimationDeleteItems();
       await estimationDeleteMast();
+      await EstimationSummaryAPI();
       setEstNo();
       setEstOpen(false);
     } catch (error) {
@@ -437,6 +451,16 @@ const SaleEstimation = () => {
                         }
                       />
                     ) : (
+                      // <Checkbox
+                      //   checked={
+                      //     selectedObject?.ESTIMATIONNO === item.ESTIMATIONNO
+                      //   }
+                      //   onChange={() => handleCheckboxChange(item)}
+                      //   disabled={
+                      //     selectedObject !== null &&
+                      //     selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO
+                      //   }
+                      // />
                       ""
                     )}
                     <p style={{ fontSize: "12px" }}>
@@ -559,6 +583,24 @@ const SaleEstimation = () => {
                     Sale
                   </Button>
                 ) : (
+                  // <Button
+                  //   type="primary"
+                  //   htmlType="submit"
+                  //   style={{
+                  //     backgroundColor: "green",
+                  //     borderColor: "green",
+                  //     // color: "white",
+                  //   }}
+                  //   onClick={() => {
+                  //     // handleSale(item.ESTIMATIONNO)
+                  //     setUnSaleOpen(true);
+                  //   }}
+                  //   disabled={
+                  //     selectedObject?.ESTIMATIONNO !== item.ESTIMATIONNO
+                  //   }
+                  // >
+                  //   Un-Sale
+                  // </Button>
                   ""
                 )}
               </>
@@ -568,6 +610,11 @@ const SaleEstimation = () => {
         <SaleEstimationDialog
           saleOpen={saleOpen}
           handleCancel={handleCancel}
+          handleSale={handleSale}
+        />
+        <UnSaleEstimationDialog
+          saleOpen={unSaleOpen}
+          handleCancel={handleUnSaleCancel}
           handleSale={handleSale}
         />
         <DeleteSaleEstimationDialog

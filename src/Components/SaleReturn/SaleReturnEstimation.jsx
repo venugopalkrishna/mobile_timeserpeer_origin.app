@@ -32,18 +32,20 @@ const SaleReturnEstimation = () => {
     // setLoading(true);
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTable?tableName=ESTIMATION_MAST&column=ESTIMATIONNO`,
+        `${CREATE_jwel}/api/Wholesal/GetSchemeMaxNumberInTable?tableName=RETURN_ESTIMATION_MAST&column=BILLNO`,
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
 
       if (Array.isArray(data) && data.length > 0) {
-        setBillNo(data[0].Column1);
+        const rawValue = data[0]?.Column1;
+        setBillNo(rawValue);
+        return rawValue;
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
@@ -59,7 +61,7 @@ const SaleReturnEstimation = () => {
       let whereCondition = "";
       if (fromDate && toDate) {
         whereCondition = `ESTIMATIONDATE>='${dayjs(fromDate).format(
-          "MM/DD/YYYY"
+          "MM/DD/YYYY",
         )}' and ESTIMATIONDATE<='${dayjs(toDate).format("MM/DD/YYYY")}'`;
       }
       let params = {
@@ -75,13 +77,13 @@ const SaleReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
 
       const uniqueData = Array.from(
-        new Map(data.map((item) => [item.ESTIMATIONNO, item])).values()
+        new Map(data.map((item) => [item.ESTIMATIONNO, item])).values(),
       );
 
       setSummaryData(uniqueData);
@@ -92,54 +94,56 @@ const SaleReturnEstimation = () => {
     }
   };
 
-  const estimationDataBill = async () => {
+  const estimationDataBill = async (nextInvNo) => {
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/UpdateEstimationDataBillDetails?billNo=${
-          billNo + 1
+          nextInvNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
     }
   };
 
-  const estimationMastBill = async () => {
+  const estimationMastBill = async (nextInvNo) => {
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/UpdateEstimationMastBillDetails?billNo=${
-          billNo + 1
+          nextInvNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
+      billCountAPI();
+      EstimationSummaryAPI();
     } catch (error) {
       console.error("Error posting data:", error);
     }
   };
 
-  const estimationItemsBill = async () => {
+  const estimationItemsBill = async (nextInvNo) => {
     try {
       const response = await axios.post(
         `${CREATE_jwel}/api/Wholesal/UpdateEstimationItemsBillDetails?billNo=${
-          billNo + 1
+          nextInvNo + 1
         }&estNo=${selectEstimationNo}&billDate=${dayjs().format("MM/DD/YYYY")}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -155,7 +159,7 @@ const SaleReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -171,7 +175,7 @@ const SaleReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -197,7 +201,7 @@ const SaleReturnEstimation = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -237,13 +241,13 @@ const SaleReturnEstimation = () => {
   const estimationDeleteData = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_DATA&where=ESTIMATIONNO=${estNo}`,
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=RETURN_ESTIMATION_DATA&where=ESTIMATIONNO=${estNo}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -253,14 +257,15 @@ const SaleReturnEstimation = () => {
   const estimationDeleteMast = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=ESTIMATIONNO=${estNo}`,
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=RETURN_ESTIMATION_MAST&where=ESTIMATIONNO=${estNo}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
+      EstimationSummaryAPI();
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -269,13 +274,13 @@ const SaleReturnEstimation = () => {
   const estimationDeleteItems = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_ITEMS&where=ESTIMATIONNO=${estNo}`,
+        `${CREATE_jwel}/api/Wholesal/DeleteDataFromGivenTableNameWithWhere?tableName=RETURN_ESTIMATION_ITEMS&where=ESTIMATIONNO=${estNo}`,
         {},
         {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -285,14 +290,16 @@ const SaleReturnEstimation = () => {
   const handleSale = async () => {
     setLoading(true);
     try {
+      const nextInvNo = await billCountAPI();
       await handleCancel();
       await estimationNoDataAPI(selectEstimationNo);
-      await estimationDataBill();
-      await estimationItemsBill();
-      await estimationMastBill();
+      await estimationDataBill(nextInvNo);
+      await estimationItemsBill(nextInvNo);
+      await estimationMastBill(nextInvNo);
+      await EstimationSummaryAPI();
 
-      setFromDate(dayjs());
-      setToDate(dayjs());
+      // setFromDate(dayjs());
+      // setToDate(dayjs());
       setSelectEstimationNo(0);
       setSelectedObject(null);
     } catch (error) {
@@ -314,7 +321,7 @@ const SaleReturnEstimation = () => {
 
   const handleCheckboxChange = (record) => {
     setSelectedObject(
-      selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record
+      selectedObject?.ESTIMATIONNO === record.ESTIMATIONNO ? null : record,
     );
     setSelectEstimationNo(record.ESTIMATIONNO);
   };
