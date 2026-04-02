@@ -1,102 +1,112 @@
 .container {
-    padding: 20px;
-    max-width: 70%;
-    margin: auto;
-    position: sticky;
-    /* top: 0; */
-    z-index: 10;
+  padding: 20px;
+  max-width: 70%;
+  margin: auto;
+  position: sticky;
+  /* top: 0; */
+  z-index: 10;
 }
 
 .headerContainer {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 /* Heading */
 .heading {
-    color: #222;
-    font-size: 16px;
-    font-weight: bold;
-    border-left: 5px solid #52bd91;
-    padding-left: 8px;
-    text-align: left;
-    margin-bottom: 8px;
-    /* Adds spacing between heading and buttons */
-    /* top: 20px; */
-    z-index: 10;
+  color: #222;
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 5px solid #52bd91;
+  padding-left: 8px;
+  text-align: left;
+  margin-bottom: 8px;
+  /* Adds spacing between heading and buttons */
+  /* top: 20px; */
+  z-index: 10;
 }
 
 .cardContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-    justify-content: center;
-    max-height: 500px;
-    overflow-y: auto;
-    width: auto;
-    padding: 0px 5px 0px 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+  height: 100%;
+  overflow-y: auto;
+  width: auto;
+  padding: 0px 5px 0px 5px;
 }
 
 .infoBox {
-    width: 100%;
-    height: auto;
-    background: radial-gradient(circle at center, #ffffff 50%, #f3f6fb 60%, #e0e7f1 80%);
-    /* padding: 0px 5px 0px 5px; */
-    border-radius: 5px;
-    border: 1px solid rgb(83, 81, 81);
-    text-align: left;
-    font-size: 12px;
-    /* font-weight: bold; */
-    /* background: rgb(248, 249, 250); */
-    line-height: 0.0;
+  width: 100%;
+  height: auto;
+  background: radial-gradient(
+    circle at center,
+    #ffffff 50%,
+    #f3f6fb 60%,
+    #e0e7f1 80%
+  );
+  /* padding: 0px 5px 0px 5px; */
+  border-radius: 5px;
+  border: 1px solid rgb(83, 81, 81);
+  text-align: left;
+  font-size: 12px;
+  /* font-weight: bold; */
+  /* background: rgb(248, 249, 250); */
+  line-height: 0;
 }
 
 .infoBox1 {
-    width: 100%;
-    height: auto;
-    background: radial-gradient(circle at center, #ffffff 50%, #f3f6fb 60%, #e0e7f1 80%);
-    /* padding: 0px 5px 0px 5px; */
-    border-radius: 5px;
-    border: 2px solid #52bd91;
-    text-align: left;
-    font-size: 12px;
-    /* font-weight: bold; */
-    /* background: rgb(248, 249, 250); */
-    line-height: 0.0;
+  width: 100%;
+  height: auto;
+  background: radial-gradient(
+    circle at center,
+    #ffffff 50%,
+    #f3f6fb 60%,
+    #e0e7f1 80%
+  );
+  /* padding: 0px 5px 0px 5px; */
+  border-radius: 5px;
+  border: 2px solid #52bd91;
+  text-align: left;
+  font-size: 12px;
+  /* font-weight: bold; */
+  /* background: rgb(248, 249, 250); */
+  line-height: 0;
 }
 
 .row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    padding: 0px 4px 0px 4px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 0px 4px 0px 4px;
 }
 
 .rowTag {
-    display: flex;
-    background-color: #52a4bd;
-    justify-content: space-between;
-    font-size: 12px;
-    padding: 5px 8px 2px 8px;
+  display: flex;
+  background-color: #52a4bd;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 5px 8px 2px 8px;
 }
 
 .rowTag1 {
-    display: flex;
-    background-color: #52bd91;
-    justify-content: space-between;
-    font-size: 12px;
-    padding: 5px 8px 2px 8px;
+  display: flex;
+  background-color: #52bd91;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 5px 8px 2px 8px;
 }
 
 .fullWidth {
-    width: 100%;
+  width: 100%;
 }
 
 .fullWidthStone {
-    width: 100%;
-    background-color: #52bd91;
-    padding: 1px;
-    border-radius: 0 0 5px 5px;
+  width: 100%;
+  background-color: #52bd91;
+  padding: 1px;
+  border-radius: 0 0 5px 5px;
 }
