@@ -263,17 +263,23 @@ const EstimationDialog = ({
                         {item.ESTIMATIONNO}
                       </span>
                     </p>
-                    <DeleteOutlined
-                      style={{
-                        color: "red",
-                        cursor: "pointer",
-                        fontSize: "20px",
-                      }}
-                      onClick={() => {
-                        setEstOpen(true);
-                        setEstNo(item.ESTIMATIONNO);
-                      }}
-                    />
+                    {item.BILLNO <= 0 ? (
+                      <>
+                        <DeleteOutlined
+                          style={{
+                            color: "red",
+                            cursor: "pointer",
+                            fontSize: "20px",
+                          }}
+                          onClick={() => {
+                            setEstOpen(true);
+                            setEstNo(item.ESTIMATIONNO);
+                          }}
+                        />
+                      </>
+                    ) : (
+                      ""
+                    )}
                   </div>
                   <hr className={styles.fullWidthLine} />
 
