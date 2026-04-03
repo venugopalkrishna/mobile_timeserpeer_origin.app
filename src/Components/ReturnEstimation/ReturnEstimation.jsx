@@ -655,7 +655,7 @@ const ReturnEstimation = () => {
     });
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Wholesal/InsertWholesalEstimationData`,
+        `${CREATE_jwel}/api/Wholesal/InsertWholesalReturnEstimationData`,
         requestBody,
         {
           headers: {
