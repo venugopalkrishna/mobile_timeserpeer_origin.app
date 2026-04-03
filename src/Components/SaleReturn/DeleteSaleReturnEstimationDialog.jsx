@@ -1,14 +1,35 @@
 import { Modal } from "antd";
 
-const DeleteSaleReturnEstimationDialog = ({ estOpen, handleCancel, handleDelete }) => {
+const DeleteSaleReturnEstimationDialog = ({
+  estOpen,
+  handleCancel,
+  handleDelete,
+}) => {
   return (
     <div>
       <Modal
-        title="SaleReturnEstimation Delete"
+        // title="SaleReturnEstimation Delete"
+        title={
+          <strong
+            style={{
+              fontSize: "20px",
+              color: "red",
+              // fontFamily:
+              //   "Cambria, Cochin, Georgia, Times, 'Times New Roman', serif",
+            }}
+          >
+            {" "}
+            SaleReturnEstimation Delete{" "}
+          </strong>
+        }
         open={estOpen}
         onOk={handleDelete}
         onCancel={handleCancel}
         closable={false}
+        maskStyle={{
+          backdropFilter: "blur(8px)", // <- this applies the blur effect
+          backgroundColor: "rgba(0, 0, 0, 0.2)", // optional: tint the background a little
+        }}
       >
         <div
           style={{
@@ -19,8 +40,9 @@ const DeleteSaleReturnEstimationDialog = ({ estOpen, handleCancel, handleDelete 
             marginBottom: "8px",
           }}
         >
-          <div style={{ fontSize: "16px" }}>
-            Are you sure <span style={{ color: "red" }}>DELETE</span>{" "}
+          <div style={{ fontSize: "20px" }}>
+            Are you sure you want{" "}
+            <span style={{ color: "red", fontSize: "20px" }}>DELETE</span> this
             SaleReturnEstimation?
           </div>
         </div>
