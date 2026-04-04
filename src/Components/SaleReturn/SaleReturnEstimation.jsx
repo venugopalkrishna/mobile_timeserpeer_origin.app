@@ -465,7 +465,7 @@ const SaleReturnEstimation = () => {
                         Sold
                       </p>
                     )}
-                    {item.BILLNO <= 0 ? (
+                    {/* {item.BILLNO <= 0 ? (
                       <DeleteOutlined
                         style={{
                           color: "red",
@@ -479,7 +479,7 @@ const SaleReturnEstimation = () => {
                       />
                     ) : (
                       ""
-                    )}
+                    )} */}
                   </div>
                   <hr className={styles.fullWidthLine} />
 

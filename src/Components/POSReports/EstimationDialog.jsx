@@ -263,7 +263,7 @@ const EstimationDialog = ({
                         {item.ESTIMATIONNO}
                       </span>
                     </p>
-                    {item.BILLNO <= 0 ? (
+                    {/* {item.BILLNO <= 0 ? (
                       <>
                         <DeleteOutlined
                           style={{
@@ -279,7 +279,7 @@ const EstimationDialog = ({
                       </>
                     ) : (
                       ""
-                    )}
+                    )} */}
                   </div>
                   <hr className={styles.fullWidthLine} />
 
