@@ -561,7 +561,7 @@ const ReturnEstimation = () => {
   };
 
   const totalStoneCost = stonesData.reduce((total, stone, index) => {
-    const rate = stoneRate[index] || 0; // Get the rate for the row or default to 0
+    const rate = stoneRate[index] || Number(stone?.RATE); // Get the rate for the row or default to 0
     return total + stone.ACTGRAMS * rate; // Add the multiplied value to total
   }, 0);
 
@@ -682,9 +682,11 @@ const ReturnEstimation = () => {
       pcs: stone?.PCS || 0,
       cts: Number(stone?.CTS).toFixed(3) || 0,
       gms: Number(stone?.ACTGRAMS).toFixed(3) || 0,
-      rate: Number(stoneRate[index]) || 0,
+      rate: Number(stoneRate[index]) || Number(stone?.RATE),
       amt:
-        parseFloat((stone.ACTGRAMS * (stoneRate[index] || 0)).toFixed(2)) || 0,
+        parseFloat(
+          (stone.ACTGRAMS * (stoneRate[index] || stone?.RATE)).toFixed(2),
+        ) || 0,
       priority: 0,
       calcrate: "-",
     }));
@@ -1545,7 +1547,7 @@ const ReturnEstimation = () => {
                   return (
                     stonesData
                       .map((stone, index) => {
-                        const rate = stoneRate[index] || 0;
+                        const rate = stoneRate[index] || Number(stone?.RATE);
                         const amount = stone.ACTGRAMS * Number(rate);
                         totalAmount += amount;
                         totalStoneWeight += stone.ACTGRAMS;
@@ -1897,7 +1899,7 @@ const ReturnEstimation = () => {
                   return (
                     stonesData
                       .map((stone, index) => {
-                        const rate = stoneRate[index] || 0;
+                        const rate = stoneRate[index] || Number(stone?.RATE);
                         const amount = stone.ACTGRAMS * Number(rate);
                         totalAmount += amount;
                         totalStoneWeight += stone.ACTGRAMS;
@@ -2239,7 +2241,7 @@ const ReturnEstimation = () => {
                   return (
                     stonesData
                       .map((stone, index) => {
-                        const rate = stoneRate[index] || 0;
+                        const rate = stoneRate[index] || Number(stone?.RATE);
                         const amount = stone.ACTGRAMS * Number(rate);
                         totalAmount += amount;
                         totalStoneWeight += stone.ACTGRAMS;
@@ -2521,7 +2523,7 @@ const ReturnEstimation = () => {
                   return (
                     stonesData
                       .map((stone, index) => {
-                        const rate = stoneRate[index] || 0;
+                        const rate = stoneRate[index] || Number(stone?.RATE);
                         const amount = stone.ACTGRAMS * Number(rate);
                         totalAmount += amount;
                         totalStoneWeight += stone.ACTGRAMS;

@@ -79,9 +79,9 @@ const ReturnEstimationStonesDrawer = ({
                   backgroundColor: "AppWorkspace",
                   color: "black",
                 }}
-                disabled={selectEstimationNo?.BILLNO > 0}
+                disabled={selectEstimationNo?.BILLNO > 0 || item?.RATE > 0}
                 placeholder="Enter Rate"
-                value={stoneRate[index] || ""}
+                value={stoneRate[index] ?? item?.RATE}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, "");
                   if (value.length <= 8) {
@@ -105,7 +105,8 @@ const ReturnEstimationStonesDrawer = ({
                   }}
                 >
                   {(
-                    (parseFloat(stoneRate[index]) || 0) * (item?.ACTGRAMS || 0)
+                    (parseFloat(stoneRate[index]) || item?.RATE) *
+                    (item?.ACTGRAMS || 0)
                   ).toFixed(2)}
                 </span>
               </p>
