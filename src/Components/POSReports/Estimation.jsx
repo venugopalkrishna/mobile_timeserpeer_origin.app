@@ -1063,19 +1063,6 @@ const Estimation = () => {
     }
   };
 
-  // const createImagePathAPI = async (imgUrl, tagNo) => {
-  //   try {
-  //     await axios.get(
-  //       `${CREATE_jwel}/api/Wholesal/UpdateTagGenerationImagePath?tagNo=${tagNo}&path=${
-  //         imgUrl || ""
-  //       }`,
-  //       { headers: { tenantName } }
-  //     );
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
   const createImagePathAPI = async (imgUrl, tagNo) => {
     try {
       await axios.get(
