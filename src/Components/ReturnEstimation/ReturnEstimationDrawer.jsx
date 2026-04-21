@@ -1,4 +1,5 @@
 import { Button, Card, Checkbox, Drawer, Dropdown, Input, Table } from "antd";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 
 const ReturnEstimationDrawer = ({
@@ -54,6 +55,7 @@ const ReturnEstimationDrawer = ({
   };
   const pathName = useLocation();
   const path = pathName?.pathname;
+  const [loading, setLoading] = useState(false);
 
   return (
     <Drawer
@@ -605,6 +607,7 @@ const ReturnEstimationDrawer = ({
       >
         <Button
           type="primary"
+          loading={loading}
           style={{
             background: "#52bd91",
             borderColor: "#52bd91",
@@ -615,47 +618,35 @@ const ReturnEstimationDrawer = ({
             selectEstimationNo?.BILLNO > 0
           }
           onClick={async () => {
-            const isModel2 = path === "/return-estimations-model2";
-            if (tableData.length > 0) {
-              if (selectEstimationNo?.ESTIMATIONNO) {
-                await estimationDeleteItems();
-                await estimationDeleteData();
-                await estimationDeleteMast();
-                await createEstimationData();
-                await createEstimationItems();
-                await createEstimationMast();
-                await setSelectEstimationNo(null);
-                // handleReset();
-                onClose();
-              } else {
-                const nextEstNo = await estimationCountAPI();
-                await createEstimationData(nextEstNo);
-                await createEstimationItems(nextEstNo);
-                await createEstimationMast(nextEstNo);
-                setSelectEstimationNo(null);
-                // handleReset();
-                onClose();
+            setLoading(true);
+            try {
+              const isModel2 = path === "/return-estimations-model2";
+              if (tableData.length > 0) {
+                if (selectEstimationNo?.ESTIMATIONNO) {
+                  await estimationDeleteItems();
+                  await estimationDeleteData();
+                  await estimationDeleteMast();
+                  await createEstimationData();
+                  await createEstimationItems();
+                  await createEstimationMast();
+                  await setSelectEstimationNo(null);
+                  // handleReset();
+                  onClose();
+                } else {
+                  const nextEstNo = await estimationCountAPI();
+                  await createEstimationData(nextEstNo);
+                  await createEstimationItems(nextEstNo);
+                  await createEstimationMast(nextEstNo);
+                  setSelectEstimationNo(null);
+                  // handleReset();
+                  onClose();
+                }
               }
+            } catch (error) {
+              console.error("Error while saving estimation:", error);
+            } finally {
+              setLoading(false); // ✅ ALWAYS stop loading
             }
-            // if (selectEstimationNo?.ESTIMATIONNO) {
-            //   createEstimationMast();
-            //   createEstimationData();
-            //   setSelectEstimationNo(null);
-            //   estimationDeleteData();
-            //   estimationDeleteMast();
-            //   estimationDeleteItems();
-            //   handleReset();
-            //   onClose();
-            // } else {
-            //   if (!isModel2) {
-            //     createEstimationItems();
-            //   }
-            //   createEstimationMast();
-            //   createEstimationData();
-            //   setSelectEstimationNo(null);
-            //   handleReset();
-            //   onClose();
-            // }
           }}
         >
           Save
