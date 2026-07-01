@@ -626,8 +626,10 @@ const ReturnEstimationDrawer = ({
                   await estimationDeleteItems();
                   await estimationDeleteData();
                   await estimationDeleteMast();
-                  await createEstimationData();
-                  await createEstimationItems();
+                  const apiCalls = [];
+                  apiCalls.push(createEstimationData());
+                  apiCalls.push(createEstimationItems());
+                  await Promise.all(apiCalls);
                   await createEstimationMast();
                   await setSelectEstimationNo(null);
                   // handleReset();

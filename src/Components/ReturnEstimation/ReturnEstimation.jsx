@@ -682,7 +682,7 @@ const ReturnEstimation = () => {
       pcs: stone?.PCS || 0,
       cts: Number(stone?.CTS).toFixed(3) || 0,
       gms: Number(stone?.ACTGRAMS).toFixed(3) || 0,
-      rate: Number(stoneRate[index]) || Number(stone?.RATE),
+      rate: Number(stoneRate[index]) || Number(stone?.RATE) || 0,
       amt:
         parseFloat(
           (stone.ACTGRAMS * (stoneRate[index] || stone?.RATE)).toFixed(2),
@@ -1264,6 +1264,7 @@ const ReturnEstimation = () => {
     setIsSupported(false);
     setPhotos({});
     setCameraOpenIndex(null);
+    setSelectedDate(dayjs());
     setBase64Images({});
   };
 
@@ -1453,6 +1454,16 @@ const ReturnEstimation = () => {
     let totalGold = 0;
 
     // Build table rows
+    // NOTE: Previously each item rendered as TWO <tr> elements linked by
+    // rowspan="2" (main row + a separate ".sub-row" for the stone text).
+    // When html2pdf/html2canvas inserted a page break BETWEEN those two
+    // <tr>s, the rowspan cell (SNo / TagNo / Image) got corrupted/duplicated
+    // on the next page slice — that was the source of the periodic garbled
+    // rows (every ~29 rows, i.e. wherever a page boundary happened to fall).
+    //
+    // Fix: each item is now a SINGLE <tr>. The stone-detail text is rendered
+    // as a small second line (via <br/>) inside the PARTICULARS cell instead
+    // of a separate row, so there's nothing for a page break to split apart.
     const tableRows = tableData
       .map((item, index) => {
         const actGrams =
@@ -1477,24 +1488,24 @@ const ReturnEstimation = () => {
         const base64Img = base64Images[imgPath] || "";
 
         return `
-          <tr>
-            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-              index + 1
-            }</strong></td>
-            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-              item.TAGNO
-            }</strong></td>
-          <td rowspan="${cleanedActGrams ? 2 : 1}">
-        
-  ${
-    base64Img
-      ? `<img src="${base64Img}" 
-               alt="Item Image" 
-               style="max-width:80px; max-height:80px;"/>`
-      : ""
-  }
-  </td>
-            <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+          <tr class="item-row">
+            <td><strong>${index + 1}</strong></td>
+            <td class="sub-tag"><strong>${item.TAGNO}</strong></td>
+            <td>
+              ${
+                base64Img
+                  ? `<img src="${base64Img}" alt="Item Image" style="max-width:80px; max-height:80px;"/>`
+                  : ""
+              }
+            </td>
+            <td class="sub-pro">
+              <strong>${item.PRODNAME}</strong>
+              ${
+                cleanedActGrams
+                  ? `<br/><span class="sub-text">${cleanedActGrams}</span>`
+                  : ""
+              }
+            </td>
             <td>${item.PREFIX}</td>
             <td class="sub-right"><strong>${item.PIECES}</strong></td>
             <td class="sub-right"><strong>${item.GWT?.toFixed(3)}</strong></td>
@@ -1503,11 +1514,6 @@ const ReturnEstimation = () => {
             <td class="sub-right">${item.TOUCH}%</td>
             <td class="sub-gold">${item.FINALGOLD}</td>
           </tr>
-          ${
-            cleanedActGrams
-              ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
-              : ""
-          }
         `;
       })
       .join("");
@@ -1555,9 +1561,7 @@ const ReturnEstimation = () => {
                         <tr>
                           <td class="stone-name">${stone.MAINTYPE}</td>
                           <td>${stone.PCS}</td>
-                          <td class="sub-right">${stone.ACTGRAMS.toFixed(
-                            3,
-                          )}</td>
+                          <td class="sub-right">${stone.ACTGRAMS.toFixed(3)}</td>
                           <td class="sub-right">${Number(rate)?.toFixed(2)}</td>
                           <td class="sub-right">${amount.toFixed(2)}</td>
                         </tr>
@@ -1587,9 +1591,9 @@ const ReturnEstimation = () => {
           )}</td></tr>
           ${
             rateCut === true
-              ? `<tr><td class="stone-name">Fine ${
-                  fineGoldValue || 0
-                } @${Number(rateValue || 0)}/-</td>
+              ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+                  rateValue || 0,
+                )}/-</td>
                   <td class="sub-right">${
                     amountValue ? Number(amountValue).toFixed(2) : 0
                   }</td></tr>`
@@ -1630,118 +1634,90 @@ const ReturnEstimation = () => {
       <html>
         <head>
           <style>
-             body {
+            body {
               font-family: Arial, sans-serif;
               margin: 20px;
               font-size: 12px;
-          }
-          .header {
+            }
+            .header {
               text-align: center;
               margin-bottom: 18px;
-          }
-          .header h2 {
+            }
+            .header h2 {
               margin: 0;
               font-size: 16px;
               font-weight: bold;
               display: inline-block;
-      text-decoration: underline;
-      text-underline-offset: 4px;
-          }
-          .sub-header {
+              text-decoration: underline;
+              text-underline-offset: 4px;
+            }
+            .sub-header {
               display: flex;
               justify-content: space-between;
               font-size: 12px;
               font-weight: bold;
               margin-bottom: 10px;
               padding-bottom: 5px;
-          }
-               .sub-est {
-            font-weight : bold;
-            font-size: 18px;
-            color : red;
-          }
+            }
+            .sub-est {
+              font-weight: bold;
+              font-size: 18px;
+              color: red;
+            }
             .sub-party {
-            font-weight : bold;
-            font-size: 14px;
-            color : #ddd;
-          }
-          table {
+              font-weight: bold;
+              font-size: 14px;
+              color: #ddd;
+            }
+            table {
               width: 100%;
               border-collapse: collapse;
               font-size: 12px;
               margin-top: 5px;
-          }
-          th, td {
+            }
+            th, td {
               border: 1px solid black;
               padding: 5px;
               text-align: center;
-          }
-          th {
+            }
+            th {
               background-color: #e0e0e0;
               font-weight: bold;
-          }
-          .total {
+            }
+            .total {
               font-weight: bold;
               background-color: #ddd;
-          }
-          .summary {
-              display: flex;
-              justify-content: space-between;
-              margin-top: 15px;
-          }
-          .summary-box {
-              width: 48%;
-              border: 1px solid black;
-              padding: 10px;
-              font-size: 12px;
-          }
-          .summary-box table {
-              width: 100%;
-              border: none;
-          }
-          .summary-box td {
-              border: none;
-              text-align: left;
-              padding: 3px 0;
-          }
-          .footer {
-              margin-top: 15px;
-              font-size: 12px;
-          }
+            }
             .sub {
               text-align: left;
               width: 300px;
-          }
-              .sub-pro {
-                text-align: left;
-                width: 500;
-                background-color: #ddd;
             }
-              .sub-tag {
+            .sub-pro {
+              text-align: left;
+              width: 500;
+              background-color: #ddd;
+            }
+            .sub-tag {
               text-align: center;
               width: 100;
-          }
-               .sub-image {
+            }
+            .sub-image {
               text-align: center;
-          }
-              .sub-img {
-              display: flex;
-              text-align: center;
-              border-radius: 10px;
-              width: 100%;
-              height: 100%;
-              align-items: center;
-          }
-          .sub-right {
+            }
+            .sub-right {
               text-align: right;
               width: 80;
-          }
-              .sub-gold {
+            }
+            .sub-gold {
               text-align: right;
               width: 130;
-          }
-            .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
-            .sub-row td { border-top: none; text-align: left; }
+            }
+            .sub-text {
+              display: block;
+              text-align: left;
+              font-size: 10px;
+              font-weight: bold;
+            }
             .container { display: flex; justify-content: space-between; margin-top: 10px; }
             .table-container { width: 55%; }
             .summary-container { width: 35%; }
@@ -1749,10 +1725,23 @@ const ReturnEstimation = () => {
             .sub-final { background-color: #C9CDCF; font-weight: bold; }
             .sub-right-bold { text-align: right; font-weight: bold; }
             .stone-name-bold { text-align: left; font-weight: bold; }
+  
+            /* --- Page-break fix ---
+               Prevent a row's content from being split across a page
+               boundary. Every item is now a single <tr>, so this is
+               enough to guarantee the whole row (including the image
+               and stone text) always stays together on one page. */
+            tr, .item-row {
+              page-break-inside: avoid;
+              break-inside: avoid;
+            }
+            thead {
+              display: table-header-group; /* repeat header on every page */
+            }
           </style>
         </head>
         <body>
-          <div class="header"><h2>RETURN ESTIMATION</h2></div>
+          <div class="header"><h2>ESTIMATION</h2></div>
           <div class="sub-header">
             <span>ESTIMATION NO. : <span class="sub-est">${
               selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
@@ -1793,12 +1782,16 @@ const ReturnEstimation = () => {
     html2pdf()
       .set({
         margin: [10, 5, 10, 5],
-        filename: `Return_Estimation_${
+        filename: `Estimation_${
           selectEstimationNo ? selectEstimationNo?.ESTIMATIONNO : nextEstNo
         }.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         // html2canvas: { scale: 2, useCORS: false },
         jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+        // Tell html2pdf's page-break engine to respect the CSS
+        // page-break-inside/break-inside rules above, and never split
+        // a <tr> across two pages.
+        pagebreak: { mode: ["css", "legacy"], avoid: ["tr", ".item-row"] },
       })
       .from(container)
       .save()
@@ -2427,6 +2420,15 @@ const ReturnEstimation = () => {
     let totalGold = 0;
 
     // Build table rows
+    // NOTE: Previously each item rendered as TWO <tr> elements linked by
+    // rowspan="2" (main row + a separate ".sub-row" for the stone text).
+    // When html2pdf/html2canvas inserted a page break BETWEEN those two
+    // <tr>s, the rowspan cell (SNo / TagNo / Image) got corrupted/duplicated
+    // on the next page slice.
+    //
+    // Fix: each item is now a SINGLE <tr>. The stone-detail text is rendered
+    // as a small second line (via <br/>) inside the PARTICULARS cell instead
+    // of a separate row, so there's nothing for a page break to split apart.
     const tableRows = tableData
       .map((item, index) => {
         const actGrams =
@@ -2451,38 +2453,34 @@ const ReturnEstimation = () => {
         const base64Img = base64Images[imgPath] || "";
 
         return `
-          <tr>
-            <td rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-              index + 1
-            }</strong></td>
-            <td class="sub-tag" rowspan="${cleanedActGrams ? 2 : 1}"><strong>${
-              item.TAGNO
-            }</strong></td>
-            <td rowspan="${cleanedActGrams ? 2 : 1}">
+          <tr class="item-row">
+            <td><strong>${index + 1}</strong></td>
+            <td class="sub-tag"><strong>${item.TAGNO}</strong></td>
+            <td>
               ${
                 base64Img
-                  ? `<img src="${base64Img}" 
-                           alt="Item Image" 
-                           style="max-width:80px; max-height:80px;"/>`
+                  ? `<img src="${base64Img}" alt="Item Image" style="max-width:80px; max-height:80px;"/>`
                   : ""
               }
             </td>
-            <td class="sub-pro"><strong>${item.PRODNAME}</strong></td>
+            <td class="sub-pro">
+              <strong>${item.PRODNAME}</strong>
+              ${
+                cleanedActGrams
+                  ? `<br/><span class="sub-text">${cleanedActGrams}</span>`
+                  : ""
+              }
+            </td>
             <td>${item.PREFIX}</td>
             <td class="sub-right"><strong>${item.PIECES}</strong></td>
             <td class="sub-right"><strong>${Number(item.GWT)?.toFixed(
               3,
             )}</strong></td>
             <td class="sub-right">${Number(item.STONEWT)?.toFixed(3)}</td>
-          <td class="sub-right">${Number(item.NETWT)?.toFixed(3)}</td>
+            <td class="sub-right">${Number(item.NETWT)?.toFixed(3)}</td>
             <td class="sub-right">${item.TOUCH}%</td>
             <td class="sub-gold">${item.FINALGOLD}</td>
           </tr>
-          ${
-            cleanedActGrams
-              ? `<tr class="sub-row"><td colspan="10" class="sub-text">${cleanedActGrams}</td></tr>`
-              : ""
-          }
         `;
       })
       .join("");
@@ -2535,9 +2533,7 @@ const ReturnEstimation = () => {
                           <td class="stone-weight">${stone.ACTGRAMS.toFixed(
                             3,
                           )}</td>
-                          <td class="stone-cost">${Number(rate)?.toFixed(
-                            2,
-                          )}</td>
+                          <td class="stone-cost">${Number(rate)?.toFixed(2)}</td>
                           <td class="stone-amount">${amount.toFixed(2)}</td>
                         </tr>
                       `;
@@ -2546,9 +2542,7 @@ const ReturnEstimation = () => {
                     `<tr class="total">
                       <td colspan="1">Total</td>
                       <td class="stone-pieces">${totalStonePieces}</td>
-                      <td class="stone-weight">${totalStoneWeight.toFixed(
-                        3,
-                      )}</td>
+                      <td class="stone-weight">${totalStoneWeight.toFixed(3)}</td>
                       <td class="stone-cost"></td>
                       <td class="stone-amount">${totalAmount.toFixed(2)}</td>
                     </tr>`
@@ -2569,9 +2563,9 @@ const ReturnEstimation = () => {
           )}</td></tr>
           ${
             rateCut === true
-              ? `<tr><td class="stone-name">Fine ${
-                  fineGoldValue || 0
-                } @${Number(rateValue || 0)}/-</td>
+              ? `<tr><td class="stone-name">Fine ${fineGoldValue || 0} @${Number(
+                  rateValue || 0,
+                )}/-</td>
                   <td class="sub-right">${
                     amountValue ? Number(amountValue).toFixed(2) : 0
                   }</td></tr>`
@@ -2612,164 +2606,170 @@ const ReturnEstimation = () => {
       <html>
         <head>
           <style>
-             body {
+            body {
               font-family: Arial, sans-serif;
               margin: 20px;
               font-size: 12px;
-          }
-          .header {
+            }
+            .header {
               text-align: center;
               margin-bottom: 18px;
-          }
-          .header h2 {
+            }
+            .header h2 {
               margin: 0;
               font-size: 16px;
               font-weight: bold;
               display: inline-block;
               text-decoration: underline;
               text-underline-offset: 4px;
-          }
-          .sub-header {
+            }
+            .sub-header {
               display: flex;
               justify-content: space-between;
               font-size: 12px;
               font-weight: bold;
               margin-bottom: 10px;
               padding-bottom: 5px;
-          }
-          .sub-est {
-            font-weight : bold;
-            font-size: 18px;
-            color : red;
-          }
-          .sub-party {
-            font-weight : bold;
-            font-size: 14px;
-            color : #162566;
-          }
-          table {
+            }
+            .sub-est {
+              font-weight: bold;
+              font-size: 18px;
+              color: red;
+            }
+            .sub-party {
+              font-weight: bold;
+              font-size: 14px;
+              color: #162566;
+            }
+            table {
               border-collapse: collapse;
-    width: 100%;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-          }
-          th, td {
+              width: 100%;
+              font-family: Arial, sans-serif;
+              font-size: 12px;
+            }
+            th, td {
               border: 1px solid #000;
-    padding: 6px;
-    text-align: center;
-    vertical-align: middle;
-          }
-    thead {
-    display: table-header-group; /* repeat headers */
-    background: #e6f8f9; 
-    font-weight: bold;
-  }
-    tfoot {
-    display: table-footer-group;
-  }
-    tr {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    -webkit-region-break-inside: avoid;
-  }
-    td img {
-    max-width: 70px;
-    max-height: 70px;
-    object-fit: contain;
-    display: block;
-    margin: auto;
-    page-break-inside: avoid !important;
-  }
-    .table-container {
-    page-break-inside: avoid;
-    margin-bottom: 10px;
-  }
-          th {
+              padding: 6px;
+              text-align: center;
+              vertical-align: middle;
+            }
+            thead {
+              display: table-header-group; /* repeat headers on every page */
+              background: #e6f8f9;
+              font-weight: bold;
+            }
+            tfoot {
+              display: table-footer-group;
+            }
+  
+            /* --- Page-break fix ---
+               Every item is now a single <tr> (see JS above), so this rule
+               is enough to guarantee the whole row — including the image
+               and the stone-detail line — always stays together on one
+               page instead of getting split/corrupted at a page boundary. */
+            tr {
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+            }
+            td img {
+              max-width: 70px;
+              max-height: 70px;
+              object-fit: contain;
+              display: block;
+              margin: auto;
+              page-break-inside: avoid !important;
+            }
+            .table-container {
+              page-break-inside: avoid;
+              margin-bottom: 10px;
+            }
+            th {
               background-color: #52bd91;
               font-weight: bold;
-          }
-          .total {
+            }
+            .total {
               font-weight: bold;
               background-color: #162566;
               color: white;
-          }
-          .summary {
+            }
+            .summary {
               display: flex;
               justify-content: space-between;
               margin-top: 15px;
-          }
-          .summary-box {
+            }
+            .summary-box {
               width: 48%;
               border: 1px solid black;
               padding: 10px;
               font-size: 12px;
-          }
-          .summary-box table {
+            }
+            .summary-box table {
               width: 100%;
               border: none;
-          }
-          .summary-box td {
+            }
+            .summary-box td {
               border: none;
               text-align: left;
               padding: 3px 0;
-          }
-          .footer {
+            }
+            .footer {
               margin-top: 15px;
               font-size: 12px;
-          }
-          .sub {
+            }
+            .sub {
               text-align: left;
               width: 300px;
-          }
-          .sub-pro {
+            }
+            .sub-pro {
               text-align: left;
               width: 500;
               background-color: #BCF2F6;
-          }
-          .sub-tag {
+            }
+            .sub-tag {
               text-align: center;
               width: 100;
-          }
-          .sub-image {
+            }
+            .sub-image {
               text-align: center;
-          }
-          .sub-img {
+            }
+            .sub-img {
               display: flex;
               text-align: center;
               border-radius: 10px;
               width: 100%;
               height: 100%;
               align-items: center;
-          }
-          .sub-right {
+            }
+            .sub-right {
               text-align: right;
               width: 80;
-          }
-          .sub-gold {
+            }
+            .sub-gold {
               text-align: right;
               width: 130;
-          }
-          .sub-text { text-align: left; font-size: 10px; font-weight: bold; }
-          .sub-row td { border-top: none; text-align: left; }
-          .container { display: flex; justify-content: space-between; margin-top: 10px; }
-          .table-container { width: 40%; }
-          .summary-container { width: 35%; }
-          .stone-name { text-align: left;}
-          .sub-final { background-color: #f26d14ff; font-weight: bold; }
-          .sub-right-bold { text-align: right; font-weight: bold; }
-          .stone-name-bold { text-align: left; font-weight: bold; }
-          .sub-stone-name { text-align: left;  width: 100px}
-          .stone-pieces { text-align: center; font-weight: bold; width: 60px }
-          .stone-weight { text-align: right; width: 60px }
-          .stone-cost { text-align: right; width: 60px }
-          .stone-amount { text-align: right; width: 60px }
+            }
+            .sub-text {
+              display: block;
+              text-align: left;
+              font-size: 10px;
+              font-weight: bold;
+            }
+            .container { display: flex; justify-content: space-between; margin-top: 10px; }
+            .table-container { width: 40%; }
+            .summary-container { width: 35%; }
+            .stone-name { text-align: left; }
+            .sub-final { background-color: #f26d14ff; font-weight: bold; }
+            .sub-right-bold { text-align: right; font-weight: bold; }
+            .stone-name-bold { text-align: left; font-weight: bold; }
+            .sub-stone-name { text-align: left; width: 100px }
+            .stone-pieces { text-align: center; font-weight: bold; width: 60px }
+            .stone-weight { text-align: right; width: 60px }
+            .stone-cost { text-align: right; width: 60px }
+            .stone-amount { text-align: right; width: 60px }
   
-          /* ✅ Page break fixes */
-          thead { display: table-header-group; }
-          tfoot { display: table-footer-group; }
-          tr { page-break-inside: avoid; break-inside: avoid; }
-          img { page-break-inside: avoid; break-inside: avoid; }
-          .table-container, .summary-container { page-break-inside: avoid; }
+            /* ✅ Page break fixes */
+            img { page-break-inside: avoid; break-inside: avoid; }
+            .table-container, .summary-container { page-break-inside: avoid; }
           </style>
         </head>
         <body>
@@ -2807,9 +2807,14 @@ const ReturnEstimation = () => {
     `;
 
     // Create container for html2pdf
+    // NOTE: previously a `clone` was created and passed to `.from()`, but
+    // it was `container` (never appended to document.body) that `.then()`
+    // tried to remove afterward — that call would throw because `container`
+    // was never actually in the DOM. Now we append `container` itself,
+    // render from it, and remove that same node afterward.
     const container = document.createElement("div");
     container.innerHTML = htmlContent;
-    const clone = container.cloneNode(true);
+    document.body.appendChild(container);
 
     html2pdf()
       .set({
@@ -2824,9 +2829,14 @@ const ReturnEstimation = () => {
           scale: 2, // clearer text
         },
         jsPDF: { unit: "pt", format: "a4", orientation: "landscape" },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        // Respect the CSS page-break-inside/break-inside rules above and
+        // never split a <tr> (or the stone/summary containers) across pages.
+        pagebreak: {
+          mode: ["avoid-all", "css", "legacy"],
+          avoid: ["tr", ".item-row"],
+        },
       })
-      .from(clone)
+      .from(container)
       .save()
       .then(() => {
         document.body.removeChild(container);
