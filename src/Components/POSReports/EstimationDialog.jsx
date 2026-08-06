@@ -318,7 +318,7 @@ const EstimationDialog = ({
                           color: "red",
                         }}
                       >
-                        {item.GWT}
+                        {Number(item.GWT)?.toFixed(3)}
                       </span>
                     </p>
                     <p style={{ fontSize: "11px" }}>
@@ -330,7 +330,7 @@ const EstimationDialog = ({
                           color: "red",
                         }}
                       >
-                        {item.STONEWT}
+                        {Number(item.STONEWT)?.toFixed(3)}
                       </span>
                     </p>
                     <p style={{ fontSize: "11px" }}>
@@ -342,7 +342,7 @@ const EstimationDialog = ({
                           color: "red",
                         }}
                       >
-                        {item.NWT}
+                        {Number(item.NWT)?.toFixed(3)}
                       </span>
                     </p>
                   </div>
